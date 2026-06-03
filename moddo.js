@@ -1,6 +1,3 @@
-
-<!-- [KB-MODDODAY:BEGIN] -->
-
 (function () {
 var html = document.documentElement;
 html.classList.add('kb-moddoday');
@@ -1086,6 +1083,60 @@ return String(s == null ? '' : s)
   }
 })();
 /* ============================================================
+   SECTION: UZMAN DETAY — DOM yeniden yapılandırma (en son tasarım: danisman-detay)
+   Native sayfada kimlik bloğu SAĞ aside'da; tasarımda ise ANA kolon hero'sunda.
+   Burada native node'ları (clone değil, MOVE → listener'lar korunur) ana kolonun
+   üstüne taşıyıp tasarımdaki [hero | içerik] + sağ booking-aside düzenini kuruyoruz.
+   Ek: Uzmanlık keyword'lerini (tek <p> "a, b, c") ayrı pill'lere böler.
+   Scope: body.kb-page-uzman-detay. Idempotent. CSS: _uzman-detay.css (.kb-ud-*).
+   ============================================================ */
+(function () {
+  function build() {
+    var b = document.body;
+    if (!b || !b.classList.contains('kb-page-uzman-detay')) return true; /* bu sayfa değil → işi bitti say */
+    var main = document.querySelector('.profile-right .page-content');
+    var aside = document.querySelector('.profile-left .agent-header') || document.querySelector('.profile-left');
+    if (!main || !aside) return false; /* DOM henüz yok → retry */
+    if (main.querySelector('.kb-ud-hero')) return true; /* idempotent */
+    /* --- 1) HERO: avatar + (mod tag) + isim/ünvan + ⭐ puan → ana kolon üstü --- */
+    var img = aside.querySelector('.profile-image');
+    var title = aside.querySelector('.profile-title');
+    var rating = aside.querySelector('.profile-review-stars.pv') || aside.querySelector('.profile-review-stars');
+    var cats = (document.querySelector('.profile-left') || aside).querySelector('.profile-categories');
+    if (img || title) {
+      var hero = document.createElement('div');
+      hero.className = 'kb-ud-hero';
+      var txt = document.createElement('div');
+      txt.className = 'kb-ud-hero-txt';
+      if (cats) txt.appendChild(cats);     /* mod kategori tag'leri (üstte) */
+      if (title) txt.appendChild(title);   /* isim (h1) + ünvan */
+      if (rating) txt.appendChild(rating); /* ⭐ puan */
+      if (img) hero.appendChild(img);      /* avatar (solda) */
+      hero.appendChild(txt);
+      main.insertBefore(hero, main.firstChild);
+    }
+    /* --- 2) UZMANLIK keyword'leri: tek <p> "Araba, Motor, ..." → ayrı pill'ler --- */
+    var pl = document.querySelector('.profile-list');
+    if (pl) {
+      var p = pl.querySelector('p');
+      if (p && !pl.querySelector('.kb-ud-kw') && p.textContent.indexOf(',') >= 0) {
+        var kws = p.textContent.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+        if (kws.length > 1) {
+          p.innerHTML = kws.map(function (k) {
+            return '<span class="kb-ud-kw">' + k.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
+          }).join('');
+        }
+      }
+    }
+    return true;
+  }
+  var tries = 0;
+  function ensure() { if (build() === false && tries++ < 30) setTimeout(ensure, 200); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensure);
+  else ensure();
+  window.addEventListener('load', ensure);
+})();
+/* ============================================================
    SECTION: UZMANLAR — /uzmanlar page-scoped behavior
    body.kb-page-uzmanlar guard'lidir.
    Hedef ust kisim: uzmanhead.PNG
@@ -1239,5 +1290,3 @@ return String(s == null ? '' : s)
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startObserver, { once: true });
   else startObserver();
 })();
-
-<!-- [KB-MODDODAY:END] -->
