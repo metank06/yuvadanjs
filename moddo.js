@@ -1097,13 +1097,14 @@ return String(s == null ? '' : s)
     var main = document.querySelector('.profile-right .page-content');
     var aside = document.querySelector('.profile-left .agent-header') || document.querySelector('.profile-left');
     if (!main || !aside) return false; /* DOM henüz yok → retry */
-    if (main.querySelector('.kb-ud-hero')) return true; /* idempotent */
+    /* NOT: global guard YOK — her adım kendi idempotency'sine sahip; geç render olan
+       paket/yorum'lar sonraki çağrılarda yakalansın diye build() her seferinde tüm adımları dener. */
     /* --- 1) HERO: avatar + (mod tag) + isim/ünvan + ⭐ puan → ana kolon üstü --- */
     var img = aside.querySelector('.profile-image');
     var title = aside.querySelector('.profile-title');
     var rating = aside.querySelector('.profile-review-stars.pv') || aside.querySelector('.profile-review-stars');
     var cats = (document.querySelector('.profile-left') || aside).querySelector('.profile-categories');
-    if (img || title) {
+    if (!main.querySelector('.kb-ud-hero') && (img || title)) {
       var hero = document.createElement('div');
       hero.className = 'kb-ud-hero';
       var txt = document.createElement('div');
@@ -1128,13 +1129,72 @@ return String(s == null ? '' : s)
         }
       }
     }
+    /* --- 3) SEANS TÜRLERİ / PAKET DANIŞMANLIKLAR tab'ları ---
+       PAKET = .package-item-right altında .package-meta-sessions olanlar; gerisi SEANS. */
+    var ap = document.querySelector('.appointment-packages') || document.querySelector('#apdiv');
+    if (ap && !ap.querySelector('.kb-ud-tabs')) {
+      var its = [].slice.call(ap.querySelectorAll('.package-item'));
+      if (its.length) {
+        var pakets = its.filter(function (it) { return !!it.querySelector('.package-meta-sessions'); });
+        var seanslar = its.filter(function (it) { return !it.querySelector('.package-meta-sessions'); });
+        var seansPanel = document.createElement('div'); seansPanel.className = 'kb-ud-panel'; seansPanel.setAttribute('data-kb-panel', 'seans');
+        var paketPanel = document.createElement('div'); paketPanel.className = 'kb-ud-panel'; paketPanel.setAttribute('data-kb-panel', 'paket');
+        seanslar.forEach(function (it) { seansPanel.appendChild(it); });
+        pakets.forEach(function (it) { paketPanel.appendChild(it); });
+        var hasSeans = seanslar.length > 0, hasPaket = pakets.length > 0;
+        var tabbar = document.createElement('div'); tabbar.className = 'kb-ud-tabs';
+        tabbar.innerHTML =
+          (hasSeans ? '<button type="button" class="kb-ud-tab" data-kb-tab="seans">Seans Türleri</button>' : '') +
+          (hasPaket ? '<button type="button" class="kb-ud-tab" data-kb-tab="paket">Paket Danışmanlıklar</button>' : '');
+        var h2 = ap.querySelector('h2.profile-content-title') || ap.querySelector('.profile-content-title');
+        if (h2 && h2.parentNode === ap) { ap.insertBefore(tabbar, h2.nextSibling); }
+        else { ap.insertBefore(tabbar, ap.firstChild); }
+        ap.insertBefore(seansPanel, tabbar.nextSibling);
+        ap.insertBefore(paketPanel, seansPanel.nextSibling);
+        function kbSetTab(k) {
+          [].slice.call(tabbar.querySelectorAll('.kb-ud-tab')).forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-kb-tab') === k); });
+          seansPanel.classList.toggle('kb-ud-hidden', k !== 'seans');
+          paketPanel.classList.toggle('kb-ud-hidden', k !== 'paket');
+        }
+        [].slice.call(tabbar.querySelectorAll('.kb-ud-tab')).forEach(function (b) { b.addEventListener('click', function () { kbSetTab(b.getAttribute('data-kb-tab')); }); });
+        kbSetTab(hasSeans ? 'seans' : 'paket');
+      }
+    }
+    /* --- 4) Yorum kartları: tarihi head'e taşı (tasarım düzeni: avatar+tarih | yıldız) --- */
+    [].slice.call(document.querySelectorAll('.review')).forEach(function (r) {
+      if (r.getAttribute('data-kb-rev') === '1') return;
+      r.setAttribute('data-kb-rev', '1');
+      var head = r.querySelector('.review-head');
+      var date = r.querySelector('.review-date');
+      if (head && date) head.insertBefore(date, head.firstChild);
+    });
+    /* --- 5) Güven kartı (tasarıma sadık: ikon + başlık + alt metin) — gerçek DOM --- */
+    var leftCol = document.querySelector('.profile-left');
+    if (leftCol && !leftCol.querySelector('.kb-ud-trust')) {
+      var ic = function (inner) { return "<svg class='kb-ud-trust-ic' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#34d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + inner + "</svg>"; };
+      var SHIELD = ic("<path d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/>");
+      var CHECK = ic("<circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/>");
+      var VIDEO = ic("<path d='m16 13 5.223 3.482a.5.5 0 0 0 .777-.415V7.93a.5.5 0 0 0-.752-.432L16 10.5'/><rect x='2' y='6' width='14' height='12' rx='2'/>");
+      var rows = [
+        [SHIELD, 'Güvenli Görüşme', 'Şifreli video bağlantısı ile güvenli oturum'],
+        [CHECK, 'Memnuniyet Garantisi', 'İlk seans memnun kalmazsanız iade'],
+        [VIDEO, 'Kayıt İmkanı', 'Oturumunuzu kaydedin, tekrar izleyin']
+      ];
+      var tc = document.createElement('div'); tc.className = 'kb-ud-trust';
+      tc.innerHTML = rows.map(function (r) {
+        return "<div class='kb-ud-trust-row'>" + r[0] + "<div class='kb-ud-trust-txt'><strong>" + r[1] + "</strong><span>" + r[2] + "</span></div></div>";
+      }).join('');
+      leftCol.appendChild(tc);
+    }
     return true;
   }
-  var tries = 0;
-  function ensure() { if (build() === false && tries++ < 30) setTimeout(ensure, 200); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', ensure);
-  else ensure();
-  window.addEventListener('load', ensure);
+  /* build() tüm adımları idempotent dener; geç render olan paket/yorum'ları yakalamak
+     için DCL + load + birkaç gecikmeli tekrar (her tekrar zararsız). */
+  function pump() { try { build(); } catch (e) { /* sessiz; sonraki pump tekrar dener */ } }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pump);
+  else pump();
+  window.addEventListener('load', pump);
+  [300, 800, 1500, 2500, 4000].forEach(function (ms) { setTimeout(pump, ms); });
 })();
 /* ============================================================
    SECTION: UZMANLAR — /uzmanlar page-scoped behavior
