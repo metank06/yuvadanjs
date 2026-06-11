@@ -1,4 +1,3 @@
-
 (function () {
 var html = document.documentElement;
 html.classList.add('kb-moddoday');
@@ -78,7 +77,7 @@ return !!(document.body && document.body.classList.contains('loggedIn'));
 function loginLink(opts) {
 var li = isLoggedIn();
 var href = url(li ? '/dashboard' : '/login');
-var label = li ? 'Panelim' : 'GiriÅŸ Yap';
+var label = li ? 'Panelim' : 'Giriş Yap';
 var icon = li ? ICONS.user : ICONS.login;
 if (opts && opts.block) {
 return '<a href="' + href + '" class="md-drawer-btn md-drawer-btn-ghost" data-kb-login="1">' + icon + ' ' + label + '</a>';
@@ -96,12 +95,12 @@ return [
 '<div class="md-container">',
 '<div class="md-header-tier1-inner">',
 '<a href="' + url(home) + '">ModdoDay</a>',
-'<a href="' + url(etkinlikler) + '">CanlÄ± Oturumlar</a>',
-'<a href="' + url(kategoriler) + '">DanÄ±ÅŸmanlar</a>',
+'<a href="' + url(etkinlikler) + '">Canlı Oturumlar</a>',
+'<a href="' + url(kategoriler) + '">Danışmanlar</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
 '<a href="' + url('/s/kampanyalar') + '">Kampanyalar</a>',
-'<a href="' + url('/s/ayricaliklar') + '">AyrÄ±calÄ±klar</a>',
-'<a href="' + url('/s/iletisim') + '">Ä°letiÅŸim</a>',
+'<a href="' + url('/s/ayricaliklar') + '">Ayrıcalıklar</a>',
+'<a href="' + url('/s/iletisim') + '">İletişim</a>',
 '</div>',
 '</div>',
 '</div>',
@@ -110,53 +109,53 @@ return [
 '<div class="md-header-main-inner">',
 '<a href="' + url(home) + '" class="md-logo" style="margin-right: 8px;">Moddo<span>Day</span></a>',
 '<div class="md-nav-item" data-menu="modes">',
-'<button class="md-nav-btn" type="button">KeÅŸfet ' + ICONS.chevron + '</button>',
+'<button class="md-nav-btn" type="button">Keşfet ' + ICONS.chevron + '</button>',
 '<div class="md-dropdown md-dropdown-mega">',
-'<p class="md-dd-label">YaÅŸam ModlarÄ±</p>',
+'<p class="md-dd-label">Yaşam Modları</p>',
 '<div class="md-dd-grid">',
 '<a href="' + url('/kategori/uretken-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(245,158,11,.15); color:#F59E0B;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/></svg></span>',
-'<div><strong>Ãœretken Modu</strong><small>Ellerini kullan, ruhunu besle</small></div>',
+'<div><strong>Üretken Modu</strong><small>Ellerini kullan, ruhunu besle</small></div>',
 '</a>',
 '<a href="' + url('/kategori/teknolojiye-merakli-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(59,130,246,.15); color:#3B82F6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>',
-'<div><strong>Teknolojiye MeraklÄ± Modu</strong><small>GeleceÄŸi bugÃ¼nden yakala</small></div>',
+'<div><strong>Teknolojiye Meraklı Modu</strong><small>Geleceği bugünden yakala</small></div>',
 '</a>',
 '<a href="' + url('/kategori/keyif-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(244,63,94,.15); color:#F43F5E;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg></span>',
-'<div><strong>Keyif Modu</strong><small>Keyif anlarÄ±nÄ± sevdiklerinle deneyimle</small></div>',
+'<div><strong>Keyif Modu</strong><small>Keyif anlarını sevdiklerinle deneyimle</small></div>',
 '</a>',
 '<a href="' + url('/kategori/saglikliyim-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(16,185,129,.15); color:#10B981;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg></span>',
-'<div><strong>SaÄŸlÄ±klÄ±yÄ±m Modu</strong><small>Bedenine ve zihnine iyi bak</small></div>',
+'<div><strong>Sağlıklıyım Modu</strong><small>Bedenine ve zihnine iyi bak</small></div>',
 '</a>',
 '<a href="' + url('/kategori/longevity-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(34,197,94,.15); color:#22C55E;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>',
-'<div><strong>Longevity Modu</strong><small>En iyi versiyonuna ulaÅŸ</small></div>',
+'<div><strong>Longevity Modu</strong><small>En iyi versiyonuna ulaş</small></div>',
 '</a>',
 '<a href="' + url('/kategori/aile-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(139,92,246,.15); color:#8B5CF6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>',
-'<div><strong>Aile Modu</strong><small>Ã‡ocuklar, ebeveynlik ve aile ekonomisi</small></div>',
+'<div><strong>Aile Modu</strong><small>Çocuklar, ebeveynlik ve aile ekonomisi</small></div>',
 '</a>',
 '</div>',
 '</div>',
 '</div>',
 '<div class="md-nav-item" data-menu="brands">',
-'<button class="md-nav-btn" type="button">' + ICONS.award + ' Marka ElÃ§ileri ' + ICONS.chevron + '</button>',
+'<button class="md-nav-btn" type="button">' + ICONS.award + ' Marka Elçileri ' + ICONS.chevron + '</button>',
 '<div class="md-dropdown md-dropdown-brands">',
-'<p class="md-dd-brand-desc">Marka elÃ§isi firmalar, ModdoDay\'in 6 yaÅŸam modunda Ã¶zel iÃ§erikler ve Ã¶dÃ¼llÃ¼ etkinliklerle hedef kitlesine doÄŸrudan ulaÅŸÄ±r. KatÄ±lÄ±mcÄ±lar indirimler ve Ã¶zel ayrÄ±calÄ±klar kazanÄ±r.</p>',
-'<a href="' + url('/s/ayricaliklar') + '" class="md-dd-brand-cta">Marka ElÃ§ilerini GÃ¶rÃ¼ntÃ¼le ' + ICONS.arrow + '</a>',
-'<a href="' + url('/s/sponsorluk') + '" class="md-dd-brand-foot">Marka ElÃ§isi Olmak Ä°Ã§in &rarr;</a>',
+'<p class="md-dd-brand-desc">Marka elçisi firmalar, ModdoDay\'in 6 yaşam modunda özel içerikler ve ödüllü etkinliklerle hedef kitlesine doğrudan ulaşır. Katılımcılar indirimler ve özel ayrıcalıklar kazanır.</p>',
+'<a href="' + url('/s/ayricaliklar') + '" class="md-dd-brand-cta">Marka Elçilerini Görüntüle ' + ICONS.arrow + '</a>',
+'<a href="' + url('/s/sponsorluk') + '" class="md-dd-brand-foot">Marka Elçisi Olmak İçin &rarr;</a>',
 '</div>',
 '</div>',
 '<form class="md-search" role="search" data-kb-search="1">',
-'<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanÄ±na baÄŸlanmak istiyorsun?" aria-label="Ara">',
+'<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanına bağlanmak istiyorsun?" aria-label="Ara">',
 '</form>',
 '<div class="md-header-actions">',
-'<a href="' + url('/s/ayricaliklar') + '">' + ICONS.gift + ' <span>AyrÄ±calÄ±klar</span></a>',
+'<a href="' + url('/s/ayricaliklar') + '">' + ICONS.gift + ' <span>Ayrıcalıklar</span></a>',
 '          ' + loginLink() + '',
-'<a href="' + url('/s/danisman-ol') + '" class="md-cta-outline">' + ICONS.briefcase + ' DanÄ±ÅŸmanÄ±mÄ±z Ol</a>',
-'<a href="' + url(signup) + '" class="md-cta-solid">ModdoDay\'e KatÄ±l</a>',
+'<a href="' + url('/s/danisman-ol') + '" class="md-cta-outline">' + ICONS.briefcase + ' Danışmanımız Ol</a>',
+'<a href="' + url(signup) + '" class="md-cta-solid">ModdoDay\'e Katıl</a>',
 '</div>',
 '<div class="md-mobile-actions">',
 '<button class="md-icon-btn md-drawer-open" type="button" aria-label="Ara">' + ICONS.search + '</button>',
@@ -171,11 +170,11 @@ return [
 function renderDrawer() {
 var svg = function (inner) { return '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' + inner + '</svg>'; };
 var modes = [
-['uretken-modu', 'Ãœretken Modu', '245,158,11', '#F59E0B', '<path d="m14.622 17.897-10.68-2.913"/><path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/>'],
-['teknolojiye-merakli-modu', 'Teknolojiye MeraklÄ± Modu', '59,130,246', '#3B82F6', '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/>'],
+['uretken-modu', 'Üretken Modu', '245,158,11', '#F59E0B', '<path d="m14.622 17.897-10.68-2.913"/><path d="M18.376 2.622a1 1 0 1 1 3.002 3.002L17.36 9.643a.5.5 0 0 0 0 .707l.944.944a2.41 2.41 0 0 1 0 3.408l-.944.944a.5.5 0 0 1-.707 0L8.354 7.348a.5.5 0 0 1 0-.707l.944-.944a2.41 2.41 0 0 1 3.408 0l.944.944a.5.5 0 0 0 .707 0z"/>'],
+['teknolojiye-merakli-modu', 'Teknolojiye Meraklı Modu', '59,130,246', '#3B82F6', '<rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/>'],
 ['keyif-modu', 'Keyif Modu', '244,63,94', '#F43F5E', '<path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>'],
-['saglikliyim-modu', 'SaÄŸlÄ±klÄ±yÄ±m Modu', '16,185,129', '#10B981', '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>'],
-['longevity-modu', 'Longevity (En Ä°yi VersiyonumdayÄ±m) Modu', '34,197,94', '#22C55E', '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>'],
+['saglikliyim-modu', 'Sağlıklıyım Modu', '16,185,129', '#10B981', '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.29 1.51 4.04 3 5.5l7 7Z"/>'],
+['longevity-modu', 'Longevity (En İyi Versiyonumdayım) Modu', '34,197,94', '#22C55E', '<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z"/><path d="M2 21c0-3 1.85-5.36 5.08-6"/>'],
 ['aile-modu', 'Aile Modu', '139,92,246', '#8B5CF6', '<path d="M9 12h.01"/><path d="M15 12h.01"/><path d="M10 16c.5.3 1.2.5 2 .5s1.5-.2 2-.5"/><path d="M19 6.3a9 9 0 0 1 1.8 3.9 2 2 0 0 1 0 3.6 9 9 0 0 1-17.6 0 2 2 0 0 1 0-3.6A9 9 0 0 1 12 3"/>']
 ];
 var modeRows = modes.map(function (m) {
@@ -190,25 +189,25 @@ return [
 '<a href="' + url('/') + '" class="md-logo">Moddo<span>Day</span></a>',
 '<button class="md-drawer-close" type="button" aria-label="Kapat">' + ICONS.close + '</button>',
 '</div>',
-'<div class="md-drawer-search">' + ICONS.search + '<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanÄ±na baÄŸlanmak istiyorsun?" aria-label="Ara"></div>',
+'<div class="md-drawer-search">' + ICONS.search + '<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanına bağlanmak istiyorsun?" aria-label="Ara"></div>',
 '<nav class="md-drawer-nav">',
 '<a href="' + url('/') + '">Ana Sayfa</a>',
-'<a href="' + url('/etkinlikler') + '">CanlÄ± Oturumlar</a>',
-'<a href="' + url('/kategori') + '">DanÄ±ÅŸmanlar</a>',
+'<a href="' + url('/etkinlikler') + '">Canlı Oturumlar</a>',
+'<a href="' + url('/kategori') + '">Danışmanlar</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
 '</nav>',
 '<div class="md-drawer-brands">',
-'<div class="md-drawer-label md-drawer-label-accent">' + ICONS.award + ' MARKA ELÃ‡Ä°LERÄ°</div>',
-'<p>Marka elÃ§isi firmalar, ModdoDay\'in 6 yaÅŸam modunda Ã¶zel iÃ§erikler ve Ã¶dÃ¼llÃ¼ etkinliklerle hedef kitlesine doÄŸrudan ulaÅŸÄ±r.</p>',
-'<a href="' + url('/s/ayricaliklar') + '" class="md-drawer-brands-link">Marka ElÃ§ilerini GÃ¶rÃ¼ntÃ¼le &rarr;</a>',
+'<div class="md-drawer-label md-drawer-label-accent">' + ICONS.award + ' MARKA ELÇİLERİ</div>',
+'<p>Marka elçisi firmalar, ModdoDay\'in 6 yaşam modunda özel içerikler ve ödüllü etkinliklerle hedef kitlesine doğrudan ulaşır.</p>',
+'<a href="' + url('/s/ayricaliklar') + '" class="md-drawer-brands-link">Marka Elçilerini Görüntüle &rarr;</a>',
 '</div>',
 '<div class="md-drawer-modes">',
-'<div class="md-drawer-label">YAÅAM MODLARI</div>',
+'<div class="md-drawer-label">YAŞAM MODLARI</div>',
 '    ' + modeRows,
 '</div>',
 '<div class="md-drawer-actions">',
-'<a href="' + url('/s/danisman-ol') + '" class="md-drawer-btn md-drawer-btn-outline">' + ICONS.briefcase + ' DanÄ±ÅŸmanÄ±mÄ±z Ol</a>',
-'<a href="' + url('/signup') + '" class="md-drawer-btn md-drawer-btn-solid">ModdoDay\'e KatÄ±l</a>',
+'<a href="' + url('/s/danisman-ol') + '" class="md-drawer-btn md-drawer-btn-outline">' + ICONS.briefcase + ' Danışmanımız Ol</a>',
+'<a href="' + url('/signup') + '" class="md-drawer-btn md-drawer-btn-solid">ModdoDay\'e Katıl</a>',
 '    ' + loginLink({ block: true }),
 '</div>',
 '</aside>'
@@ -334,8 +333,8 @@ if (e.key === 'Escape') items.forEach(function (i) { i.classList.remove('open');
 });
 }
 var KB_MODES = [
-'Ãœretken Modu', 'Teknolojiye MeraklÄ± Modu', 'Keyif Modu',
-'SaÄŸlÄ±klÄ±yÄ±m Modu', 'Longevity Modu', 'Aile Modu'
+'Üretken Modu', 'Teknolojiye Meraklı Modu', 'Keyif Modu',
+'Sağlıklıyım Modu', 'Longevity Modu', 'Aile Modu'
 ];
 function kbEsc(s) {
 return String(s == null ? '' : s)
@@ -374,10 +373,10 @@ return String(s == null ? '' : s)
                   if (d && d.url) out.push([d.label, agentBase + '/' + d.url, d.image || '', 'agent']);
                 }
               }
-              if (!out.length) out.push(['SonuÃ§ bulunamadÄ±', '#', '', 'none']);
+              if (!out.length) out.push(['Sonuç bulunamadı', '#', '', 'none']);
               suggest(out);
             },
-            error: function () { suggest(pre.length ? pre : [['SonuÃ§ bulunamadÄ±', '#', '', 'none']]); }
+            error: function () { suggest(pre.length ? pre : [['Sonuç bulunamadı', '#', '', 'none']]); }
           });
         },
         renderItem: function (item, search) {
@@ -421,11 +420,11 @@ return String(s == null ? '' : s)
   });
 })();
 /* ============================================================
-   SECTION: LOGIN â€” /login DOM enhance (tasarÄ±m: giris.html)
-   - Sol auth-side panel ("Tekrar hoÅŸ geldin!" + 4 fayda) inject
-   - Form baÅŸlÄ±ÄŸÄ± ("GiriÅŸ Yap" + "HesabÄ±n yok mu? KayÄ±t ol")
-   - Åifre gÃ¶ster/gizle toggle
-   - Sosyal butonlarÄ± (Google + Apple + Facebook) submit altÄ±nda .md-auth-social satÄ±rÄ±na grupla + "veya" divider
+   SECTION: LOGIN — /login DOM enhance (tasarım: giris.html)
+   - Sol auth-side panel ("Tekrar hoş geldin!" + 4 fayda) inject
+   - Form başlığı ("Giriş Yap" + "Hesabın yok mu? Kayıt ol")
+   - Şifre göster/gizle toggle
+   - Sosyal butonları (Google + Apple + Facebook) submit altında .md-auth-social satırına grupla + "veya" divider
    Native form fields/action/name DOKUNULMAZ. Scope: /login veya /xx-XX/login.
    ============================================================ */
 (function () {
@@ -447,7 +446,7 @@ return String(s == null ? '' : s)
     var CAL = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg>";
     var CROWN = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.52l4.276 3.664a1 1 0 0 0 1.516-.294z'/></svg>";
     var TROPHY = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'/><path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/><path d='M4 22h16'/><path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'/><path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'/><path d='M18 2H6v7a6 6 0 0 0 12 0V2Z'/></svg>";
-    /* 6 mod ikon dairesi (tasarÄ±m: hammer/zap/smile/dumbbell/flame/users + mod renkleri) */
+    /* 6 mod ikon dairesi (tasarım: hammer/zap/smile/dumbbell/flame/users + mod renkleri) */
     var ic = function (p) { return "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + p + "</svg>"; };
     var MODS = [
       ['#F59E0B', ic("<path d='m15 12-8.5 8.5a2.12 2.12 0 1 1-3-3L12 9'/><path d='M17.64 15 22 10.64'/><path d='m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91'/>")],
@@ -460,14 +459,14 @@ return String(s == null ? '' : s)
     var modCircles = MODS.map(function (m) { return "<span class='md-auth-modicon' style='color:" + m[0] + ";background:" + m[0] + "1f;border-color:" + m[0] + "40'>" + m[1] + "</span>"; }).join('');
     side.innerHTML = [
       "<a href='index.html' class='md-auth-logo'>Moddo<span>Day</span></a>",
-      "<h2>Tekrar hoÅŸ geldin!</h2>",
-      "<p>HesabÄ±na giriÅŸ yap, kaldÄ±ÄŸÄ±n yerden wellbeing yolculuÄŸuna devam et. BugÃ¼n hangi moddasÄ±n?</p>",
+      "<h2>Tekrar hoş geldin!</h2>",
+      "<p>Hesabına giriş yap, kaldığın yerden wellbeing yolculuğuna devam et. Bugün hangi moddasın?</p>",
       "<div class='md-auth-modicons'>" + modCircles + "</div>",
       "<div class='md-auth-features'>",
-      feat(VIDEO, "CanlÄ± oturumlara devam et", "KaldÄ±ÄŸÄ±n yerden canlÄ± yayÄ±nlara katÄ±l."),
-      feat(CAL, "Randevu & etkinlik takibi", "RandevularÄ±nÄ± ve etkinliklerini yÃ¶net."),
-      feat(CROWN, "AyrÄ±calÄ±klar KulÃ¼bÃ¼", "Ãœyelere Ã¶zel indirim ve avantajlara eriÅŸ."),
-      feat(TROPHY, "ModProgress Ã¶dÃ¼lleri", "Seviyeni ve kazandÄ±ÄŸÄ±n Ã¶dÃ¼lleri gÃ¶r."),
+      feat(VIDEO, "Canlı oturumlara devam et", "Kaldığın yerden canlı yayınlara katıl."),
+      feat(CAL, "Randevu & etkinlik takibi", "Randevularını ve etkinliklerini yönet."),
+      feat(CROWN, "Ayrıcalıklar Kulübü", "Üyelere özel indirim ve avantajlara eriş."),
+      feat(TROPHY, "ModProgress ödülleri", "Seviyeni ve kazandığın ödülleri gör."),
       "</div>"
     ].join('');
     return side;
@@ -478,33 +477,33 @@ return String(s == null ? '' : s)
     var head = document.createElement('div');
     head.className = 'md-auth-form-head';
     head.setAttribute('data-kb-login', 'head');
-    head.innerHTML = "<div class='md-auth-head-row'><span class='md-auth-head-icn'>" + LOGIN + "</span><h1>GiriÅŸ Yap</h1></div><p class='md-auth-login-link'>HesabÄ±n yok mu? <a href='" + prefix + "/signup'>Hemen kayÄ±t ol &rarr;</a></p>";
+    head.innerHTML = "<div class='md-auth-head-row'><span class='md-auth-head-icn'>" + LOGIN + "</span><h1>Giriş Yap</h1></div><p class='md-auth-login-link'>Hesabın yok mu? <a href='" + prefix + "/signup'>Hemen kayıt ol &rarr;</a></p>";
     return head;
   }
   function enhance() {
     var wrap = $('.users-wrapper');
     var form = $('#login-form');
     if (!wrap || !form) return false;
-    /* submit metnini "GiriÅŸ Yap" yap (native "ÃœYE GÄ°RÄ°ÅÄ°"). TÃ¼rkÃ§e Ä° regex/i ile eÅŸleÅŸmiyor â†’
-       doÄŸrudan deÄŸer kontrolÃ¼; idempotent (zaten "GiriÅŸ Yap" ise dokunma â†’ observer loop yok). */
+    /* submit metnini "Giriş Yap" yap (native "ÜYE GİRİŞİ"). Türkçe İ regex/i ile eşleşmiyor →
+       doğrudan değer kontrolü; idempotent (zaten "Giriş Yap" ise dokunma → observer loop yok). */
     var sBtn = form.querySelector('button[type="submit"]');
-    if (sBtn && sBtn.textContent.trim() !== 'GiriÅŸ Yap') sBtn.innerHTML = LOGIN + 'GiriÅŸ Yap';
+    if (sBtn && sBtn.textContent.trim() !== 'Giriş Yap') sBtn.innerHTML = LOGIN + 'Giriş Yap';
     if (wrap.hasAttribute('data-kb-login-done')) return true;
-    /* 1) Sol auth-side (form'dan Ã¶nce) */
+    /* 1) Sol auth-side (form'dan önce) */
     var userForm = $('.user-form.login', wrap);
     if (userForm && !$('.md-auth-side', wrap)) wrap.insertBefore(buildAuthSide(), userForm);
-    /* 2) Form baÅŸlÄ±ÄŸÄ± (GiriÅŸ Yap + KayÄ±t ol) â€” form'un ilk child'i */
+    /* 2) Form başlığı (Giriş Yap + Kayıt ol) — form'un ilk child'i */
     if (!$('.md-auth-form-head', form)) form.insertBefore(buildFormHead(), form.firstChild);
-    /* 3) Åifre gÃ¶ster/gizle toggle */
+    /* 3) Şifre göster/gizle toggle */
     var pass = $('#password', form);
     if (pass && !$('.md-pass-toggle', form)) {
       var w = document.createElement('div'); w.className = 'md-pass-wrap';
       pass.parentNode.insertBefore(w, pass); w.appendChild(pass);
-      var t = document.createElement('button'); t.type = 'button'; t.className = 'md-pass-toggle'; t.setAttribute('aria-label', 'Åifreyi gÃ¶ster/gizle'); t.innerHTML = EYE;
+      var t = document.createElement('button'); t.type = 'button'; t.className = 'md-pass-toggle'; t.setAttribute('aria-label', 'Şifreyi göster/gizle'); t.innerHTML = EYE;
       w.appendChild(t);
       t.addEventListener('click', function () { var s = pass.type === 'password'; pass.type = s ? 'text' : 'password'; t.innerHTML = s ? EYEOFF : EYE; });
     }
-    /* 4) Sosyal butonlarÄ± submit altÄ±nda satÄ±ra grupla (+ "veya" divider) */
+    /* 4) Sosyal butonları submit altında satıra grupla (+ "veya" divider) */
     if (!$('.md-auth-social', form)) {
       var gAnchor = form.querySelector('a[href*="glogin"]');
       var apple = form.querySelector('#appleid-signin'); var appleField = apple ? apple.closest('.field') : null;
@@ -533,12 +532,12 @@ return String(s == null ? '' : s)
   else document.addEventListener('DOMContentLoaded', function () { mo.observe(document.body, { childList: true, subtree: true }); });
 })();
 /* ============================================================
-   SECTION: SIGNUP â€” /signup DOM enhance (tasarÄ±m: kayit-ol.html)
-   - OrtalÄ± hero (badge "Ä°lk 2 Ay Ãœcretsiz" + "ModdoDay'e KatÄ±l" + alt metin) inject
-   - form + saÄŸ AVANTAJ/GÃœVEN paneli'ni .md-reg-grid'e sar
-   - Form baÅŸlÄ±ÄŸÄ± (user-plus ikon + "HesabÄ±nÄ± OluÅŸtur" + "Zaten Ã¼ye misin? GiriÅŸ Yap")
-   - Parola + Parola Tekrar yan yana (.md-reg-row2) + ÅŸifre gÃ¶ster/gizle toggle
-   - Sosyal butonlarÄ± (Facebook + Google) submit altÄ±nda .md-auth-social satÄ±rÄ±na grupla + "veya" divider
+   SECTION: SIGNUP — /signup DOM enhance (tasarım: kayit-ol.html)
+   - Ortalı hero (badge "İlk 2 Ay Ücretsiz" + "ModdoDay'e Katıl" + alt metin) inject
+   - form + sağ AVANTAJ/GÜVEN paneli'ni .md-reg-grid'e sar
+   - Form başlığı (user-plus ikon + "Hesabını Oluştur" + "Zaten üye misin? Giriş Yap")
+   - Parola + Parola Tekrar yan yana (.md-reg-row2) + şifre göster/gizle toggle
+   - Sosyal butonları (Facebook + Google) submit altında .md-auth-social satırına grupla + "veya" divider
    Native form fields/action/name DOKUNULMAZ. Scope: /signup veya /xx-XX/signup.
    ============================================================ */
 (function () {
@@ -569,9 +568,9 @@ return String(s == null ? '' : s)
     h.className = 'md-reg-hero';
     h.setAttribute('data-kb-signup', 'hero');
     h.innerHTML =
-      "<span class='md-reg-badge'>" + ic(GIFT) + "Ä°lk 2 Ay Ãœcretsiz</span>" +
-      "<h1>ModdoDay'e <span>KatÄ±l</span></h1>" +
-      "<p>Kurumsal wellbeing ve kiÅŸisel deneyim hizmetleriyle yaÅŸam kaliteni yÃ¼kselt. Kendin iÃ§in en uygun modu seÃ§, uzmanlarla tanÄ±ÅŸ.</p>";
+      "<span class='md-reg-badge'>" + ic(GIFT) + "İlk 2 Ay Ücretsiz</span>" +
+      "<h1>ModdoDay'e <span>Katıl</span></h1>" +
+      "<p>Kurumsal wellbeing ve kişisel deneyim hizmetleriyle yaşam kaliteni yükselt. Kendin için en uygun modu seç, uzmanlarla tanış.</p>";
     return h;
   }
   function buildFormHead() {
@@ -579,8 +578,8 @@ return String(s == null ? '' : s)
     head.className = 'md-auth-form-head';
     head.setAttribute('data-kb-signup', 'head');
     head.innerHTML =
-      "<div class='md-auth-head-row'><span class='md-auth-head-icn'>" + ic(USERPLUS) + "</span><h2>HesabÄ±nÄ± OluÅŸtur</h2></div>" +
-      "<p>Zaten Ã¼ye misin? <a href='" + loginHref() + "'>GiriÅŸ Yap &rarr;</a></p>";
+      "<div class='md-auth-head-row'><span class='md-auth-head-icn'>" + ic(USERPLUS) + "</span><h2>Hesabını Oluştur</h2></div>" +
+      "<p>Zaten üye misin? <a href='" + loginHref() + "'>Giriş Yap &rarr;</a></p>";
     return head;
   }
   function buildAside() {
@@ -591,17 +590,17 @@ return String(s == null ? '' : s)
     var trust = function (svg, t) { return "<div class='md-reg-trust-row'>" + ic(svg) + "<span>" + t + "</span></div>"; };
     aside.innerHTML =
       "<div class='md-reg-card'>" +
-        "<h3>ÃœYELÄ°K AVANTAJLARI</h3>" +
-        ben(SPARKLES, "6 FarklÄ± YaÅŸam Modu", "Ä°lgi alanÄ±na uygun modlarda kiÅŸisel deneyim hizmeti") +
-        ben(ZAP, "CanlÄ± Oturumlar", "HaftanÄ±n 7 gÃ¼nÃ¼ uzmanlarla birebir ve grup oturumlarÄ±") +
-        ben(CROWN, "AyrÄ±calÄ±klar KulÃ¼bÃ¼", "Ã–zel indirimler, kampanyalar ve marka avantajlarÄ±") +
-        ben(GIFT, "2 Ay Ãœcretsiz Deneme", "Hemen kayÄ±t ol, ilk 2 ay Ã¼cretsiz keÅŸfet") +
+        "<h3>ÜYELİK AVANTAJLARI</h3>" +
+        ben(SPARKLES, "6 Farklı Yaşam Modu", "İlgi alanına uygun modlarda kişisel deneyim hizmeti") +
+        ben(ZAP, "Canlı Oturumlar", "Haftanın 7 günü uzmanlarla birebir ve grup oturumları") +
+        ben(CROWN, "Ayrıcalıklar Kulübü", "Özel indirimler, kampanyalar ve marka avantajları") +
+        ben(GIFT, "2 Ay Ücretsiz Deneme", "Hemen kayıt ol, ilk 2 ay ücretsiz keşfet") +
       "</div>" +
       "<div class='md-reg-card'><div class='md-reg-trust'>" +
-        trust(SHIELD, "256-bit SSL ile gÃ¼venli baÄŸlantÄ±") +
-        trust(CHECK, "KVKK uyumlu veri iÅŸleme") +
-        trust(CHECK, "Ä°stediÄŸin zaman iptal edebilirsin") +
-        trust(CHECK, "7/24 destek hattÄ±") +
+        trust(SHIELD, "256-bit SSL ile güvenli bağlantı") +
+        trust(CHECK, "KVKK uyumlu veri işleme") +
+        trust(CHECK, "İstediğin zaman iptal edebilirsin") +
+        trust(CHECK, "7/24 destek hattı") +
       "</div></div>";
     return aside;
   }
@@ -610,7 +609,7 @@ return String(s == null ? '' : s)
     var w = document.createElement('div'); w.className = 'md-pass-wrap';
     input.parentNode.insertBefore(w, input); w.appendChild(input);
     var t = document.createElement('button'); t.type = 'button'; t.className = 'md-pass-toggle';
-    t.setAttribute('aria-label', 'Åifreyi gÃ¶ster/gizle'); t.innerHTML = EYE;
+    t.setAttribute('aria-label', 'Şifreyi göster/gizle'); t.innerHTML = EYE;
     w.appendChild(t);
     t.addEventListener('click', function () {
       var s = input.type === 'password'; input.type = s ? 'text' : 'password'; t.innerHTML = s ? EYEOFF : EYE;
@@ -621,9 +620,9 @@ return String(s == null ? '' : s)
     var form = $('#register-form');
     if (!wrap || !form) return false;
     if (wrap.hasAttribute('data-kb-signup-done')) return true;
-    /* 1) Hero (en Ã¼st) */
+    /* 1) Hero (en üst) */
     if (!$('.md-reg-hero', wrap)) wrap.insertBefore(buildHero(), wrap.firstChild);
-    /* 2) form + aside'Ä± .md-reg-grid'e sar */
+    /* 2) form + aside'ı .md-reg-grid'e sar */
     var userForm = $('.user-form.register', wrap);
     if (userForm && !$('.md-reg-grid', wrap)) {
       var grid = document.createElement('div'); grid.className = 'md-reg-grid'; grid.setAttribute('data-kb-signup', 'grid');
@@ -631,9 +630,9 @@ return String(s == null ? '' : s)
       grid.appendChild(userForm);
       grid.appendChild(buildAside());
     }
-    /* 3) Form baÅŸlÄ±ÄŸÄ± (form'un ilk child'i) */
+    /* 3) Form başlığı (form'un ilk child'i) */
     if (!$('.md-auth-form-head', form)) form.insertBefore(buildFormHead(), form.firstChild);
-    /* 4) BoÅŸ label'larÄ± gizle (custom_profile alanlarÄ±) */
+    /* 4) Boş label'ları gizle (custom_profile alanları) */
     [].forEach.call(form.querySelectorAll('.field > label'), function (l) {
       if (!l.textContent.trim() && !l.querySelector('input')) l.classList.add('md-label-empty');
     });
@@ -644,7 +643,7 @@ return String(s == null ? '' : s)
       var row = document.createElement('div'); row.className = 'md-reg-row2'; row.setAttribute('data-kb-signup', 'row2');
       pf.parentNode.insertBefore(row, pf); row.appendChild(pf); row.appendChild(prf);
     }
-    /* 6) ÅŸifre gÃ¶ster/gizle */
+    /* 6) şifre göster/gizle */
     addPassToggle(pass); addPassToggle(passR);
     /* 7) Submit'e user-plus ikon (idempotent) */
     var sBtn = form.querySelector('.btn-primary-signup');
@@ -652,7 +651,7 @@ return String(s == null ? '' : s)
       var span = document.createElement('span'); span.className = 'md-btn-ic'; span.style.display = 'inline-flex'; span.innerHTML = ic(USERPLUS);
       sBtn.insertBefore(span, sBtn.firstChild);
     }
-    /* 8) Sosyal butonlarÄ± (Facebook + Google) submit altÄ±nda satÄ±ra grupla + "veya" divider */
+    /* 8) Sosyal butonları (Facebook + Google) submit altında satıra grupla + "veya" divider */
     if (!$('.md-auth-social', form)) {
       var fb = form.querySelector('.btn-primary-fbsignup'); var fbField = fb ? fb.closest('.field') : null;
       var gAnchor = form.querySelector('#google-login-link');
@@ -687,20 +686,20 @@ return String(s == null ? '' : s)
   else document.addEventListener('DOMContentLoaded', function () { mo.observe(document.body, { childList: true, subtree: true }); });
 })();
 /* ============================================================
-   SECTION: AGENT CARDS â€” global (her sayfada)
+   SECTION: AGENT CARDS — global (her sayfada)
    .agents .item kartlarini ModdoDay YATAY kart tasarimina (uzmannew.PNG)
-   donusturur. GLOBAL â€” uzmanlar listesi, kategori-detay, vb. her yerde ayni.
+   donusturur. GLOBAL — uzmanlar listesi, kategori-detay, vb. her yerde ayni.
    Hedef yapi (flex order ile garanti):
      .item-c
-       .kb-head  (yatay)        â†’ .item-image(avatar sol) + .kb-headcol(col)
+       .kb-head  (yatay)        → .item-image(avatar sol) + .kb-headcol(col)
                                     .kb-headcol: .kb-mode-tag + .item-title(isim) + .unvan-title(meslek)
        .item-excerpt (aciklama)
-       .profile-categories (kategori pill'leri â€” mod disindakiler)
-       .kb-foot (yatay space-between) â†’ .kb-rating(sol) [+ .kb-sessions(sag)]
+       .profile-categories (kategori pill'leri — mod disindakiler)
+       .kb-foot (yatay space-between) → .kb-rating(sol) [+ .kb-sessions(sag)]
    VERI ESLESMESI (recon):
-   - mod-tag = bir KATEGORI (.pcategory-btn) â€” adi bir moda uyani (".. Modu")
+   - mod-tag = bir KATEGORI (.pcategory-btn) — adi bir moda uyani (".. Modu")
      secip isim ustune renkli pill yapariz; kalan kategoriler altta kalir.
-   - seans sayisi: platformda listede KAYNAK YOK â†’ simdilik render edilmez.
+   - seans sayisi: platformda listede KAYNAK YOK → simdilik render edilmez.
    - bos alanlar (.unvan-title/.item-excerpt/.profile-categories/.profile-review-stars)
      CSS :empty ile gizli; prod verisi gelince otomatik gorunur. UYDURMA YOK.
    ! Sonsuz dongu engeli: idempotency guard (data-kb-card) + run() icinde
@@ -717,12 +716,12 @@ return String(s == null ? '' : s)
     ['#10B981', '#14B8A6'], ['#3B82F6', '#06B6D4'], ['#F59E0B', '#EF4444'],
     ['#F43F5E', '#EC4899'], ['#22C55E', '#84CC16'], ['#8B5CF6', '#A855F7']
   ];
-  /* Mod tespiti â€” kategori adina gore renk. */
+  /* Mod tespiti — kategori adina gore renk. */
   var MODES = [
-    { re: /[Ã¼u]retken/i,  color: '#F59E0B' },
+    { re: /[üu]retken/i,  color: '#F59E0B' },
     { re: /teknoloji/i,   color: '#3B82F6' },
     { re: /keyif/i,       color: '#F43F5E' },
-    { re: /sa[ÄŸg]l[Ä±i]k/i, color: '#10B981' },
+    { re: /sa[ğg]l[ıi]k/i, color: '#10B981' },
     { re: /longevity/i,   color: '#22C55E' },
     { re: /aile/i,        color: '#8B5CF6' }
   ];
@@ -832,7 +831,7 @@ return String(s == null ? '' : s)
         var ccNum = cc ? (cc.textContent || '').replace(/[^\d]/g, '') : '';
         var r = document.createElement('div');
         r.className = 'kb-rating';
-        r.innerHTML = '<span class="kb-star" aria-hidden="true">â˜…</span>' +
+        r.innerHTML = '<span class="kb-star" aria-hidden="true">★</span>' +
           '<strong>' + starCount.toFixed(1) + '</strong>' +
           (ccNum ? '<span class="kb-rev">(' + ccNum + ')</span>' : '');
         foot.appendChild(r);
@@ -863,7 +862,7 @@ return String(s == null ? '' : s)
   }
   /* SAVUNMA: bir uzmanin aciklama/alaninda kapanmamis HTML (orn `</p` eksik `>`)
      varsa tarayici karti kapatamaz ve SONRAKI kart bu kartin .item'i ICINE
-     gomulur â†’ tum liste cokmesi. Ic ice girmis .item'leri grid'e geri tasi
+     gomulur → tum liste cokmesi. Ic ice girmis .item'leri grid'e geri tasi
      ki tek bozuk veri butun listeyi bozmasin. (Asil cozum: bozuk veriyi duzelt.) */
   function unnestStray() {
     var grids = document.querySelectorAll('.agents .list.flex:not(.order-flex-list)');
@@ -909,10 +908,10 @@ return String(s == null ? '' : s)
   else startObserver();
 })();
 /* ============================================================
-   SECTION: AYRICALIKLAR KATEGORÄ° â€” /s/ayricaliklar-kategori
-   MINIMAL JS â€” sadece marka kartÄ± sekmeleri (AVANTAJLAR / NASIL YARARLANILIR).
-   Markup page content'te (editÃ¶r); burada yalnÄ±z davranÄ±ÅŸ. Event delegation
-   (server-rendered iÃ§erik load'da hazÄ±r) â†’ idempotent, observer gerekmez.
+   SECTION: AYRICALIKLAR KATEGORİ — /s/ayricaliklar-kategori
+   MINIMAL JS — sadece marka kartı sekmeleri (AVANTAJLAR / NASIL YARARLANILIR).
+   Markup page content'te (editör); burada yalnız davranış. Event delegation
+   (server-rendered içerik load'da hazır) → idempotent, observer gerekmez.
    ============================================================ */
 (function () {
   function isPage() { return /(?:^|\/)s\/ayricaliklar-kategori$/.test(location.pathname.replace(/\/$/, '')); }
@@ -934,9 +933,9 @@ return String(s == null ? '' : s)
   });
 })();
 /* ============================================================
-   SECTION: AYRICALIKLAR â€” /s/ayricaliklar  (CMS Ã¶zel sayfa)
-   MINIMAL JS â€” yalnizca HTML'in yapamadigi: FAQ akordeon davranisi.
-   Tasarim/hero/bÃ¶lÃ¼mler tamamen `content` HTML'i (kb-a-*) + css/_ayricaliklar.css;
+   SECTION: AYRICALIKLAR — /s/ayricaliklar  (CMS özel sayfa)
+   MINIMAL JS — yalnizca HTML'in yapamadigi: FAQ akordeon davranisi.
+   Tasarim/hero/bölümler tamamen `content` HTML'i (kb-a-*) + css/_ayricaliklar.css;
    ikonlar CSS ::before mask. Idempotent.
    ============================================================ */
 (function () {
@@ -965,11 +964,11 @@ return String(s == null ? '' : s)
   }
 })();
 /* ============================================================
-   SECTION: CONTACT â€” /tr-TR/s/iletisim
-   MINIMAL JS â€” only what HTML/CSS cannot do:
+   SECTION: CONTACT — /tr-TR/s/iletisim
+   MINIMAL JS — only what HTML/CSS cannot do:
      - Hero: breadcrumb badge + 1-word gradient title
        (h1 is a plain-text admin field; gradient/breadcrumb can't be HTML there)
-     - Form: native contact-form is server-rendered â†’ relabel, 2-col rows,
+     - Form: native contact-form is server-rendered → relabel, 2-col rows,
        extra "Konusu" field, and submit-prefix behavior require JS
      - FAQ: click-to-toggle accordion on the server-rendered .kb-c-faq-item
        (markup lives in the editable page content; only the behavior is JS)
@@ -985,7 +984,7 @@ return String(s == null ? '' : s)
     return /(?:^|\/)s\/iletisim$/.test(p);
   }
   if (!isContactPage()) return;
-  /* SVG icons used ONLY by JS-injected hero/form (not page content) â†’ safe. */
+  /* SVG icons used ONLY by JS-injected hero/form (not page content) → safe. */
   var SVG = {
     home: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 2l9 7.5V21a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5z"/></svg>',
     chev: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
@@ -998,26 +997,26 @@ return String(s == null ? '' : s)
     var title = document.querySelector('.page-header .page-title');
     if (!title) return;
     var h1ref = title.querySelector('h1');
-    /* Breadcrumb nav (Ana Sayfa > Ä°letiÅŸim) */
+    /* Breadcrumb nav (Ana Sayfa > İletişim) */
     if (!title.querySelector('.kb-c-breadcrumb')) {
       var bc = document.createElement('nav');
       bc.className = 'kb-c-breadcrumb';
       bc.setAttribute('data-kb-c', 'breadcrumb');
-      bc.innerHTML = '<a href="/">Ana Sayfa</a> <span class="kb-c-bc-sep">' + SVG.chev + '</span> <span class="kb-c-bc-cur">Ä°letiÅŸim</span>';
+      bc.innerHTML = '<a href="/">Ana Sayfa</a> <span class="kb-c-bc-sep">' + SVG.chev + '</span> <span class="kb-c-bc-cur">İletişim</span>';
       title.insertBefore(bc, title.firstChild);
     }
-    /* Badge ("Bize UlaÅŸÄ±n") â€” blue */
+    /* Badge ("Bize Ulaşın") — blue */
     if (!title.querySelector('.kb-c-badge')) {
       var bd = document.createElement('div');
       bd.className = 'kb-c-badge';
       bd.setAttribute('data-kb-c', 'badge');
-      bd.innerHTML = SVG.msg + ' <span>Bize UlaÅŸÄ±n</span>';
+      bd.innerHTML = SVG.msg + ' <span>Bize Ulaşın</span>';
       title.insertBefore(bd, h1ref);
     }
-    /* H1 â€” replace text with gradient-wrapped title */
+    /* H1 — replace text with gradient-wrapped title */
     var h1 = title.querySelector('h1');
     if (h1 && h1.getAttribute('data-kb-c') !== 'title') {
-      h1.innerHTML = 'Size NasÄ±l <span class="kb-gradient">YardÄ±mcÄ±</span> Olabiliriz?';
+      h1.innerHTML = 'Size Nasıl <span class="kb-gradient">Yardımcı</span> Olabiliriz?';
       h1.setAttribute('data-kb-c', 'title');
     }
   }
@@ -1060,11 +1059,11 @@ return String(s == null ? '' : s)
       var h2 = document.createElement('h2');
       h2.className = 'kb-c-form-title';
       h2.setAttribute('data-kb-c', 'form-title');
-      h2.textContent = 'Ä°letiÅŸim Formu';
+      h2.textContent = 'İletişim Formu';
       var lead = document.createElement('p');
       lead.className = 'kb-c-form-lead';
       lead.setAttribute('data-kb-c', 'form-lead');
-      lead.textContent = 'Formu doldurun, ekibimiz 24 saat iÃ§inde size dÃ¶nÃ¼ÅŸ yapsÄ±n.';
+      lead.textContent = 'Formu doldurun, ekibimiz 24 saat içinde size dönüş yapsın.';
       container.insertBefore(lead, container.firstChild);
       container.insertBefore(h2, lead);
     }
@@ -1089,23 +1088,23 @@ return String(s == null ? '' : s)
     setLab(nameField, 'Ad Soyad');
     setLab(emailField, 'E-posta');
     setLab(phoneField, 'Telefon');
-    setLab(msgField, 'MesajÄ±nÄ±z');
-    setPh(nameInp, 'AdÄ±nÄ±zÄ± ve soyadÄ±nÄ±zÄ± yazÄ±n');
+    setLab(msgField, 'Mesajınız');
+    setPh(nameInp, 'Adınızı ve soyadınızı yazın');
     setPh(emailInp, 'ornek@eposta.com');
     setPh(phoneInp, '+90 5XX XXX XX XX');
-    setPh(msgInp, 'MesajÄ±nÄ±zÄ± buraya yazÄ±n...');
+    setPh(msgInp, 'Mesajınızı buraya yazın...');
     /* Build new field nodes (design2 birebir: Sirket + Konu select) */
-    var sirketField = makeField({ name: 'sirket', label: 'Åirket', placeholder: 'Åirket adÄ± (opsiyonel)' });
+    var sirketField = makeField({ name: 'sirket', label: 'Şirket', placeholder: 'Şirket adı (opsiyonel)' });
     var konuField = makeField({ name: 'konu', label: 'Konu', type: 'select', full: true, options: [
-      { v: '', t: 'Konu seÃ§in' },
+      { v: '', t: 'Konu seçin' },
       { v: 'genel', t: 'Genel Bilgi' },
-      { v: 'uyelik', t: 'Ãœyelik & Abonelik' },
-      { v: 'oturum', t: 'CanlÄ± Oturum Sorgusu' },
-      { v: 'danismanlik', t: 'DanÄ±ÅŸmanlÄ±k BaÅŸvurusu' },
-      { v: 'sponsorluk', t: 'Sponsorluk & Ä°ÅŸ BirliÄŸi' },
-      { v: 'kurumsal', t: 'Kurumsal Ã‡Ã¶zÃ¼mler' },
+      { v: 'uyelik', t: 'Üyelik & Abonelik' },
+      { v: 'oturum', t: 'Canlı Oturum Sorgusu' },
+      { v: 'danismanlik', t: 'Danışmanlık Başvurusu' },
+      { v: 'sponsorluk', t: 'Sponsorluk & İş Birliği' },
+      { v: 'kurumsal', t: 'Kurumsal Çözümler' },
       { v: 'teknik', t: 'Teknik Destek' },
-      { v: 'diger', t: 'DiÄŸer' }
+      { v: 'diger', t: 'Diğer' }
     ] });
     /* Clean up older injected fields (konusu/hata/konu_secin) */
     ['field-konusu', 'field-hata_kodu', 'field-konu_secin'].forEach(function (sel) {
@@ -1130,17 +1129,17 @@ return String(s == null ? '' : s)
       row2.appendChild(phoneField);
       row2.appendChild(sirketField);
     }
-    /* Konu select (full width) â€” message'tan once */
+    /* Konu select (full width) — message'tan once */
     if (!formEl.querySelector('[data-kb-c="field-konu"]') && msgField && msgField.parentNode) {
       msgField.parentNode.insertBefore(konuField, msgField);
     }
-    /* Submit button: MESAJ GÃ–NDER + send ikonu */
+    /* Submit button: MESAJ GÖNDER + send ikonu */
     var btn = formEl.querySelector('button[type="submit"], input[type="submit"]');
     if (btn) {
-      if (btn.tagName === 'INPUT') { btn.value = 'MESAJ GÃ–NDER'; }
-      else { btn.innerHTML = SVG.send + ' MESAJ GÃ–NDER'; }
+      if (btn.tagName === 'INPUT') { btn.value = 'MESAJ GÖNDER'; }
+      else { btn.innerHTML = SVG.send + ' MESAJ GÖNDER'; }
     }
-    /* Submit handler: Konu + Åirket degerlerini mesaj govdesine prefix'le
+    /* Submit handler: Konu + Şirket degerlerini mesaj govdesine prefix'le
        (native backend yalnizca name/email/phone/message gonderir) */
     formEl.addEventListener('submit', function () {
       try {
@@ -1148,10 +1147,10 @@ return String(s == null ? '' : s)
         var sirket = (formEl.querySelector('#kb-c-sirket') || {}).value || '';
         var lines = [];
         if (konu) lines.push('[Konu: ' + konu + ']');
-        if (sirket) lines.push('[Åirket: ' + sirket + ']');
+        if (sirket) lines.push('[Şirket: ' + sirket + ']');
         if (lines.length && msgInp) {
           var orig = msgInp.value || '';
-          if (orig.indexOf('[Konu:') !== 0 && orig.indexOf('[Åirket:') !== 0) {
+          if (orig.indexOf('[Konu:') !== 0 && orig.indexOf('[Şirket:') !== 0) {
             msgInp.value = lines.join('\n') + '\n\n' + orig;
           }
         }
@@ -1191,10 +1190,10 @@ return String(s == null ? '' : s)
   }
 })();
 /* ============================================================
-   SECTION: KATEGORI (mod) detay â€” /kategori/<slug>
-   MINIMAL JS â€” yalnizca HTML/editÃ¶r iceriginin yapamadigi:
-     - body'ye per-mode class (kb-cat-<slug>) â†’ CSS accent rengi
-     - "Uzman DanÄ±ÅŸmanlar" basligini native .agents listesinin ONUNE ekle
+   SECTION: KATEGORI (mod) detay — /kategori/<slug>
+   MINIMAL JS — yalnizca HTML/editör iceriginin yapamadigi:
+     - body'ye per-mode class (kb-cat-<slug>) → CSS accent rengi
+     - "Uzman Danışmanlar" basligini native .agents listesinin ONUNE ekle
        (excerpt header'da, content en altta; bu pozisyona HTML giremez)
    Hero/stats/diger-modlar HTML (category excerpt+content) ile; uzman kartlari
    native (gercek veri) + agent-cards.js ile stillidir.
@@ -1215,7 +1214,7 @@ return String(s == null ? '' : s)
     if (!b) return;
     var s = slug();
     if (s && !b.classList.contains('kb-cat-' + s)) b.classList.add('kb-cat-' + s);
-    /* "Uzman DanÄ±ÅŸmanlar" basligi â€” native .agents listesinin hemen onune */
+    /* "Uzman Danışmanlar" basligi — native .agents listesinin hemen onune */
     var agents = document.querySelector('.page .agents');
     if (agents && !document.querySelector('[data-kb-cat="experts-h"]')) {
       var wrap = agents.closest('.categories') || agents.parentElement;
@@ -1223,7 +1222,7 @@ return String(s == null ? '' : s)
       var h = document.createElement('div');
       h.className = 'kb-cat-experts-head';
       h.setAttribute('data-kb-cat', 'experts-h');
-      h.innerHTML = '<h2>Uzman DanÄ±ÅŸmanlar</h2><p>' + (catName ? catName + ' kategorisindeki uzman danÄ±ÅŸmanlarÄ±mÄ±z' : 'Uzman danÄ±ÅŸmanlarÄ±mÄ±z') + '</p>';
+      h.innerHTML = '<h2>Uzman Danışmanlar</h2><p>' + (catName ? catName + ' kategorisindeki uzman danışmanlarımız' : 'Uzman danışmanlarımız') + '</p>';
       (wrap.parentElement || wrap).insertBefore(h, wrap);
     }
   }
@@ -1237,14 +1236,14 @@ return String(s == null ? '' : s)
   }
 })();
 /* ============================================================
-   SECTION: KURUMSAL KAYIT â€” CMS /s/kurumsal-kayit (tasarÄ±m: kurumsal-kayit.html)
-   - Layout: hero (iÃ§erik, Ã¼stte) + .md-kk-grid [ native form KARTI (sol) | aside (saÄŸ) ]
+   SECTION: KURUMSAL KAYIT — CMS /s/kurumsal-kayit (tasarım: kurumsal-kayit.html)
+   - Layout: hero (içerik, üstte) + .md-kk-grid [ native form KARTI (sol) | aside (sağ) ]
    - Native #contact-form (attach_contact_form) restyle: form-head, relabel,
-     Firma + Ã‡alÄ±ÅŸan SayÄ±sÄ± alanlarÄ± inject, 2-kolon satÄ±r, KVKK onayÄ±, submit.
-   - Submit'te Firma + Ã‡alÄ±ÅŸan SayÄ±sÄ± deÄŸerlerini message gÃ¶vdesine katla
-     (native backend yalnÄ±z name/email/phone/message gÃ¶nderir â†’ gerÃ§ek lead).
-   Ä°Ã§erik (hero + aside) page content'te (editÃ¶r'den dÃ¼zenlenebilir). SVG sadece
-   JS-inject (TinyMCE'ye girmez â†’ gÃ¼venli). Idempotent + observer auto-disconnect.
+     Firma + Çalışan Sayısı alanları inject, 2-kolon satır, KVKK onayı, submit.
+   - Submit'te Firma + Çalışan Sayısı değerlerini message gövdesine katla
+     (native backend yalnız name/email/phone/message gönderir → gerçek lead).
+   İçerik (hero + aside) page content'te (editör'den düzenlenebilir). SVG sadece
+   JS-inject (TinyMCE'ye girmez → güvenli). Idempotent + observer auto-disconnect.
    ============================================================ */
 (function () {
   function isPage() { return /(?:^|\/)s\/kurumsal-kayit$/.test(location.pathname.replace(/\/$/, '')); }
@@ -1273,7 +1272,7 @@ return String(s == null ? '' : s)
     w.appendChild(inp);
     return w;
   }
-  /* hero altÄ±nda [form | aside] grid'i kur */
+  /* hero altında [form | aside] grid'i kur */
   function buildGrid() {
     var pb = $('.page-body');
     var form = $('.form-container.contact-form');
@@ -1281,10 +1280,10 @@ return String(s == null ? '' : s)
     if (!pb || !form || !aside) return;
     if ($('.md-kk-grid', pb)) return;
     var grid = document.createElement('div'); grid.className = 'md-kk-grid'; grid.setAttribute('data-kk', 'grid');
-    /* grid'i form'un olduÄŸu yere koy, sonra form + aside'Ä± iÃ§ine al */
+    /* grid'i form'un olduğu yere koy, sonra form + aside'ı içine al */
     form.parentNode.insertBefore(grid, form);
     grid.appendChild(form);   /* sol */
-    grid.appendChild(aside);  /* saÄŸ */
+    grid.appendChild(aside);  /* sağ */
   }
   function foldMessage(formEl, msgInp) {
     try {
@@ -1292,10 +1291,10 @@ return String(s == null ? '' : s)
       var calisan = (formEl.querySelector('#kk-calisan') || {}).value || '';
       var lines = [];
       if (firma) lines.push('[Firma: ' + firma + ']');
-      if (calisan) lines.push('[Ã‡alÄ±ÅŸan SayÄ±sÄ±: ' + calisan + ']');
+      if (calisan) lines.push('[Çalışan Sayısı: ' + calisan + ']');
       if (lines.length && msgInp) {
         var orig = msgInp.value || '';
-        if (orig.indexOf('[Firma:') !== 0 && orig.indexOf('[Ã‡alÄ±ÅŸan') !== 0) {
+        if (orig.indexOf('[Firma:') !== 0 && orig.indexOf('[Çalışan') !== 0) {
           msgInp.value = lines.join('\n') + '\n\n' + orig;
         }
       }
@@ -1324,17 +1323,17 @@ return String(s == null ? '' : s)
     /* relabel + placeholder */
     var setLab = function (f, t) { var l = f.querySelector('label'); if (l) l.textContent = t; };
     var setPh = function (i, p) { if (i) i.setAttribute('placeholder', p); };
-    setLab(nameField, 'Yetkili AdÄ± SoyadÄ±'); setPh(nameInp, 'Ad ve soyadÄ±nÄ±zÄ± yazÄ±n');
+    setLab(nameField, 'Yetkili Adı Soyadı'); setPh(nameInp, 'Ad ve soyadınızı yazın');
     setLab(emailField, 'E-Posta Adresi'); setPh(emailInp, 'ornek@firma.com');
-    setLab(phoneField, 'Telefon NumarasÄ±'); setPh(phoneInp, '+90 5XX XXX XX XX');
-    setLab(msgField, 'Talebiniz'); setPh(msgInp, 'Kurumsal Ã¼yelik talebinizi, beklentilerinizi veya sorularÄ±nÄ±zÄ± yazÄ±n...');
-    /* inject: Firma + Ã‡alÄ±ÅŸan SayÄ±sÄ± */
-    var firmaField = makeField({ name: 'firma', label: 'Firma AdÄ±', placeholder: 'Firma adÄ±nÄ±zÄ± girin', full: true });
-    var calisanField = makeField({ name: 'calisan', label: 'Ã‡alÄ±ÅŸan SayÄ±sÄ±', type: 'select', full: true, options: [
-      { v: '', t: 'SeÃ§iniz' }, { v: '1-50', t: '1 - 50' }, { v: '51-200', t: '51 - 200' },
+    setLab(phoneField, 'Telefon Numarası'); setPh(phoneInp, '+90 5XX XXX XX XX');
+    setLab(msgField, 'Talebiniz'); setPh(msgInp, 'Kurumsal üyelik talebinizi, beklentilerinizi veya sorularınızı yazın...');
+    /* inject: Firma + Çalışan Sayısı */
+    var firmaField = makeField({ name: 'firma', label: 'Firma Adı', placeholder: 'Firma adınızı girin', full: true });
+    var calisanField = makeField({ name: 'calisan', label: 'Çalışan Sayısı', type: 'select', full: true, options: [
+      { v: '', t: 'Seçiniz' }, { v: '1-50', t: '1 - 50' }, { v: '51-200', t: '51 - 200' },
       { v: '201-500', t: '201 - 500' }, { v: '501-1000', t: '501 - 1.000' }, { v: '1000+', t: '1.000+' }
     ] });
-    /* sÄ±ralama: name(full) â†’ firma(full) â†’ [email+phone row] â†’ calisan(full) â†’ message(full) */
+    /* sıralama: name(full) → firma(full) → [email+phone row] → calisan(full) → message(full) */
     if (!nameField.parentNode.classList.contains('md-kk-after-name')) {
       nameField.parentNode.insertBefore(firmaField, nameField.nextSibling);
     }
@@ -1346,19 +1345,19 @@ return String(s == null ? '' : s)
     if (!formEl.querySelector('[data-kk="field-calisan"]') && msgField.parentNode) {
       msgField.parentNode.insertBefore(calisanField, msgField);
     }
-    /* KVKK onayÄ± (message'tan sonra, submit'ten Ã¶nce) */
+    /* KVKK onayı (message'tan sonra, submit'ten önce) */
     if (!formEl.querySelector('.md-kk-consent')) {
       var consent = document.createElement('div'); consent.className = 'md-kk-consent'; consent.setAttribute('data-kk', 'consent');
-      consent.innerHTML = "<input type='checkbox' id='kk-kvkk'><label for='kk-kvkk'><a href='/s/yasal' target='_blank'>KullanÄ±m KoÅŸullarÄ±, Gizlilik PolitikasÄ±</a> ve <a href='/s/yasal' target='_blank'>KVKK AydÄ±nlatma Metni</a>'ni okudum, kiÅŸisel verilerimin iÅŸlenmesini kabul ediyorum.</label>";
-      var errP = document.createElement('p'); errP.className = 'md-kk-consent-err'; errP.textContent = 'Devam etmek iÃ§in KVKK ve kullanÄ±m koÅŸullarÄ±nÄ± onaylayÄ±n.';
+      consent.innerHTML = "<input type='checkbox' id='kk-kvkk'><label for='kk-kvkk'><a href='/s/yasal' target='_blank'>Kullanım Koşulları, Gizlilik Politikası</a> ve <a href='/s/yasal' target='_blank'>KVKK Aydınlatma Metni</a>'ni okudum, kişisel verilerimin işlenmesini kabul ediyorum.</label>";
+      var errP = document.createElement('p'); errP.className = 'md-kk-consent-err'; errP.textContent = 'Devam etmek için KVKK ve kullanım koşullarını onaylayın.';
       var submitField = (formEl.querySelector('button[type="submit"], input[type="submit"]') || {}).closest ? formEl.querySelector('button[type="submit"], input[type="submit"]').closest('.field') : null;
       if (submitField && submitField.parentNode) { submitField.parentNode.insertBefore(consent, submitField); submitField.parentNode.insertBefore(errP, submitField); }
       else { msgField.parentNode.appendChild(consent); msgField.parentNode.appendChild(errP); }
     }
     /* submit metni + ikon */
     var btn = formEl.querySelector('button[type="submit"], input[type="submit"]');
-    if (btn) { if (btn.tagName === 'INPUT') btn.value = 'TALEBÄ°MÄ° GÃ–NDER'; else btn.innerHTML = SVG.send + ' TALEBÄ°MÄ° GÃ–NDER'; }
-    /* consent gate + message fold â€” hem click (recaptcha yolu) hem submit (Enter) */
+    if (btn) { if (btn.tagName === 'INPUT') btn.value = 'TALEBİMİ GÖNDER'; else btn.innerHTML = SVG.send + ' TALEBİMİ GÖNDER'; }
+    /* consent gate + message fold — hem click (recaptcha yolu) hem submit (Enter) */
     function gate(e) {
       var kvkk = formEl.querySelector('#kk-kvkk');
       var err = formEl.querySelector('.md-kk-consent-err');
@@ -1383,10 +1382,10 @@ return String(s == null ? '' : s)
   if (document.body) { mo.observe(document.body, { childList: true, subtree: true }); setTimeout(function () { mo.disconnect(); }, 6000); }
 })();
 /* ============================================================
-   SECTION: UZMAN DETAY â€” DOM yeniden yapÄ±landÄ±rma (tasarÄ±m: danisman-detay)
-   Native node'larÄ± MOVE edip (clone deÄŸil â†’ listener korunur) tasarÄ±mdaki dÃ¼zeni kurar:
-ana kolon hero + iÃ§erik; SEANS & PAKET kartlarÄ±nÄ±n Ä°KÄ°SÄ° de 2-satÄ±r (aynÄ± tasarÄ±m).
-SaÄŸ aside sadeleÅŸtirilir (CSS: sadece gÃ¼ven kartÄ±). Idempotent. CSS: _uzman-detay.css.
+   SECTION: UZMAN DETAY — DOM yeniden yapılandırma (tasarım: danisman-detay)
+   Native node'ları MOVE edip (clone değil → listener korunur) tasarımdaki düzeni kurar:
+ana kolon hero + içerik; SEANS & PAKET kartlarının İKİSİ de 2-satır (aynı tasarım).
+Sağ aside sadeleştirilir (CSS: sadece güven kartı). Idempotent. CSS: _uzman-detay.css.
 ============================================================ */
 (function () {
 var CHECK_SVG = "<svg viewBox='0 0 24 24' width='15' height='15' fill='none' stroke='#34d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/></svg>";
@@ -1418,7 +1417,7 @@ pr.appendChild(price);
 }
 if (priceNum > 0 && sessCount > 1) {
 var ps = document.createElement('p'); ps.className = 'kb-ud-perseans';
-ps.textContent = 'â‚º' + Math.round(priceNum / sessCount) + '/seans';
+ps.textContent = '₺' + Math.round(priceNum / sessCount) + '/seans';
 pr.appendChild(ps);
 }
 top.appendChild(head); top.appendChild(pr);
@@ -1444,10 +1443,10 @@ var rr = rv.querySelector('.review-rating, .profile-review-stars');
 var s = rr ? rr.querySelectorAll('.i-star').length : 0;
 if (s > 0) { sum += s; rated++; }
 });
-var countHtml = "<span class='kb-ud-rating-count'>" + total + " deÄŸerlendirme</span>";
+var countHtml = "<span class='kb-ud-rating-count'>" + total + " değerlendirme</span>";
 if (rated > 0) {
 var avg = (sum / rated).toFixed(1).replace('.', ',');
-el.innerHTML = "<span class='kb-ud-star'>â˜…</span>" + avg + "<span class='kb-ud-rating-sep'>Â·</span>" + countHtml;
+el.innerHTML = "<span class='kb-ud-star'>★</span>" + avg + "<span class='kb-ud-rating-sep'>·</span>" + countHtml;
 } else {
 el.innerHTML = countHtml; 
 }
@@ -1502,7 +1501,7 @@ txt.className = 'kb-ud-hero-txt';
 if (cats) txt.appendChild(cats);     
 if (title) txt.appendChild(title);   
 var metaRow = document.createElement('div'); metaRow.className = 'kb-ud-hero-meta';
-metaRow.innerHTML = "<span class='kb-ud-rating kb-ud-hidden'></span><span class='kb-ud-verified'>" + CHECK_SVG + "OnaylÄ± Uzman</span>";
+metaRow.innerHTML = "<span class='kb-ud-rating kb-ud-hidden'></span><span class='kb-ud-verified'>" + CHECK_SVG + "Onaylı Uzman</span>";
 txt.appendChild(metaRow);
 if (img) hero.appendChild(img);      
 hero.appendChild(txt);
@@ -1535,8 +1534,8 @@ pakets.forEach(function (it) { paketPanel.appendChild(it); buildCard(it); });
 var hasSeans = seanslar.length > 0, hasPaket = pakets.length > 0;
 var tabbar = document.createElement('div'); tabbar.className = 'kb-ud-tabs';
 tabbar.innerHTML =
-(hasSeans ? '<button type="button" class="kb-ud-tab" data-kb-tab="seans">Seans TÃ¼rleri</button>' : '') +
-(hasPaket ? '<button type="button" class="kb-ud-tab" data-kb-tab="paket">Paket DanÄ±ÅŸmanlÄ±klar</button>' : '');
+(hasSeans ? '<button type="button" class="kb-ud-tab" data-kb-tab="seans">Seans Türleri</button>' : '') +
+(hasPaket ? '<button type="button" class="kb-ud-tab" data-kb-tab="paket">Paket Danışmanlıklar</button>' : '');
 var h2 = ap.querySelector('h2.profile-content-title') || ap.querySelector('.profile-content-title');
 if (h2 && h2.parentNode === ap) { ap.insertBefore(tabbar, h2.nextSibling); }
 else { ap.insertBefore(tabbar, ap.firstChild); }
@@ -1565,9 +1564,9 @@ var SHIELD = ic("<path d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.
 var CHECK = ic("<circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/>");
 var VIDEO = ic("<path d='m16 13 5.223 3.482a.5.5 0 0 0 .777-.415V7.93a.5.5 0 0 0-.752-.432L16 10.5'/><rect x='2' y='6' width='14' height='12' rx='2'/>");
 var rows = [
-[SHIELD, 'GÃ¼venli GÃ¶rÃ¼ÅŸme', 'Åifreli video baÄŸlantÄ±sÄ± ile gÃ¼venli oturum'],
-[CHECK, 'Memnuniyet Garantisi', 'Ä°lk seans memnun kalmazsanÄ±z iade'],
-[VIDEO, 'KayÄ±t Ä°mkanÄ±', 'Oturumunuzu kaydedin, tekrar izleyin']
+[SHIELD, 'Güvenli Görüşme', 'Şifreli video bağlantısı ile güvenli oturum'],
+[CHECK, 'Memnuniyet Garantisi', 'İlk seans memnun kalmazsanız iade'],
+[VIDEO, 'Kayıt İmkanı', 'Oturumunuzu kaydedin, tekrar izleyin']
 ];
 var tc = document.createElement('div'); tc.className = 'kb-ud-trust';
 tc.innerHTML = rows.map(function (r) {
@@ -1589,15 +1588,15 @@ var BUILT = 'data-kb-uzmanlar-built';
 function isOnUzmanlar() {
 return document.body && document.body.classList.contains(ROOT_SCOPE);
 }
-var TITLE = 'DanÄ±ÅŸmanlar';
-var INTRO = 'AlanÄ±nda uzman bireysel danÄ±ÅŸmanlar ve kurumsal firma danÄ±ÅŸmanlarÄ± ile birebir gÃ¶rÃ¼ÅŸme yapÄ±n, kiÅŸiselleÅŸtirilmiÅŸ rehberlik alÄ±n.';
+var TITLE = 'Danışmanlar';
+var INTRO = 'Alanında uzman bireysel danışmanlar ve kurumsal firma danışmanları ile birebir görüşme yapın, kişiselleştirilmiş rehberlik alın.';
 var MODES = [
-{ key: 'all',       label: 'TÃ¼mÃ¼',                                    re: null },
-{ key: 'uretken',   label: 'Ãœretken Modu',                            re: /[Ã¼u]retken/i },
-{ key: 'teknoloji', label: 'Teknolojiye MeraklÄ± Modu',                re: /teknoloji/i },
+{ key: 'all',       label: 'Tümü',                                    re: null },
+{ key: 'uretken',   label: 'Üretken Modu',                            re: /[üu]retken/i },
+{ key: 'teknoloji', label: 'Teknolojiye Meraklı Modu',                re: /teknoloji/i },
 { key: 'keyif',     label: 'Keyif Modu',                              re: /keyif/i },
-{ key: 'saglik',    label: 'SaÄŸlÄ±klÄ±yÄ±m Modu',                        re: /sa[ÄŸg]l[Ä±i]k/i },
-{ key: 'longevity', label: 'Longevity (En Ä°yi VersiyonumdayÄ±m) Modu', re: /longevity/i },
+{ key: 'saglik',    label: 'Sağlıklıyım Modu',                        re: /sa[ğg]l[ıi]k/i },
+{ key: 'longevity', label: 'Longevity (En İyi Versiyonumdayım) Modu', re: /longevity/i },
 { key: 'aile',      label: 'Aile Modu',                               re: /aile/i }
 ];
 function modeByKey(k) { for (var i = 0; i < MODES.length; i++) if (MODES[i].key === k) return MODES[i]; return MODES[0]; }
@@ -1609,7 +1608,7 @@ return '<button type="button" class="kb-u-pill' + (i === 0 ? ' active' : '') + '
 return [
 '<div class="kb-u-filters">',
 '  <div class="kb-u-search-wrap">' + SEARCH_SVG,
-'    <input type="text" class="kb-u-search" placeholder="DanÄ±ÅŸman veya uzmanlÄ±k alanÄ± araâ€¦" aria-label="DanÄ±ÅŸman veya uzmanlÄ±k alanÄ± ara">',
+'    <input type="text" class="kb-u-search" placeholder="Danışman veya uzmanlık alanı ara…" aria-label="Danışman veya uzmanlık alanı ara">',
 '  </div>',
 '  <div class="kb-u-pills">' + pills + '</div>',
 '</div>'
@@ -1669,7 +1668,7 @@ if (visible === 0) {
 if (!empty) {
 empty = document.createElement('div');
 empty.className = 'kb-u-empty';
-empty.textContent = 'Aramana uygun danÄ±ÅŸman bulunamadÄ±. AramanÄ± temizle veya farklÄ± bir mod seÃ§.';
+empty.textContent = 'Aramana uygun danışman bulunamadı. Aramanı temizle veya farklı bir mod seç.';
 grid.appendChild(empty);
 }
 empty.style.display = '';
