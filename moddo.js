@@ -69,14 +69,16 @@ search: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="cur
 menu: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>',
 close: '<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>',
 login: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>',
-arrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>'
+arrow: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>',
+message: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+logout: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
 };
 function isLoggedIn() {
 return !!(document.body && document.body.classList.contains('loggedIn'));
 }
 function loginLink(opts) {
 var li = isLoggedIn();
-var href = url(li ? '/dashboard' : '/login');
+var href = url(li ? '/profile' : '/login');
 var label = li ? 'Panelim' : 'Giriş Yap';
 var icon = li ? ICONS.user : ICONS.login;
 if (opts && opts.block) {
@@ -84,12 +86,36 @@ return '<a href="' + href + '" class="md-drawer-btn md-drawer-btn-ghost" data-kb
 }
 return '<a href="' + href + '" data-kb-login="1">' + icon + ' <span>' + label + '</span></a>';
 }
+function headerActions() {
+var li = isLoggedIn();
+var out = loginLink();
+if (li) {
+out += '<a class="md-icon-btn" href="' + url('/mesajlar') + '" title="Mesajlarım" aria-label="Mesajlarım" data-kb-msg="1">' + ICONS.message + '</a>';
+out += '<a class="md-icon-btn" href="' + url('/cikis') + '" title="Çıkış Yap" aria-label="Çıkış Yap">' + ICONS.logout + '</a>';
+} else {
+out += '<a href="' + url('/signup') + '" class="md-cta-solid">Üye Ol</a>';
+}
+out += '<a href="' + url('/s/ayricaliklar') + '" class="md-privilege">' + ICONS.gift + ' <span>Ayrıcalıklar Kulübü</span></a>';
+return out;
+}
+function drawerActions() {
+var li = isLoggedIn();
+var out = '<a href="' + url('/s/danisman-ol') + '" class="md-drawer-btn md-drawer-btn-outline">' + ICONS.briefcase + ' Danışmanımız Ol</a>';
+if (li) {
+out += '<a href="' + url('/mesajlar') + '" class="md-drawer-btn md-drawer-btn-outline" data-kb-msg="1">' + ICONS.message + ' Mesajlarım</a>';
+out += loginLink({ block: true });
+out += '<a href="' + url('/cikis') + '" class="md-drawer-btn md-drawer-btn-ghost">' + ICONS.logout + ' Çıkış Yap</a>';
+} else {
+out += '<a href="' + url('/signup') + '" class="md-drawer-btn md-drawer-btn-solid">ModdoDay\'e Katıl</a>';
+out += loginLink({ block: true });
+}
+return out;
+}
 function renderHeader() {
 var home = '/';
 var kategoriler = '/kategori';
-var etkinlikler = '/etkinlikler';
+var etkinlikler = '/s/canli-oturumlar';
 var signup = '/signup';
-var uzmanlar = '/uzmanlar'
 return [
 '<header class="md-header">',
 '<div class="md-header-tier1">',
@@ -97,11 +123,11 @@ return [
 '<div class="md-header-tier1-inner">',
 '<a href="' + url(home) + '">ModdoDay</a>',
 '<a href="' + url(etkinlikler) + '">Canlı Oturumlar</a>',
-'<a href="' + url(uzmanlar) + '">Danışmanlar</a>',
+'<a href="' + url(kategoriler) + '">1:1 Danışmanlık</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
 '<a href="' + url('/s/kampanyalar') + '">Kampanyalar</a>',
-'<a href="' + url('/s/ayricaliklar') + '">Ayrıcalıklar</a>',
 '<a href="' + url('/s/iletisim') + '">İletişim</a>',
+'<a href="' + url('/s/danisman-ol') + '" class="md-t1-cta">Danışmanımız Olun</a>',
 '</div>',
 '</div>',
 '</div>',
@@ -114,29 +140,29 @@ return [
 '<div class="md-dropdown md-dropdown-mega">',
 '<p class="md-dd-label">Yaşam Modları</p>',
 '<div class="md-dd-grid">',
-'<a href="' + url('/uretken-modu') + '" class="md-dd-mode">',
+'<a href="' + url('/kategori/uretken-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(245,158,11,.15); color:#F59E0B;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 12-8.373 8.373a1 1 0 1 1-3-3L12 9"/><path d="m18 15 4-4"/><path d="m21.5 11.5-1.914-1.914A2 2 0 0 1 19 8.172V7l-2.26-2.26a6 6 0 0 0-4.202-1.756L9 2.96l.92.82A6.18 6.18 0 0 1 12 8.4V10l2 2h1.172a2 2 0 0 1 1.414.586L18.5 14.5"/></svg></span>',
 '<div><strong>Üretken Modu</strong><small>Ellerini kullan, ruhunu besle</small></div>',
 '</a>',
-'<a href="' + url('/teknolojiye-merakli-modu') + '" class="md-dd-mode">',
+'<a href="' + url('/kategori/teknolojiye-merakli-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(59,130,246,.15); color:#3B82F6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z"/></svg></span>',
 '<div><strong>Teknolojiye Meraklı Modu</strong><small>Geleceği bugünden yakala</small></div>',
 '</a>',
-'<a href="' + url('/keyif-modu') + '" class="md-dd-mode">',
+'<a href="' + url('/kategori/keyif-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(244,63,94,.15); color:#F43F5E;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" x2="9.01" y1="9" y2="9"/><line x1="15" x2="15.01" y1="9" y2="9"/></svg></span>',
-'<div><strong>Keyif Modu</strong><small>Keyif anlarını sevdiklerinle deneyimle</small></div>',
+'<div><strong>Keyif Modu</strong><small>Hayatın keyif anlarını sevdiklerinle deneyimle</small></div>',
 '</a>',
-'<a href="' + url('/saglikliyim-modu') + '" class="md-dd-mode">',
+'<a href="' + url('/kategori/saglikliyim-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(16,185,129,.15); color:#10B981;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.4 14.4 9.6 9.6"/><path d="M18.657 21.485a2 2 0 1 1-2.829-2.828l-1.767 1.768a2 2 0 1 1-2.829-2.829l6.364-6.364a2 2 0 1 1 2.829 2.829l-1.768 1.767a2 2 0 1 1 2.828 2.829z"/><path d="m21.5 21.5-1.4-1.4"/><path d="M3.9 3.9 2.5 2.5"/><path d="M6.404 12.768a2 2 0 1 1-2.829-2.829l1.768-1.767a2 2 0 1 1-2.828-2.829l2.828-2.828a2 2 0 1 1 2.829 2.828l1.767-1.768a2 2 0 1 1 2.829 2.829z"/></svg></span>',
 '<div><strong>Sağlıklıyım Modu</strong><small>Bedenine ve zihnine iyi bak</small></div>',
 '</a>',
-'<a href="' + url('/longevity-modu') + '" class="md-dd-mode">',
+'<a href="' + url('/kategori/longevity-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(34,197,94,.15); color:#22C55E;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>',
-'<div><strong>Longevity Modu</strong><small>En iyi versiyonuna ulaş</small></div>',
+'<div><strong>Longevity Modu</strong><small>En iyi versiyonuna ulaş, uzun ve kaliteli yaşa</small></div>',
 '</a>',
-'<a href="' + url('/aile-modu') + '" class="md-dd-mode">',
+'<a href="' + url('/kategori/aile-modu') + '" class="md-dd-mode">',
 '<span class="md-dd-icn" style="background:rgba(139,92,246,.15); color:#8B5CF6;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>',
-'<div><strong>Aile Modu</strong><small>Çocuklar, ebeveynlik ve aile ekonomisi</small></div>',
+'<div><strong>Aile Modu</strong><small>Bilinçli ebeveynlik, mutlu aileler</small></div>',
 '</a>',
 '</div>',
 '</div>',
@@ -145,7 +171,7 @@ return [
 '<button class="md-nav-btn" type="button">' + ICONS.award + ' Marka Elçileri ' + ICONS.chevron + '</button>',
 '<div class="md-dropdown md-dropdown-brands">',
 '<p class="md-dd-brand-desc">Marka elçisi firmalar, ModdoDay\'in 6 yaşam modunda özel içerikler ve ödüllü etkinliklerle hedef kitlesine doğrudan ulaşır. Katılımcılar indirimler ve özel ayrıcalıklar kazanır.</p>',
-'<a href="' + url('/s/ayricaliklar') + '" class="md-dd-brand-cta">Marka Elçilerini Görüntüle ' + ICONS.arrow + '</a>',
+'<a href="' + url('/s/marka-elcileri') + '" class="md-dd-brand-cta">Marka Elçilerini Görüntüle ' + ICONS.arrow + '</a>',
 '<a href="' + url('/s/sponsorluk') + '" class="md-dd-brand-foot">Marka Elçisi Olmak İçin &rarr;</a>',
 '</div>',
 '</div>',
@@ -153,10 +179,7 @@ return [
 '<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanına bağlanmak istiyorsun?" aria-label="Ara">',
 '</form>',
 '<div class="md-header-actions">',
-'<a href="' + url('/s/ayricaliklar') + '">' + ICONS.gift + ' <span>Ayrıcalıklar</span></a>',
-'          ' + loginLink() + '',
-'<a href="' + url('/s/danisman-ol') + '" class="md-cta-outline">' + ICONS.briefcase + ' Danışmanımız Ol</a>',
-'<a href="' + url(signup) + '" class="md-cta-solid">ModdoDay\'e Katıl</a>',
+'          ' + headerActions() + '',
 '</div>',
 '<div class="md-mobile-actions">',
 '<button class="md-icon-btn md-drawer-open" type="button" aria-label="Ara">' + ICONS.search + '</button>',
@@ -193,33 +216,31 @@ return [
 '<div class="md-drawer-search">' + ICONS.search + '<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanına bağlanmak istiyorsun?" aria-label="Ara"></div>',
 '<nav class="md-drawer-nav">',
 '<a href="' + url('/') + '">Ana Sayfa</a>',
-'<a href="' + url('/etkinlikler') + '">Canlı Oturumlar</a>',
+'<a href="' + url('/s/canli-oturumlar') + '">Canlı Oturumlar</a>',
 '<a href="' + url('/kategori') + '">Danışmanlar</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
 '</nav>',
 '<div class="md-drawer-brands">',
 '<div class="md-drawer-label md-drawer-label-accent">' + ICONS.award + ' MARKA ELÇİLERİ</div>',
 '<p>Marka elçisi firmalar, ModdoDay\'in 6 yaşam modunda özel içerikler ve ödüllü etkinliklerle hedef kitlesine doğrudan ulaşır.</p>',
-'<a href="' + url('/s/ayricaliklar') + '" class="md-drawer-brands-link">Marka Elçilerini Görüntüle &rarr;</a>',
+'<a href="' + url('/s/marka-elcileri') + '" class="md-drawer-brands-link">Marka Elçilerini Görüntüle &rarr;</a>',
 '</div>',
 '<div class="md-drawer-modes">',
 '<div class="md-drawer-label">YAŞAM MODLARI</div>',
 '    ' + modeRows,
 '</div>',
 '<div class="md-drawer-actions">',
-'<a href="' + url('/s/danisman-ol') + '" class="md-drawer-btn md-drawer-btn-outline">' + ICONS.briefcase + ' Danışmanımız Ol</a>',
-'<a href="' + url('/signup') + '" class="md-drawer-btn md-drawer-btn-solid">ModdoDay\'e Katıl</a>',
-'    ' + loginLink({ block: true }),
+'    ' + drawerActions() + '',
 '</div>',
 '</aside>'
 ].join('\n');
 }
 function renderFooter() {
 var modes = [
-['uretken-modu', 'Uretken Modu'],
-['teknolojiye-merakli-modu', 'Teknolojiye Merakli Modu'],
+['uretken-modu', 'Üretken Modu'],
+['teknolojiye-merakli-modu', 'Teknolojiye Meraklı Modu'],
 ['keyif-modu', 'Keyif Modu'],
-['saglikliyim-modu', 'Saglikliyim Modu'],
+['saglikliyim-modu', 'Sağlıklıyım Modu'],
 ['longevity-modu', 'Longevity Modu'],
 ['aile-modu', 'Aile Modu']
 ];
@@ -232,7 +253,7 @@ return [
 '<div class="md-footer-grid">',
 '<div>',
 '<a href="' + url('/') + '" class="md-logo" style="display:inline-block; margin-bottom: 16px;">Moddo<span>Day</span></a>',
-'<p style="font-size: var(--fs-sm); line-height: 1.7;">Bugun Hangi Moddasin? Kurumsal Wellbeing & Concierge Servisi ile canli oturumlara katil, uzmanlardan profesyonel danismanlik al ve yasam kaliteni yukselt.</p>',
+'<p style="font-size: var(--fs-sm); line-height: 1.7;">Bugün Hangi Moddasın? Kurumsal Wellbeing & Concierge Servisi ile canlı oturumlara katıl, uzmanlardan profesyonel danışmanlık al ve yaşam kaliteni yükselt.</p>',
 '<p style="margin-top: 16px; font-size: 12px;">Powered by <span style="color: var(--md-orange); font-weight: 500;">Gurulize</span></p>',
 '</div>',
 '<div>',
@@ -242,19 +263,19 @@ return [
 '<div>',
 '<h4>Platform</h4>',
 '<ul>',
-'<li><a href="' + url('/etkinlikler') + '">Canli Oturumlar</a></li>',
-'<li><a href="' + url('/kategori') + '">Danismanlar</a></li>',
+'<li><a href="' + url('/s/canli-oturumlar') + '">Canlı Oturumlar</a></li>',
+'<li><a href="' + url('/kategori') + '">Danışmanlar</a></li>',
 '<li><a href="' + url('/s/sponsorluk') + '">Sponsorluk</a></li>',
-'<li><a href="' + url('/s/ayricaliklar') + '">Ayricaliklar Kulubu</a></li>',
-'<li><a href="' + url('/s/iletisim') + '">Iletisim</a></li>',
+'<li><a href="' + url('/s/ayricaliklar') + '">Ayrıcalıklar Kulübü</a></li>',
+'<li><a href="' + url('/s/iletisim') + '">İletişim</a></li>',
 '</ul>',
 '</div>',
 '<div>',
-'<h4>Iletisim</h4>',
+'<h4>İletişim</h4>',
 '<ul>',
 '<li>info@moddo.day</li>',
 '<li>0850 304 75 95</li>',
-'<li>Istanbul, Turkiye</li>',
+'<li>İstanbul, Türkiye</li>',
 '</ul>',
 '<div class="md-social">',
 '<a href="#" aria-label="LinkedIn"><svg width="16" height="16" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 1 1 0-4.125 2.062 2.062 0 0 1 0 4.125zm1.782 13.019H3.555V9h3.564v11.452z"/></svg></a>',
@@ -264,10 +285,10 @@ return [
 '</div>',
 '</div>',
 '<div class="md-footer-bottom">',
-'<p>(c) 2026 ModdoDay. Tum haklari saklidir.</p>',
+'<p>© 2026 ModdoDay. Tüm hakları saklıdır.</p>',
 '<div style="display:flex; gap: 24px;">',
-'<a href="#">Gizlilik Politikasi</a>',
-'<a href="#">Kullanim Kosullari</a>',
+'<a href="#">Gizlilik Politikası</a>',
+'<a href="#">Kullanım Koşulları</a>',
 '<a href="#">KVKK</a>',
 '</div>',
 '</div>',
@@ -1191,41 +1212,694 @@ return String(s == null ? '' : s)
   }
 })();
 /* ============================================================
-   SECTION: KATEGORI (mod) detay — /kategori/<slug>
-   MINIMAL JS — yalnizca HTML/editör iceriginin yapamadigi:
-     - body'ye per-mode class (kb-cat-<slug>) → CSS accent rengi
-     - "Uzman Danışmanlar" basligini native .agents listesinin ONUNE ekle
-       (excerpt header'da, content en altta; bu pozisyona HTML giremez)
-   Hero/stats/diger-modlar HTML (category excerpt+content) ile; uzman kartlari
-   native (gercek veri) + agent-cards.js ile stillidir.
-   Idempotent: data-kb-cat marker.
+   CANLI OTURUMLAR — /s/canli-oturumlar (kb-page-cms-canli-oturumlar)
+   Etkinlikleri public /event-load JSON endpoint'inden çeker ve KENDİ
+   markup'ımızla render eder (native DOM'dan bağımsız). Client-side filtre:
+   zaman (Yaklaşan/Geçmiş/Tümü) + arama + kategori. Statik kabuk CMS content'te.
+   Referans: app/Views/partials/event.list.php (tz, fiyat, detay url mantığı).
    ============================================================ */
 (function () {
-  function isCat() {
-    if (typeof isCategory !== 'undefined' && isCategory) return true;
-    return /\/kategori\/[^\/]+$/.test(location.pathname.replace(/\/$/, ''));
+  // Hangi sayfadayız: 'cms' (/s/canli-oturumlar, B) | 'native' (/etkinlikler, A) | null
+  function pageMode() {
+    var b = document.body;
+    if (!b) return null;
+    var dk = b.getAttribute('data-kb-page') || '';
+    if (dk === 'kb-page-cms-canli-oturumlar' || b.classList.contains('kb-page-cms-canli-oturumlar')) return 'cms';
+    if (dk === 'kb-page-cms-etkinlikler-2' || b.classList.contains('kb-page-cms-etkinlikler-2')) return 'cms';
+    if (dk === 'kb-page-etkinlikler' || b.classList.contains('kb-page-etkinlikler')) return 'native';
+    return null;
   }
-  if (!isCat()) return;
-  function slug() {
-    var m = location.pathname.replace(/\/$/, '').match(/\/kategori\/([^\/]+)$/);
-    return m ? m[1].replace(/[^a-z0-9-]/gi, '') : '';
+  // native /etkinlikler'de kendi .md-ev host'umuzu inject et (CMS'te host zaten
+  // sayfa içeriğinde). Native page-header + .container.events-container CSS ile gizli.
+  function ensureHost(mode) {
+    var host = document.querySelector('.md-ev');
+    if (host) return host;
+    if (mode !== 'native') return null;
+    var page = document.querySelector('.page.events') || document.querySelector('.page') ||
+               document.querySelector('.page-content') || document.body;
+    host = document.createElement('div');
+    host.className = 'md-ev';
+    host.setAttribute('data-kb-ev-host', '1');
+    host.innerHTML =
+      '<section class="md-ev-hero"><h1>Canlı Oturumlar</h1><p>Uzmanlarımız ve Mod Elçisi Firmalarımızdan canlı oturumlara katılın, öğrenin ve uygulamaya başlayın.</p></section>' +
+      '<div class="md-ev-grid"></div>' +
+      '<div class="md-ev-empty" hidden>Bu kriterlere uygun oturum bulunamadı.</div>' +
+      '<div class="md-ev-loader" hidden>Yükleniyor…</div>';
+    page.appendChild(host);
+    return host;
+  }
+  var ALL = [];        // /event-load'dan gelen tüm etkinlikler
+  var loaded = false;  // veri çekildi mi
+  var bound = false;   // filtreler bağlandı mı
+  var state = { time: 'upcoming', q: '', cat: '' };
+  function localePrefix() {
+    var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//);
+    return m ? '/' + m[1] : '';
+  }
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+function imgUrl(p) {
+if (!p) return '';
+p = String(p);
+return p.charAt(0) === '/' ? p : '/images/' + p;
+}
+function emptyImg(p) { return !p || /\/$/.test(String(p)); } 
+function parseUtc(s) {
+if (!s) return null;
+s = String(s);
+if (s.indexOf('Z') < 0 && s.indexOf('+') < 0) s = s.replace(' ', 'T') + 'Z';
+var d = new Date(s);
+return isNaN(d.getTime()) ? null : d;
+}
+function initials(name) {
+var p = String(name || '').trim().split(/\s+/);
+var a = (p[0] || '?').charAt(0);
+var b = p.length > 1 ? p[p.length - 1].charAt(0) : '';
+return (a + b).toLocaleUpperCase('tr-TR');
+}
+function ico(k) { return '<span class="md-ev-ico md-ev-ico--' + k + '"></span>'; }
+function startOf(e) { return parseUtc(e.start_date && (e.start_date.date || e.start_date)); }
+function tkey(e) { var d = startOf(e); return d ? d.getTime() : 0; }
+function fmtDate(d) {
+try { return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }); }
+catch (x) { return ''; }
+}
+function fmtTime(d) {
+try { return d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); }
+catch (x) { return ''; }
+}
+function priceText(e) {
+var pr = e.price;
+if (!pr) return '';
+var free = (pr.price == 0 && pr.credit == 0);
+if (free) return 'Ücretsiz';
+var sym = (pr.currency_iso && pr.currency_iso.symbol) ? pr.currency_iso.symbol : '';
+return (sym + ' ' + pr.price).trim();
+}
+function card(e) {
+var st = startOf(e);
+var past = st ? (st.getTime() < Date.now()) : false;
+var typeOnline = (String(e.event_type) === '1') || (e.event_type_str === 'Online');
+var typeLabel = e.event_type_str || (typeOnline ? 'Online' : 'Offline');
+var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
+var cover = emptyImg(e.image) ? '' : imgUrl(e.image);
+var avatar = emptyImg(e.agent_image) ? '' : imgUrl(e.agent_image);
+var href = localePrefix() + (e.url || '/etkinlikler');
+var cat = String(e.event_category_name || '').trim();
+var dur = String(e.duration || '').trim();
+var price = priceText(e);
+var h = '';
+h += '<a class="md-ev-card' + (past ? ' is-past' : '') + '" href="' + esc(href) + '">';
+h +=   '<div class="md-ev-cover' + (cover ? '' : ' md-ev-cover--ph') + '"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : '') + '>';
+h +=     '<span class="md-ev-type">' + ico(typeOnline ? 'video' : 'pin') + esc(typeLabel) + '</span>';
+h +=     '<span class="md-ev-avatar">' + (avatar ? '<img src="' + esc(avatar) + '" alt="" loading="lazy">' : '<span class="md-ev-ini">' + esc(initials(e.agent_name)) + '</span>') + '</span>';
+h +=   '</div>';
+h +=   '<div class="md-ev-body">';
+if (cat) h += '<span class="md-ev-cat">' + esc(cat) + '</span>';
+h +=     '<h3 class="md-ev-title">' + esc(title) + '</h3>';
+h +=     '<div class="md-ev-speaker"><span class="md-ev-sp-name">' + esc(e.agent_name || '') + '</span>' + (e.agent_title ? '<span class="md-ev-sp-title">' + esc(e.agent_title) + '</span>' : '') + '</div>';
+h +=     '<div class="md-ev-meta">';
+if (st) h += '<span>' + ico('calendar') + esc(fmtDate(st)) + '</span>';
+if (st) h += '<span>' + ico('clock') + esc(fmtTime(st)) + (dur ? ' · ' + esc(dur) : '') + '</span>';
+h +=     '</div>';
+h +=     '<div class="md-ev-foot"><span class="md-ev-price">' + esc(price) + '</span><span class="md-ev-detail">Detayları Gör ' + ico('arrow') + '</span></div>';
+h +=   '</div>';
+h += '</a>';
+return h;
+}
+function visible() {
+var now = Date.now();
+var q = state.q;
+var list = ALL.filter(function (e) {
+var t = tkey(e);
+if (state.time === 'upcoming' && !(t >= now)) return false;
+if (state.time === 'past' && !(t < now)) return false;
+if (state.cat && String(e.event_category_name || '') !== state.cat) return false;
+if (q) {
+var hay = ((e.event_name || '') + ' ' + (e.agent_name || '') + ' ' + (e.agent_title || '') + ' ' + (e.event_category_name || '')).toLocaleLowerCase('tr');
+if (hay.indexOf(q) < 0) return false;
+}
+return true;
+});
+var dir = state.time === 'past' ? -1 : 1;
+return list.sort(function (a, b) { return dir * (tkey(a) - tkey(b)); });
+}
+function render() {
+var grid = document.querySelector('.md-ev-grid');
+var empty = document.querySelector('.md-ev-empty');
+if (!grid) return;
+var list = visible();
+grid.innerHTML = list.map(card).join('');
+if (empty) empty.hidden = list.length > 0;
+}
+function buildCategories() {
+var sel = document.querySelector('.md-ev-cat');
+if (!sel) return;
+var seen = {}, opts = [];
+ALL.forEach(function (e) {
+var c = String(e.event_category_name || '').trim();
+if (c && !seen[c]) { seen[c] = 1; opts.push(c); }
+});
+opts.sort(function (a, b) { return a.localeCompare(b, 'tr'); });
+var html = '<option value="">Tüm Kategoriler</option>';
+opts.forEach(function (c) { html += '<option value="' + esc(c) + '">' + esc(c) + '</option>'; });
+sel.innerHTML = html;
+}
+function listTrNorm(s) { return String(s == null ? '' : s).replace(/[İI]/g, 'i').replace(/ı/g, 'i').replace(/[Şş]/g, 's').replace(/[Ğğ]/g, 'g').replace(/[Üü]/g, 'u').replace(/[Çç]/g, 'c').replace(/[Öö]/g, 'o').toLowerCase(); }
+function applyUrlModList() {
+if (state._modApplied) return; state._modApplied = true;
+var m = (location.search.match(/[?&]mod=([^&]+)/) || [])[1];
+if (!m) return;
+var kw = listTrNorm(decodeURIComponent(m.replace(/\+/g, ' ')));
+if (!kw) return;
+var cat = '';
+for (var i = 0; i < ALL.length; i++) { var n = String(ALL[i].event_category_name || '').trim(); if (n && listTrNorm(n).indexOf(kw) !== -1) { cat = n; break; } }
+if (!cat) return;
+state.cat = cat; state.time = 'all'; 
+var sel = document.querySelector('.md-ev-cat'); if (sel) sel.value = cat;
+var tabs = document.querySelectorAll('.md-ev-tab'); tabs.forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-ev-time') === 'all'); });
+render();
+}
+function ensureFilters() {
+var root = document.querySelector('.md-ev');
+var grid = document.querySelector('.md-ev-grid');
+if (!root || !grid) return false;
+if (!root.querySelector('.md-ev-filters')) {
+var wrap = document.createElement('div');
+wrap.className = 'md-ev-filters';
+wrap.innerHTML =
+'<div class="md-ev-tabs">' +
+'<button type="button" class="md-ev-tab is-active" data-ev-time="upcoming">Yaklaşan</button>' +
+'<button type="button" class="md-ev-tab" data-ev-time="past">Geçmiş</button>' +
+'<button type="button" class="md-ev-tab" data-ev-time="all">Tümü</button>' +
+'</div>' +
+'<span class="md-ev-filter-spacer"></span>' +
+'<span class="md-ev-search-wrap">' + ico('search') +
+'<input type="text" class="md-ev-search" placeholder="Oturum ara..." autocomplete="off" spellcheck="false" aria-label="Oturum ara">' +
+'</span>' +
+'<select class="md-ev-cat" aria-label="Kategori"><option value="">Tüm Kategoriler</option></select>';
+grid.parentNode.insertBefore(wrap, grid);
+}
+bindFilters();
+return true;
+}
+function bindFilters() {
+if (bound) return;
+var wrap = document.querySelector('.md-ev-filters');
+if (!wrap) return;
+bound = true;
+var tabs = wrap.querySelectorAll('.md-ev-tab');
+tabs.forEach(function (btn) {
+btn.addEventListener('click', function () {
+state.time = btn.getAttribute('data-ev-time') || 'all';
+tabs.forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+render();
+});
+});
+var search = wrap.querySelector('.md-ev-search');
+if (search) search.addEventListener('input', function () {
+state.q = search.value.toLocaleLowerCase('tr').trim();
+render();
+});
+var sel = wrap.querySelector('.md-ev-cat');
+if (sel) sel.addEventListener('change', function () { state.cat = sel.value; render(); });
+}
+async function loadData() {
+if (loaded) return;
+loaded = true;
+var loader = document.querySelector('.md-ev-loader');
+if (loader) loader.hidden = false;
+var LIMIT = 100, MAX = 5000;
+try {
+var acc = [], offset = 0;
+while (true) {
+var res = await fetch('/event-load?limit=' + LIMIT + '&offset=' + offset, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+if (!res.ok) throw new Error('HTTP ' + res.status);
+var data = await res.json();
+var batch = Array.isArray(data) ? data : (data && data.data ? data.data : []);
+if (!Array.isArray(data) && !(data && data.data) && window.console) console.warn('[etkinlikler] beklenmeyen yanıt şeması', data);
+acc = acc.concat(batch);
+offset += LIMIT;
+if (batch.length < LIMIT || acc.length >= MAX) break;
+}
+ALL = acc;
+if (cal.active) { try { CATLIST = await fetchCategories(); } catch (e) { CATLIST = null; } }  
+if (loader) loader.hidden = true;
+if (cal.active) { calBuild(); sxRender(); }   
+else { buildCategories(); render(); applyUrlModList(); }  
+} catch (err) {
+loaded = false; 
+if (loader) { loader.hidden = false; loader.textContent = 'Etkinlikler yüklenemedi.'; }
+if (window.console) console.error('[etkinlikler] fetch error', err);
+}
+}
+var MODE_PALETTE = [
+{ kw: 'uretken',   color: '#F59E0B' },
+{ kw: 'teknoloji', color: '#3B82F6' },
+{ kw: 'keyif',     color: '#F43F5E' },
+{ kw: 'saglik',    color: '#10B981' },
+{ kw: 'longevity', color: '#22C55E' },
+{ kw: 'aile',      color: '#8B5CF6' }
+];
+var FALLBACK_COLOR = '#94A3B8';
+var MODELIST = [];  
+var CATLIST = null; 
+function trNorm(s) {
+return String(s == null ? '' : s)
+.replace(/[İI]/g, 'i').replace(/ı/g, 'i').replace(/[Şş]/g, 's').replace(/[Ğğ]/g, 'g')
+.replace(/[Üü]/g, 'u').replace(/[Çç]/g, 'c').replace(/[Öö]/g, 'o').toLowerCase();
+}
+function slugify(s) { return trNorm(s).replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+function hashColor(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) >>> 0; return 'hsl(' + (h % 360) + ',60%,55%)'; }
+function colorForCat(name, slug) {
+var h = trNorm((name || '') + ' ' + (slug || ''));
+for (var i = 0; i < MODE_PALETTE.length; i++) if (h.indexOf(MODE_PALETTE[i].kw) !== -1) return MODE_PALETTE[i].color;
+return name ? hashColor(h) : FALLBACK_COLOR;  
+}
+function modeOf(e) {
+var name = String(e.event_category_name || '').trim();
+var cslug = String(e.category_slug || '').trim();  
+if (!name && !cslug) return { slug: '__other', name: 'Diğer', color: FALLBACK_COLOR };
+return { slug: cslug || slugify(name), name: name || cslug, color: colorForCat(name, cslug) };
+}
+function modeRank(m) {
+var h = trNorm(m.name + ' ' + m.slug);
+for (var i = 0; i < MODE_PALETTE.length; i++) if (h.indexOf(MODE_PALETTE[i].kw) !== -1) return i;
+return 99;
+}
+function computeModes() {
+var seen = {}, list = [];
+ALL.forEach(function (e) {
+if (!String(e.event_category_name || '').trim()) return;
+var md = modeOf(e);
+if (md.slug === '__other' || seen[md.slug]) return;
+seen[md.slug] = 1; list.push({ slug: md.slug, name: md.name, color: md.color });
+});
+return list;
+}
+function fetchCategories() {
+return fetch(localePrefix() + '/etkinlikler', { credentials: 'same-origin' })
+.then(function (r) { return r.ok ? r.text() : ''; })
+.then(function (html) {
+if (!html) return null;
+var doc = new DOMParser().parseFromString(html, 'text/html');
+var sel = doc.querySelector('select[name="category_name"]');
+if (!sel) return null;
+var list = [];
+[].forEach.call(sel.options, function (o) {
+var v = (o.value || '').trim(), t = (o.textContent || '').trim();
+if (!v || !t) return;  
+list.push({ slug: v, name: t, color: colorForCat(t, v) });
+});
+return list.length ? list : null;
+})
+.catch(function () { return null; });
+}
+function buildModes() {
+var src = (CATLIST && CATLIST.length) ? CATLIST.slice() : computeModes();
+src.sort(function (a, b) { var ra = modeRank(a), rb = modeRank(b); return ra !== rb ? ra - rb : a.name.localeCompare(b.name, 'tr'); });
+MODELIST = src;
+var mf = document.querySelector('.md-cal-modefilters');
+if (mf) mf.innerHTML = MODELIST.map(function (m) {
+return '<button type="button" class="md-cal-mode" data-mode="' + esc(m.slug) + '" style="--mc:' + m.color + '">' +
+'<span class="md-cal-cb"></span><span class="md-cal-mode-name">' + esc(m.name) + '</span></button>';
+}).join('');
+cal.modes = cal.modes.filter(function (s) { return MODELIST.some(function (m) { return m.slug === s; }); }); 
+calUpdateChips();
+}
+var CMONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
+var CDOW = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+var cal = { active: false, view: 'month', year: 0, month: 0, weekStart: null, modes: [], byDate: null, inited: false };
+function pad2(n) { return (n < 10 ? '0' : '') + n; }
+function calKey(y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); }
+function calKeyOf(d) { return calKey(d.getFullYear(), d.getMonth(), d.getDate()); }
+function calMonday(d) { var x = new Date(d.getFullYear(), d.getMonth(), d.getDate()); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); return x; }
+function calBuildIndex() {
+var map = {};
+ALL.forEach(function (e) {
+var st = startOf(e); if (!st) return; 
+var k = calKeyOf(st);
+(map[k] = map[k] || []).push(e);
+});
+Object.keys(map).forEach(function (k) { map[k].sort(function (a, b) { return tkey(a) - tkey(b); }); });
+cal.byDate = map;
+}
+function calSessHTML(e) {
+var md = modeOf(e);
+var st = startOf(e);
+var href = localePrefix() + (e.url || '/etkinlikler');
+var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
+var dur = String(e.duration || '').trim();
+var time = st ? fmtTime(st) : '';
+return '<a class="md-cal-sess" href="' + esc(href) + '" data-mode="' + esc(md.slug) + '" style="--sc:' + md.color + '">' +
+'<span class="md-cal-sess-arrow">' + ico('arrow') + '</span>' +
+'<span class="md-cal-sess-title">' + esc(title) + '</span>' +
+'<span class="md-cal-sess-meta"><span>' + esc(time) + '</span><span>' + esc(dur) + '</span></span>' +
+'</a>';
+}
+function calDayBody(k) {
+var list = (cal.byDate && cal.byDate[k]) || [];
+if (cal.modes.length) list = list.filter(function (e) { var s = modeOf(e).slug; return s === '__other' || cal.modes.indexOf(s) !== -1; });
+if (!list.length) return '<div class="md-cal-empty">Oturum yok</div>';
+return '<div class="md-cal-sess-list">' + list.map(calSessHTML).join('') + '</div>';
+}
+function calDayCell(dt, withMonth) {
+var k = calKeyOf(dt);
+var isToday = (k === calKeyOf(new Date()));
+var num = dt.getDate() + (withMonth ? '<span class="md-cal-daymon">' + CMONTHS[dt.getMonth()] + '</span>' : '');
+return '<div class="md-cal-day' + (isToday ? ' is-today' : '') + '"><div class="md-cal-daynum">' + num + '</div>' +
+'<div class="md-cal-day-body">' + calDayBody(k) + '</div></div>';
+}
+function calRenderMonth() {
+var grid = document.getElementById('md-cal-month'); if (!grid) return;
+var days = new Date(cal.year, cal.month + 1, 0).getDate();
+var firstDow = (new Date(cal.year, cal.month, 1).getDay() + 6) % 7;
+var html = '';
+for (var i = 0; i < firstDow; i++) html += '<div class="md-cal-day md-cal-day--pad"></div>';
+for (var d = 1; d <= days; d++) html += calDayCell(new Date(cal.year, cal.month, d), false);
+grid.innerHTML = html;
+}
+function calRenderWeek() {
+var grid = document.getElementById('md-cal-week'); if (!grid) return;
+var s = calMonday(cal.weekStart);
+var html = '';
+for (var i = 0; i < 7; i++) html += calDayCell(new Date(s.getFullYear(), s.getMonth(), s.getDate() + i), true);
+grid.innerHTML = html;
+}
+function calTitle() {
+if (cal.view === 'week') {
+var s = calMonday(cal.weekStart), e = new Date(s.getFullYear(), s.getMonth(), s.getDate() + 6);
+if (s.getMonth() === e.getMonth()) return s.getDate() + ' - ' + e.getDate() + ' ' + CMONTHS[s.getMonth()] + ' ' + s.getFullYear();
+return s.getDate() + ' ' + CMONTHS[s.getMonth()] + ' - ' + e.getDate() + ' ' + CMONTHS[e.getMonth()] + ' ' + e.getFullYear();
+}
+return CMONTHS[cal.month] + ' ' + cal.year;
+}
+function calRender() {
+var mg = document.getElementById('md-cal-month'), wg = document.getElementById('md-cal-week');
+if (cal.view === 'week') { if (mg) mg.style.display = 'none'; if (wg) wg.style.display = ''; calRenderWeek(); }
+else { if (wg) wg.style.display = 'none'; if (mg) mg.style.display = ''; calRenderMonth(); }
+var t = document.querySelector('.md-cal-title'); if (t) t.textContent = calTitle();
+}
+function calStep(dir) {
+if (cal.view === 'week') { var w = cal.weekStart; cal.weekStart = new Date(w.getFullYear(), w.getMonth(), w.getDate() + dir * 7); }
+else { cal.month += dir; if (cal.month < 0) { cal.month = 11; cal.year--; } else if (cal.month > 11) { cal.month = 0; cal.year++; } }
+calRender();
+}
+function calUpdateChips() {
+var holder = document.querySelector('.md-cal'); if (!holder) return;
+holder.querySelectorAll('.md-cal-mode').forEach(function (chip) {
+var on = cal.modes.length === 0 || cal.modes.indexOf(chip.getAttribute('data-mode')) !== -1;
+chip.classList.toggle('is-off', !on);
+});
+}
+function applyMode() {
+calUpdateChips();
+calRender();
+sxRenderRows();
+}
+function calBuild() {
+if (!cal.active) return;
+calBuildIndex();
+if (!cal.inited) {
+var now = new Date();
+cal.year = now.getFullYear(); cal.month = now.getMonth(); cal.weekStart = calMonday(now);
+cal.inited = true;
+}
+buildModes();  
+applyUrlMod(); 
+calRender();
+}
+function applyUrlMod() {
+if (cal._modApplied) return; cal._modApplied = true;
+var m = (location.search.match(/[?&]mod=([^&]+)/) || [])[1];
+if (!m) return;
+var kw = trNorm(decodeURIComponent(m.replace(/\+/g, ' ')));
+if (!kw) return;
+var hits = MODELIST.filter(function (md) { return trNorm(md.name + ' ' + md.slug).indexOf(kw) !== -1; });
+if (hits.length) { cal.modes = hits.map(function (md) { return md.slug; }); pg.view = 'list'; calUpdateChips(); }
+}
+function calEnsure(host) {
+var holder = host.querySelector('.md-cal');
+if (holder && holder.getAttribute('data-built') !== '1') {
+holder.setAttribute('data-built', '1');
+var dh = CDOW.map(function (x) { return '<div class="md-cal-dh">' + x + '</div>'; }).join('');
+holder.innerHTML =
+'<div class="md-cal-wrap">' +
+'<div class="md-cal-head">' +
+'<div class="md-cal-head-top"><h2 class="md-cal-h2">Canlı Oturumlar Takvimi</h2>' +
+'<div class="md-cal-modetoggle"><button type="button" class="is-active" data-cal-view="month">Aylık</button><button type="button" data-cal-view="week">Haftalık</button></div>' +
+'</div>' +
+'<div class="md-cal-head-nav"><h3 class="md-cal-title"></h3>' +
+'<div class="md-cal-navbtns"><button type="button" class="md-cal-prev" data-cal-nav="-1" aria-label="Önceki">' + ico('arrow') + '</button>' +
+'<button type="button" data-cal-nav="1" aria-label="Sonraki">' + ico('arrow') + '</button></div></div>' +
+'</div>' +
+'<div class="md-cal-content">' +
+'<div class="md-cal-modefilters"></div>' +  
+'<p class="md-cal-info">Oturum kartlarına tıklayarak detay sayfasını görüntüleyebilir ve oturuma katılabilirsiniz.</p>' +
+'<div class="md-cal-grid-head">' + dh + '</div>' +
+'<div class="md-cal-grid" id="md-cal-month"></div>' +
+'<div class="md-cal-grid" id="md-cal-week" style="display:none"></div>' +
+'</div>' +
+'</div>';
+holder.querySelectorAll('[data-cal-view]').forEach(function (btn) {
+btn.addEventListener('click', function () {
+cal.view = btn.getAttribute('data-cal-view');
+holder.querySelectorAll('[data-cal-view]').forEach(function (b) { b.classList.toggle('is-active', b === btn); });
+calRender();
+});
+});
+holder.querySelectorAll('[data-cal-nav]').forEach(function (btn) {
+btn.addEventListener('click', function () { calStep(parseInt(btn.getAttribute('data-cal-nav'), 10)); });
+});
+var mf = holder.querySelector('.md-cal-modefilters');
+mf.addEventListener('click', function (ev) {
+var chip = ev.target.closest && ev.target.closest('.md-cal-mode');
+if (!chip || !mf.contains(chip)) return;
+var m = chip.getAttribute('data-mode'), i = cal.modes.indexOf(m);
+if (i === -1) cal.modes.push(m); else cal.modes.splice(i, 1);
+applyMode();
+});
+}
+}
+var pg = { time: 'upcoming', view: 'calendar', qc: '', qs: '' };  
+function pgHost() { return document.querySelector('.md-ev'); }
+function sxRows() {
+var now = Date.now();
+var list = ALL.filter(function (e) {
+var t = tkey(e);
+if (pg.time === 'upcoming' && !(t >= now)) return false;
+if (pg.time === 'past' && !(t < now)) return false;
+if (cal.modes.length) { var s = modeOf(e).slug; if (s !== '__other' && cal.modes.indexOf(s) === -1) return false; }
+if (pg.qc && trNorm(e.agent_name || '').indexOf(trNorm(pg.qc)) < 0) return false;
+if (pg.qs && trNorm((e.event_name || '') + ' ' + (e.event_category_name || '')).indexOf(trNorm(pg.qs)) < 0) return false;
+return true;
+});
+var dir = pg.time === 'past' ? -1 : 1;
+return list.sort(function (a, b) { return dir * (tkey(a) - tkey(b)); });
+}
+function sxRowHTML(e) {
+var md = modeOf(e), st = startOf(e);
+var past = st ? (st.getTime() < Date.now()) : false;
+var href = localePrefix() + (e.url || '/etkinlikler');
+var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
+var dur = String(e.duration || '').trim();
+var avatar = emptyImg(e.agent_image) ? '' : imgUrl(e.agent_image);
+var role = String(e.agent_title || '').trim() || 'Uzman Danışman';
+var isSeries = /b[öo]l[üu]m/i.test(title);
+var badge = past ? '<span class="md-cal-row-badge is-done">Tamamlandı</span>'
+: (isSeries ? '<span class="md-cal-row-badge" style="border-color:' + md.color + ';color:' + md.color + '">Seri</span>' : '');
+var h = '<a class="md-cal-row' + (past ? ' is-past' : '') + '" href="' + esc(href) + '" data-mode="' + esc(md.slug) + '" style="--rc:' + md.color + '">';
+h += '<div class="md-cal-row-left"><div class="md-cal-row-av" style="border-color:' + md.color + '">' +
+(avatar ? '<img src="' + esc(avatar) + '" alt="" loading="lazy">' : '<span class="md-cal-row-ini">' + esc(initials(e.agent_name)) + '</span>') + '</div>' +
+'<div class="md-cal-row-who"><p class="nm">' + esc(e.agent_name || '') + '</p><p class="rl">' + esc(role) + '</p></div></div>';
+h += '<div class="md-cal-row-center"><div class="md-cal-row-tags"><span class="md-cal-row-mode" style="background:' + md.color + '">' + esc(md.name) + '</span>' + badge + '</div>' +
+'<h3>' + esc(title) + '</h3></div>';
+h += '<div class="md-cal-row-right"><div class="wr">' + ico('calendar') + '<span class="d">' + (st ? esc(fmtDate(st)) : '') + '</span></div>' +
+'<div class="wr">' + ico('clock') + '<span class="t">' + (st ? esc(fmtTime(st)) : '') + '</span></div>' +
+(dur ? '<div class="wr"><span class="dur">' + esc(dur) + '</span></div>' : '') + '</div>';
+h += '</a>';
+return h;
+}
+function sxRenderRows() {
+var c = document.querySelector('.md-cal-rows'); if (!c) return;
+var list = sxRows();
+c.innerHTML = list.length ? list.map(sxRowHTML).join('')
+: '<div class="md-cal-rows-empty">Bu kriterlere uygun oturum bulunamadı.</div>';
+}
+function pgApply() {
+var host = pgHost(); if (!host) return;
+var calEl = host.querySelector('.md-cal'), rowsEl = host.querySelector('.md-cal-rows');
+var note = host.querySelector('.md-cal-pastnote'), vt = host.querySelector('.md-cal-viewtoggle');
+var showCal = pg.time === 'upcoming' && pg.view === 'calendar';
+var showRows = pg.time === 'past' || (pg.time === 'upcoming' && pg.view === 'list');
+if (calEl) calEl.style.display = showCal ? '' : 'none';
+if (rowsEl) rowsEl.style.display = showRows ? '' : 'none';
+if (note) note.style.display = pg.time === 'past' ? '' : 'none';
+if (vt) vt.style.display = pg.time === 'upcoming' ? '' : 'none';
+host.querySelectorAll('[data-pg-time]').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-pg-time') === pg.time); });
+host.querySelectorAll('[data-pg-view]').forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-pg-view') === pg.view); });
+}
+function sxRender() { sxRenderRows(); pgApply(); }
+function sxEnsure(host) {
+if (host.querySelector('.md-cal-filters')) return;
+var calEl = host.querySelector('.md-cal');
+var g = host.querySelector('.md-ev-grid'); if (g) g.style.display = 'none';      
+var em = host.querySelector('.md-ev-empty'); if (em) em.style.display = 'none';
+var fb = document.createElement('div');
+fb.className = 'md-cal-filters';
+fb.innerHTML =
+'<div class="md-cal-timebtns">' +
+'<button type="button" class="md-cal-tbtn is-active" data-pg-time="upcoming">Yaklaşan Oturumlar</button>' +
+'<button type="button" class="md-cal-tbtn" data-pg-time="past">Geçmiş Oturumlar</button>' +
+'</div>' +
+'<div class="md-cal-selects">' +
+'<div class="md-cal-field"><span class="md-ev-ico md-ev-ico--search md-cal-sicon"></span><input type="text" class="md-cal-qc" placeholder="Danışman ara..." autocomplete="off" spellcheck="false" aria-label="Danışman ara"></div>' +
+'<div class="md-cal-field"><span class="md-ev-ico md-ev-ico--search md-cal-sicon"></span><input type="text" class="md-cal-qs" placeholder="Oturum ara..." autocomplete="off" spellcheck="false" aria-label="Oturum ara"></div>' +
+'</div>';
+var vt = document.createElement('div');
+vt.className = 'md-cal-viewtoggle';
+vt.innerHTML =
+'<button type="button" class="md-cal-vbtn is-active" data-pg-view="calendar" title="Takvim Görünümü">' + ico('calendar') + '</button>' +
+'<button type="button" class="md-cal-vbtn" data-pg-view="list" title="Liste Görünümü">' + ico('list') + '</button>';
+var note = document.createElement('p'); note.className = 'md-cal-pastnote'; note.style.display = 'none';
+note.textContent = 'Geçmiş oturumların kayıtlarını izleyebilirsiniz.';
+var rows = document.createElement('div'); rows.className = 'md-cal-rows';
+if (calEl) {
+host.insertBefore(fb, calEl);
+host.insertBefore(vt, calEl);
+calEl.insertAdjacentElement('afterend', rows);
+rows.insertAdjacentElement('beforebegin', note);
+}
+fb.querySelectorAll('[data-pg-time]').forEach(function (btn) {
+btn.addEventListener('click', function () { pg.time = btn.getAttribute('data-pg-time'); sxRender(); });
+});
+vt.querySelectorAll('[data-pg-view]').forEach(function (btn) {
+btn.addEventListener('click', function () { pg.view = btn.getAttribute('data-pg-view'); pgApply(); });
+});
+var qc = fb.querySelector('.md-cal-qc'), qs = fb.querySelector('.md-cal-qs');
+function onSearch() {
+pg.qc = qc.value.trim(); pg.qs = qs.value.trim();
+if ((pg.qc || pg.qs) && pg.time === 'upcoming') pg.view = 'list';
+sxRender();
+}
+qc.addEventListener('input', onSearch);
+qs.addEventListener('input', onSearch);
+}
+function run() {
+var mode = pageMode();
+if (!mode) return;
+if (mode === 'native') {
+['.page.events > .container.events-container', '.page.events > .page-header'].forEach(function (sel) {
+var el = document.querySelector(sel);
+if (el && el.parentNode) el.parentNode.removeChild(el);
+});
+['event-container', 'scroll-sentinel', 'loader'].forEach(function (id) {
+var el = document.getElementById(id);
+if (el && el.parentNode) el.parentNode.removeChild(el);
+});
+}
+var host = ensureHost(mode);
+if (!host || !host.querySelector('.md-ev-grid')) return; 
+cal.active = host.getAttribute('data-md-ev-view') === 'calendar' || !!host.querySelector('.md-cal');
+if (cal.active) { calEnsure(host); sxEnsure(host); }  
+else ensureFilters();                                  
+loadData();
+}
+if (document.readyState === 'loading') {
+document.addEventListener('DOMContentLoaded', run);
+} else {
+run();
+}
+window.addEventListener('load', function () { setTimeout(run, 300); });
+})();
+(function () {
+function isCat() {
+if (typeof isCategory !== 'undefined' && isCategory) return true;
+return /\/kategori\/[^\/]+$/.test(location.pathname.replace(/\/$/, ''));
+}
+if (!isCat()) return;
+function slug() {
+var m = location.pathname.replace(/\/$/, '').match(/\/kategori\/([^\/]+)$/);
+return m ? m[1].replace(/[^a-z0-9-]/gi, '') : '';
+}
+function localePrefix() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : ''; }
+function trNorm(s) { return String(s == null ? '' : s).replace(/[İI]/g, 'i').replace(/ı/g, 'i').replace(/[Şş]/g, 's').replace(/[Ğğ]/g, 'g').replace(/[Üü]/g, 'u').replace(/[Çç]/g, 'c').replace(/[Öö]/g, 'o').toLowerCase(); }
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function imgUrl(p) { if (!p) return ''; p = String(p); return p.charAt(0) === '/' ? p : '/images/' + p; }
+  function emptyImg(p) { return !p || /\/$/.test(String(p)); }
+  function parseUtc(s) { if (!s) return null; s = String(s); if (s.indexOf('Z') < 0 && s.indexOf('+') < 0) s = s.replace(' ', 'T') + 'Z'; var d = new Date(s); return isNaN(d.getTime()) ? null : d; }
+  function startOf(e) { return parseUtc(e.start_date && (e.start_date.date || e.start_date)); }
+  function fmtDate(d) { try { return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }); } catch (x) { return ''; } }
+  function fmtTime(d) { try { return d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); } catch (x) { return ''; } }
+  function initials(n) { var p = String(n || '').trim().split(/\s+/); return ((p[0] || '?').charAt(0) + (p.length > 1 ? p[p.length - 1].charAt(0) : '')).toLocaleUpperCase('tr-TR'); }
+  function ico(inner) { return "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + inner + "</svg>"; }
+  var I_CAL = "<rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4'/><path d='M8 2v4'/><path d='M3 10h18'/>";
+  var I_CLOCK = "<circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/>";
+  var I_ARROW = "<path d='M5 12h14'/><path d='m12 5 7 7-7 7'/>";
+  /* Bu modun keyword'ü (slug ilk segmenti): uretken / teknolojiye(→teknoloji) / keyif / saglikliyim(→saglik) / longevity / aile */
+  function modeKw(s) { return trNorm((s || '').split('-')[0]); }
+  function eventCard(e) {
+    var st = startOf(e);
+    var href = localePrefix() + (e.url || '/etkinlikler');
+    var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
+    var dur = String(e.duration || '').trim();
+    var cover = emptyImg(e.image) ? '' : imgUrl(e.image);
+    var avatar = emptyImg(e.agent_image) ? '' : imgUrl(e.agent_image);
+    var roundImg = avatar || cover;
+    var h = '<a class="ms-card" href="' + esc(href) + '">';
+    h += '<div class="ms-media">' + (cover ? '<img class="ms-bg" src="' + esc(cover) + '" alt="" loading="lazy">' : '') + '<div class="ms-ov"></div>' +
+      '<div class="ms-round">' + (roundImg ? '<img src="' + esc(roundImg) + '" alt="" loading="lazy">' : '<span class="ms-ini">' + esc(initials(e.agent_name)) + '</span>') + '</div></div>';
+    h += '<div class="ms-body"><h3>' + esc(title) + '</h3>' + (e.agent_name ? '<p class="ms-expert">' + esc(e.agent_name) + '</p>' : '') +
+      '<div class="ms-meta"><span>' + ico(I_CAL) + (st ? esc(fmtDate(st)) : '') + '</span><span>' + ico(I_CLOCK) + (st ? esc(fmtTime(st)) : '') + '</span>' +
+      (dur ? '<span class="ms-dur">' + esc(dur) + '</span>' : '') + '</div></div></a>';
+    return h;
+  }
+  function loadEvents(s, catName) {
+    if (document.querySelector('[data-kb-cat="events"]')) return;
+    var anchor = document.querySelector('[data-kb-cat="experts-h"]') || document.querySelector('.page .agents');
+    if (!anchor) return;
+    var kw = modeKw(s);
+    fetch('/event-load?limit=200&offset=0', { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.json() : []; })
+      .then(function (data) {
+        if (document.querySelector('[data-kb-cat="events"]')) return;
+        var all = Array.isArray(data) ? data : (data && data.data ? data.data : []);
+        var now = Date.now();
+        var list = all.filter(function (e) { return kw && trNorm(e.event_category_name || '').indexOf(kw) !== -1; });
+        // yaklaşanlar önce; yoksa hepsinden en yeni; en fazla 3
+        var up = list.filter(function (e) { var d = startOf(e); return d && d.getTime() >= now; }).sort(function (a, b) { return startOf(a) - startOf(b); });
+        var pick = (up.length ? up : list.sort(function (a, b) { return startOf(b) - startOf(a); })).slice(0, 3);
+        if (!pick.length) return; // bu modda etkinlik yok → bölüm gösterme
+        var sec = document.createElement('section');
+        sec.className = 'kb-cat-events';
+        sec.setAttribute('data-kb-cat', 'events');
+        sec.innerHTML = '<div class="kb-cat-events-head"><div><h2>Yaklaşan Oturumlar</h2><p>' + esc((catName || 'Bu mod') + ' kategorisindeki canlı etkinlikler') + '</p></div>' +
+          '<a class="kb-cat-events-all" href="' + localePrefix() + '/s/etkinlikler-2?mod=' + encodeURIComponent(kw) + '">Tümü ' + ico(I_ARROW) + '</a></div>' +
+          '<div class="ms-grid">' + pick.map(eventCard).join('') + '</div>';
+        anchor.parentElement.insertBefore(sec, anchor);
+      })
+      .catch(function () {});
   }
   function run() {
     var b = document.body;
     if (!b) return;
     var s = slug();
     if (s && !b.classList.contains('kb-cat-' + s)) b.classList.add('kb-cat-' + s);
-    /* "Uzman Danışmanlar" basligi — native .agents listesinin hemen onune */
+    var catName = ((document.querySelector('.page-title h1') || {}).textContent || '').trim();
+    /* "Uzman Danışmanlar" başlığı — native .agents listesinin hemen önüne */
     var agents = document.querySelector('.page .agents');
     if (agents && !document.querySelector('[data-kb-cat="experts-h"]')) {
       var wrap = agents.closest('.categories') || agents.parentElement;
-      var catName = ((document.querySelector('.page-title h1') || {}).textContent || '').trim();
       var h = document.createElement('div');
       h.className = 'kb-cat-experts-head';
       h.setAttribute('data-kb-cat', 'experts-h');
-      h.innerHTML = '<h2>Uzman Danışmanlar</h2><p>' + (catName ? catName + ' kategorisindeki uzman danışmanlarımız' : 'Uzman danışmanlarımız') + '</p>';
+      h.innerHTML = '<h2>Uzman Danışmanlar</h2><p>' + (catName ? esc(catName) + ' kategorisindeki uzman danışmanlarımız' : 'Uzman danışmanlarımız') + '</p>';
       (wrap.parentElement || wrap).insertBefore(h, wrap);
     }
+    /* "Yaklaşan Oturumlar" — moda ait etkinlikler (uzmanlar bölümünden önce) */
+    loadEvents(s, catName);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
@@ -1383,61 +2057,167 @@ return String(s == null ? '' : s)
   if (document.body) { mo.observe(document.body, { childList: true, subtree: true }); setTimeout(function () { mo.disconnect(); }, 6000); }
 })();
 /* ============================================================
-   SECTION: UZMAN DETAY — DOM yeniden yapılandırma (tasarım: danisman-detay)
-   Native node'ları MOVE edip (clone değil → listener korunur) tasarımdaki düzeni kurar:
-ana kolon hero + içerik; SEANS & PAKET kartlarının İKİSİ de 2-satır (aynı tasarım).
-Sağ aside sadeleştirilir (CSS: sadece güven kartı). Idempotent. CSS: _uzman-detay.css.
-============================================================ */
+   SECTION: PROFİL / PANELİM — /profile (body.kb-page-profile)
+   moddo5 panelim.html hero'sunu (.kb-prof-head) native .page.users içine,
+.user-header (sekme çubuğu) ÜSTÜNE inject eder. Native AJAX sekme/inline-edit
+JS'ine DOKUNMAZ — sadece hero ekler + sticky sekme top'unu site header'ına göre
+   ayarlar. Restyle CSS: css/_profile.css. Idempotent: data-kb-prof marker.
+   ============================================================ */
 (function () {
-var CHECK_SVG = "<svg viewBox='0 0 24 24' width='15' height='15' fill='none' stroke='#34d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/></svg>";
-function buildCard(item) {
-if (item.getAttribute('data-kb-pkg') === '1') return;
-var left = item.querySelector('.package-item-left');
-var right = item.querySelector('.package-item-right');
-var title = item.querySelector('.package-title');
-var desc = item.querySelector('.package-description');
-var price = item.querySelector('.package-meta-price');
-var sessions = item.querySelector('.package-meta-sessions');
-var duration = item.querySelector('.package-meta-duration');
-var btnWrap = item.querySelector('.package-button');
-var priceNum = parseFloat(item.getAttribute('data-package-price') || '0');
-var sessCount = 0;
-if (sessions) { var m = (sessions.textContent || '').match(/(\d+)/); if (m) sessCount = parseInt(m[1], 10); }
-var top = document.createElement('div'); top.className = 'kb-ud-pkg-top';
-var head = document.createElement('div'); head.className = 'kb-ud-pkg-head';
-if (title) head.appendChild(title);
-if (desc) head.appendChild(desc);
-var pr = document.createElement('div'); pr.className = 'kb-ud-pkg-price';
-if (price) {
-var val = price.querySelector('.package-meta-value:not(.package-credits)') || price.querySelector('.package-meta-value');
-if (val) {
-var fm = (val.textContent || '').trim().match(/^([\d.,]+)\s*(.+)$/);
-if (fm) val.textContent = fm[2].trim() + fm[1];
+  function isProfile() {
+    // body class (geç eklenebilir) VEYA pathname fallback — parse anına bağlı kalma
+    if (document.body && document.body.classList.contains('kb-page-profile')) return true;
+    return /\/(profil|profile)\/?$/.test(location.pathname.replace(/\/$/, '') + '/');
+  }
+  function localePrefix() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : ''; }
+  function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function initials(n) {
+    var p = String(n || '').trim().split(/\s+/).filter(Boolean);
+    if (!p.length) return 'Ü';
+    return ((p[0].charAt(0)) + (p.length > 1 ? p[p.length - 1].charAt(0) : '')).toLocaleUpperCase('tr-TR');
+  }
+  function userName() {
+    var inp = document.querySelector('.page.users input[name="name"]');
+    if (inp && inp.value && inp.value.trim()) return inp.value.trim();
+    // "Adınız / Rumuzunuz" alanının .field-value'su
+var fields = document.querySelectorAll('.page.users .profile-field');
+for (var i = 0; i < fields.length; i++) {
+var st = fields[i].querySelector('strong');
+if (st && /ad|rumuz|isim|name/i.test(st.textContent || '')) {
+var v = fields[i].querySelector('.field-value');
+if (v && (v.textContent || '').trim()) return v.textContent.trim();
 }
-pr.appendChild(price);
 }
-if (priceNum > 0 && sessCount > 1) {
-var ps = document.createElement('p'); ps.className = 'kb-ud-perseans';
-ps.textContent = '₺' + Math.round(priceNum / sessCount) + '/seans';
-pr.appendChild(ps);
+return 'Üyemiz';
 }
-top.appendChild(head); top.appendChild(pr);
-var bot = document.createElement('div'); bot.className = 'kb-ud-pkg-bot';
-var meta = document.createElement('div'); meta.className = 'kb-ud-pkg-meta';
-if (sessions) meta.appendChild(sessions);
-if (duration) meta.appendChild(duration);
-bot.appendChild(meta);
-if (btnWrap) bot.appendChild(btnWrap);   
-if (left) left.remove();
-if (right) right.remove();
-item.appendChild(top); item.appendChild(bot);
-item.setAttribute('data-kb-pkg', '1');
+function userPhoto() {
+var img = document.querySelector('.page.users img.imageInput');
+if (img && img.src && !/user-circle|placeholder|default|no-?image/i.test(img.src)) return img.src;
+return '';
 }
+function svg(inner) { return "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' style='width:15px;height:15px'>" + inner + "</svg>"; }
+var I_MSG = "<path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/>";
+var I_OUT = "<path d='M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4'/><path d='m16 17 5-5-5-5'/><path d='M21 12H9'/>";
+function buildHero() {
+var page = document.querySelector('.page.users');
+if (!page) return;
+if (page.querySelector('[data-kb-prof="head"]')) return;
+var name = userName();
+var photo = userPhoto();
+var head = document.createElement('section');
+head.className = 'kb-prof-head';
+head.setAttribute('data-kb-prof', 'head');
+head.innerHTML =
+'<div class="kb-ph-inner">' +
+'<div class="kb-ph-who">' +
+'<div class="kb-ph-av">' + (photo ? '<img src="' + esc(photo) + '" alt="">' : esc(initials(name))) + '</div>' +
+'<div><h1>Hoş geldin, ' + esc(name) + '!</h1><p class="kb-ph-sub">Profilini yönet, randevularını ve etkinliklerini takip et.</p></div>' +
+'</div>' +
+'<div class="kb-ph-acts">' +
+'<a class="kb-ph-msg" href="' + localePrefix() + '/mesajlar">' + svg(I_MSG) + 'Mesajlarım</a>' +
+'<a class="kb-ph-logout" href="' + localePrefix() + '/cikis">' + svg(I_OUT) + 'Çıkış Yap</a>' +
+'</div>' +
+'</div>';
+page.insertBefore(head, page.firstChild);
+}
+function adjustStickyTop() {
+var uh = document.querySelector('.page.users .user-header');
+if (!uh) return;
+var hdr = document.querySelector('header.md-header, .md-header, body > header, header');
+var top = 0;
+if (hdr) {
+var pos = getComputedStyle(hdr).position;
+if (pos === 'fixed' || pos === 'sticky') top = Math.round(hdr.getBoundingClientRect().height);
+}
+uh.style.top = top + 'px';
+}
+var _enhancing = false;
+function enhanceContent() {
+if (_enhancing) return;
+var cont = document.querySelector('.page.users .container');
+if (!cont) return;
+_enhancing = true;
+try {
+var panel = cont.querySelector('.tab-content.f') || cont.querySelector('.pv > .tab-content');
+if (panel) {
+if (panel.id !== 'user-profile-tab' && !panel.querySelector('.kb-prof-section-title')) {
+var act = document.querySelector('.user-tabs a.active');
+var label = act ? (act.textContent || '').trim() : '';
+if (label) {
+var h = document.createElement('h2');
+h.className = 'kb-prof-section-title';
+h.textContent = label;
+panel.insertBefore(h, panel.firstChild);
+}
+}
+[].forEach.call(panel.querySelectorAll('table'), function (tb) {
+if (tb.getAttribute('data-kb-empty') === '1') return;
+if (tb.querySelectorAll('tbody tr').length === 0) {
+tb.setAttribute('data-kb-empty', '1');
+tb.style.display = 'none';
+if (!(tb.nextSibling && tb.nextSibling.className === 'kb-prof-empty')) {
+var note = document.createElement('div');
+note.className = 'kb-prof-empty';
+note.textContent = 'Henüz kaydınız bulunmuyor.';
+tb.parentNode.insertBefore(note, tb.nextSibling);
+}
+}
+});
+}
+} catch (e) {}
+_enhancing = false;
+}
+var _observed = false, _tabsHooked = false;
+function setupObserver() {
+var cont = document.querySelector('.page.users .container');
+if (cont && !_observed && window.MutationObserver) {
+_observed = true;
+var t = null;
+new MutationObserver(function () { clearTimeout(t); t = setTimeout(enhanceContent, 120); })
+.observe(cont, { childList: true, subtree: true });
+}
+var tabs = document.querySelector('.user-tabs');
+if (tabs && !_tabsHooked) {
+_tabsHooked = true;
+tabs.addEventListener('click', function (e) {
+if (e.target && e.target.closest('a')) { setTimeout(enhanceContent, 400); setTimeout(enhanceContent, 1200); }
+});
+}
+}
+function run() {
+if (!isProfile() || !document.querySelector('.page.users')) return;
+buildHero();
+adjustStickyTop();
+enhanceContent();
+setupObserver();
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+else run();
+window.addEventListener('load', function () { setTimeout(run, 300); });
+window.addEventListener('resize', function () { adjustStickyTop(); });
+var tries = 0;
+var iv = setInterval(function () { run(); if (++tries > 12 || document.querySelector('[data-kb-prof="head"]')) clearInterval(iv); }, 400);
+})();
+(function () {
+function svg(inner, stroke, w) {
+return "<svg viewBox='0 0 24 24' width='" + (w || 16) + "' height='" + (w || 16) + "' fill='none' stroke='" + (stroke || 'currentColor') +
+"' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + inner + "</svg>";
+}
+var I_CLOCK = "<circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/>";
+var I_CHECK = "<circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/>";
+var I_SHIELD = "<path d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/>";
+var I_VIDEO = "<path d='m16 13 5.223 3.482a.5.5 0 0 0 .777-.415V7.93a.5.5 0 0 0-.752-.432L16 10.5'/><rect x='2' y='6' width='14' height='12' rx='2'/>";
+var I_MSG = "<path d='M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z'/>";
+var I_PLAY = "<polygon points='6 3 20 12 6 21 6 3'/>";
+var I_CAL = "<rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4'/><path d='M8 2v4'/><path d='M3 10h18'/>";
+var I_CHEV = "<path d='m9 18 6-6-6-6'/>";
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+function locale() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : ''; }
 function computeAndShow(reviewEls) {
 var el = document.querySelector('.kb-ud-hero .kb-ud-rating');
 if (!el || el.getAttribute('data-kb-done') === '1') return;
 var total = reviewEls.length;
-if (!total) return; 
+if (!total) return;
 var sum = 0, rated = 0;
 reviewEls.forEach(function (rv) {
 var rr = rv.querySelector('.review-rating, .profile-review-stars');
@@ -1448,9 +2228,7 @@ var countHtml = "<span class='kb-ud-rating-count'>" + total + " değerlendirme</
 if (rated > 0) {
 var avg = (sum / rated).toFixed(1).replace('.', ',');
 el.innerHTML = "<span class='kb-ud-star'>★</span>" + avg + "<span class='kb-ud-rating-sep'>·</span>" + countHtml;
-} else {
-el.innerHTML = countHtml; 
-}
+} else { el.innerHTML = countHtml; }
 el.classList.remove('kb-ud-hidden');
 el.setAttribute('data-kb-done', '1');
 }
@@ -1460,51 +2238,128 @@ if (!el || el.getAttribute('data-kb-done') === '1') return;
 var moreBtn = document.querySelector('#show-more-review');
 var id = moreBtn && moreBtn.getAttribute('data-id');
 if (id) {
-if (el.getAttribute('data-kb-fetch') === '1') return; 
+if (el.getAttribute('data-kb-fetch') === '1') return;
 el.setAttribute('data-kb-fetch', '1');
 fetch('/uzmanlar/reviews/' + id, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
 .then(function (r) { if (!r.ok) throw 0; return r.text(); })
-.then(function (html) {
-var doc = new DOMParser().parseFromString(html, 'text/html');
-computeAndShow([].slice.call(doc.querySelectorAll('.review')));
-})
-.catch(function () {
-el.removeAttribute('data-kb-fetch');
-computeAndShow([].slice.call(document.querySelectorAll('.review'))); 
-});
-} else {
-computeAndShow([].slice.call(document.querySelectorAll('.review')));
-}
+.then(function (html) { var doc = new DOMParser().parseFromString(html, 'text/html'); computeAndShow([].slice.call(doc.querySelectorAll('.review'))); })
+.catch(function () { el.removeAttribute('data-kb-fetch'); computeAndShow([].slice.call(document.querySelectorAll('.review'))); });
+} else { computeAndShow([].slice.call(document.querySelectorAll('.review'))); }
 }
 function stripTitleParens() {
 var pt = document.querySelector('.profile-title');
 if (!pt || pt.getAttribute('data-kb-paren') === '1') return;
 var changed = false;
-[].forEach.call(pt.childNodes, function (nd) {
-if (nd.nodeType === 3 && /[()]/.test(nd.textContent)) { nd.textContent = nd.textContent.replace(/[()]/g, ''); changed = true; }
-});
+[].forEach.call(pt.childNodes, function (nd) { if (nd.nodeType === 3 && /[()]/.test(nd.textContent)) { nd.textContent = nd.textContent.replace(/[()]/g, ''); changed = true; } });
 if (changed) pt.setAttribute('data-kb-paren', '1');
+}
+function rowFromItem(item) {
+var title = ((item.querySelector('.package-title') || {}).textContent || '').trim();
+var desc = ((item.querySelector('.package-description') || {}).textContent || '').trim();
+var paidEl = item.querySelector('.package-meta-value:not(.package-credits)');
+var priceTxt = paidEl ? paidEl.textContent.trim() : '';
+var fm = priceTxt.match(/^([\d.,]+)\s*(\S+)?$/);
+var price = fm ? ((fm[2] || '₺') + fm[1]) : (priceTxt || 'Ücretsiz'); 
+var durTxt = ((item.querySelector('.package-meta-duration') || {}).textContent || '').replace(/^\s*Süre\s*/i, '').trim();
+var sessTxt = ((item.querySelector('.package-meta-sessions') || {}).textContent || '').trim();
+var meta = sessTxt ? (sessTxt + (durTxt ? ' · ' + durTxt : '')) : durTxt;
+var a = item.querySelector('.package-button a, a.btn-appointment, a.btn-appointment-package');
+var href = a ? a.getAttribute('href') : '#';
+return '<div class="cd-stype" data-kb-href="' + esc(href) + '">' +
+'<div class="row"><div class="left"><span class="radio"></span><div>' +
+'<p class="nm">' + esc(title || 'Seans') + '</p>' + (desc ? '<p class="ds">' + esc(desc) + '</p>' : '') + '</div></div>' +
+'<div class="cd-stype-r"><span class="price">' + esc(price) + '</span>' +
+(meta ? '<p class="dur">' + svg(I_CLOCK, 'currentColor', 12) + esc(meta) + '</p>' : '') + '</div></div></div>';
+}
+function buildBooking(aside) {
+if (aside.querySelector('.kb-ud-booking')) return;
+var ap = document.querySelector('.appointment-packages') || document.querySelector('#apdiv');
+if (!ap) return;
+var items = [].slice.call(ap.querySelectorAll('.package-item'));
+if (!items.length) return;
+var pakets = items.filter(function (it) { return !!it.querySelector('.package-meta-sessions'); });
+var seanslar = items.filter(function (it) { return !it.querySelector('.package-meta-sessions'); });
+var hasS = seanslar.length > 0, hasP = pakets.length > 0;
+var card = document.createElement('div');
+card.className = 'cd-sidecard kb-ud-booking';
+var tabs =
+'<div class="cd-tabbar">' +
+(hasS ? '<button type="button" class="cd-tab' + ' active" data-kb-tab="seans">' + svg(I_VIDEO, 'currentColor', 14) + 'SEANS TÜRLERİ</button>' : '') +
+(hasP ? '<button type="button" class="cd-tab' + (hasS ? '' : ' active') + '" data-kb-tab="paket">' + svg("<path d='M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z'/><path d='M3 6h18'/><path d='M16 10a4 4 0 0 1-8 0'/>", 'currentColor', 14) + 'PAKET</button>' : '') +
+'</div>';
+var seansPanel = '<div class="cd-panel" data-kb-panel="seans"' + (hasS ? '' : ' style="display:none"') + '>' + seanslar.map(rowFromItem).join('') + '</div>';
+var paketPanel = '<div class="cd-panel" data-kb-panel="paket"' + (hasS ? ' style="display:none"' : '') + '>' + pakets.map(rowFromItem).join('') + '</div>';
+var cta = '<a href="#" class="kb-ud-cta">' + svg(I_CAL, 'currentColor', 16) + 'RANDEVU OLUŞTUR ' + svg(I_CHEV, 'currentColor', 16) + '</a>';
+card.innerHTML = (hasS && hasP ? tabs : '') + seansPanel + paketPanel + cta;
+var ctaEl = card.querySelector('.kb-ud-cta');
+function selectRow(row) {
+var panel = row.parentNode;
+[].slice.call(panel.querySelectorAll('.cd-stype')).forEach(function (r) { r.classList.remove('sel'); });
+row.classList.add('sel');
+var href = row.getAttribute('data-kb-href') || '#';
+ctaEl.setAttribute('href', href);
+}
+[].slice.call(card.querySelectorAll('.cd-stype')).forEach(function (row) {
+row.addEventListener('click', function () { selectRow(row); });
+});
+function setTab(k) {
+[].slice.call(card.querySelectorAll('.cd-tab')).forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-kb-tab') === k); });
+card.querySelectorAll('.cd-panel').forEach(function (p) { p.style.display = (p.getAttribute('data-kb-panel') === k) ? '' : 'none'; });
+var first = card.querySelector('.cd-panel[data-kb-panel="' + k + '"] .cd-stype');
+if (first) selectRow(first);
+}
+[].slice.call(card.querySelectorAll('.cd-tab')).forEach(function (b) { b.addEventListener('click', function () { setTab(b.getAttribute('data-kb-tab')); }); });
+var firstRow = card.querySelector('.cd-stype'); if (firstRow) selectRow(firstRow);
+aside.appendChild(card);
+ap.style.display = 'none';   
+}
+function buildActions(aside) {
+if (aside.querySelector('.kb-ud-actcard')) return;
+var card = document.createElement('div');
+card.className = 'cd-sidecard cd-actcard kb-ud-actcard';
+card.innerHTML =
+'<a href="#" class="kb-ud-act btn-msg">' + svg(I_MSG, 'currentColor', 16) + 'Mesaj Gönder</a>' +
+'<a href="' + locale() + '/etkinlikler" class="kb-ud-act btn-sess">' + svg(I_PLAY, 'currentColor', 16) + 'Canlı Oturumlarına Göz At</a>';
+var msg = card.querySelector('.btn-msg');
+msg.addEventListener('click', function (e) {
+e.preventDefault();
+var ac = document.querySelector('#acdiv, .profile-interact-btn a');
+if (ac) ac.click();
+});
+aside.appendChild(card);
+}
+function buildTrust(aside) {
+if (aside.querySelector('.kb-ud-trust')) return;
+var rows = [
+[I_SHIELD, 'Güvenli Görüşme', 'Şifreli video bağlantısı ile güvenli oturum'],
+[I_CHECK, 'Memnuniyet Garantisi', 'İlk seans memnun kalmazsanız iade'],
+[I_VIDEO, 'Kayıt İmkanı', 'Oturumunuzu kaydedin, tekrar izleyin']
+];
+var tc = document.createElement('div'); tc.className = 'cd-sidecard cd-trust kb-ud-trust';
+tc.innerHTML = rows.map(function (r) {
+return "<div class='t'>" + svg(r[0], '#34d399', 20) + "<div><p class='h'>" + r[1] + "</p><p class='d'>" + r[2] + "</p></div></div>";
+}).join('');
+aside.appendChild(tc);
 }
 function build() {
 var b = document.body;
-if (!b || !b.classList.contains('kb-page-uzman-detay')) return true; 
+if (!b || !b.classList.contains('kb-page-uzman-detay')) return true;
 var main = document.querySelector('.profile-right .page-content');
-var aside = document.querySelector('.profile-left .agent-header') || document.querySelector('.profile-left');
-if (!main || !aside) return false; 
-var img = aside.querySelector('.profile-image');
-var title = aside.querySelector('.profile-title');
-var cats = (document.querySelector('.profile-left') || aside).querySelector('.profile-categories');
+var aside = document.querySelector('.profile-left');
+if (!main || !aside) return false;
+var leftHdr = document.querySelector('.profile-left .agent-header') || aside;
+var img = leftHdr.querySelector('.profile-image');
+var title = leftHdr.querySelector('.profile-title');
+var cats = aside.querySelector('.profile-categories');
 if (!main.querySelector('.kb-ud-hero') && (img || title)) {
-var hero = document.createElement('div');
-hero.className = 'kb-ud-hero';
-var txt = document.createElement('div');
-txt.className = 'kb-ud-hero-txt';
-if (cats) txt.appendChild(cats);     
-if (title) txt.appendChild(title);   
+var hero = document.createElement('div'); hero.className = 'kb-ud-hero';
+var txt = document.createElement('div'); txt.className = 'kb-ud-hero-txt';
+if (cats) txt.appendChild(cats);
+if (title) txt.appendChild(title);
 var metaRow = document.createElement('div'); metaRow.className = 'kb-ud-hero-meta';
-metaRow.innerHTML = "<span class='kb-ud-rating kb-ud-hidden'></span><span class='kb-ud-verified'>" + CHECK_SVG + "Onaylı Uzman</span>";
+metaRow.innerHTML = "<span class='kb-ud-rating kb-ud-hidden'></span><span class='kb-ud-verified'>" + svg(I_CHECK, '#34d399', 15) + "Onaylı Uzman</span>";
 txt.appendChild(metaRow);
-if (img) hero.appendChild(img);      
+if (img) hero.appendChild(img);
 hero.appendChild(txt);
 main.insertBefore(hero, main.firstChild);
 }
@@ -1515,69 +2370,21 @@ if (pl) {
 var p = pl.querySelector('p');
 if (p && !pl.querySelector('.kb-ud-kw') && p.textContent.indexOf(',') >= 0) {
 var kws = p.textContent.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
-if (kws.length > 1) {
-p.innerHTML = kws.map(function (k) {
-return '<span class="kb-ud-kw">' + k.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;') + '</span>';
-}).join('');
+if (kws.length > 1) p.innerHTML = kws.map(function (k) { return '<span class="kb-ud-kw">' + esc(k) + '</span>'; }).join('');
 }
 }
-}
-var ap = document.querySelector('.appointment-packages') || document.querySelector('#apdiv');
-if (ap && !ap.querySelector('.kb-ud-tabs')) {
-var its = [].slice.call(ap.querySelectorAll('.package-item'));
-if (its.length) {
-var pakets = its.filter(function (it) { return !!it.querySelector('.package-meta-sessions'); });
-var seanslar = its.filter(function (it) { return !it.querySelector('.package-meta-sessions'); });
-var seansPanel = document.createElement('div'); seansPanel.className = 'kb-ud-panel'; seansPanel.setAttribute('data-kb-panel', 'seans');
-var paketPanel = document.createElement('div'); paketPanel.className = 'kb-ud-panel'; paketPanel.setAttribute('data-kb-panel', 'paket');
-seanslar.forEach(function (it) { seansPanel.appendChild(it); buildCard(it); });
-pakets.forEach(function (it) { paketPanel.appendChild(it); buildCard(it); });
-var hasSeans = seanslar.length > 0, hasPaket = pakets.length > 0;
-var tabbar = document.createElement('div'); tabbar.className = 'kb-ud-tabs';
-tabbar.innerHTML =
-(hasSeans ? '<button type="button" class="kb-ud-tab" data-kb-tab="seans">Seans Türleri</button>' : '') +
-(hasPaket ? '<button type="button" class="kb-ud-tab" data-kb-tab="paket">Paket Danışmanlıklar</button>' : '');
-var h2 = ap.querySelector('h2.profile-content-title') || ap.querySelector('.profile-content-title');
-if (h2 && h2.parentNode === ap) { ap.insertBefore(tabbar, h2.nextSibling); }
-else { ap.insertBefore(tabbar, ap.firstChild); }
-ap.insertBefore(seansPanel, tabbar.nextSibling);
-ap.insertBefore(paketPanel, seansPanel.nextSibling);
-function kbSetTab(k) {
-[].slice.call(tabbar.querySelectorAll('.kb-ud-tab')).forEach(function (b) { b.classList.toggle('is-active', b.getAttribute('data-kb-tab') === k); });
-seansPanel.classList.toggle('kb-ud-hidden', k !== 'seans');
-paketPanel.classList.toggle('kb-ud-hidden', k !== 'paket');
-}
-[].slice.call(tabbar.querySelectorAll('.kb-ud-tab')).forEach(function (b) { b.addEventListener('click', function () { kbSetTab(b.getAttribute('data-kb-tab')); }); });
-kbSetTab(hasSeans ? 'seans' : 'paket');
-}
-}
+buildBooking(aside);
+buildActions(aside);
+buildTrust(aside);
 [].slice.call(document.querySelectorAll('.review')).forEach(function (r) {
 if (r.getAttribute('data-kb-rev') === '1') return;
 r.setAttribute('data-kb-rev', '1');
-var head = r.querySelector('.review-head');
-var date = r.querySelector('.review-date');
+var head = r.querySelector('.review-head'); var date = r.querySelector('.review-date');
 if (head && date) head.insertBefore(date, head.firstChild);
 });
-var leftCol = document.querySelector('.profile-left');
-if (leftCol && !leftCol.querySelector('.kb-ud-trust')) {
-var ic = function (inner) { return "<svg class='kb-ud-trust-ic' width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='#34d399' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + inner + "</svg>"; };
-var SHIELD = ic("<path d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/>");
-var CHECK = ic("<circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/>");
-var VIDEO = ic("<path d='m16 13 5.223 3.482a.5.5 0 0 0 .777-.415V7.93a.5.5 0 0 0-.752-.432L16 10.5'/><rect x='2' y='6' width='14' height='12' rx='2'/>");
-var rows = [
-[SHIELD, 'Güvenli Görüşme', 'Şifreli video bağlantısı ile güvenli oturum'],
-[CHECK, 'Memnuniyet Garantisi', 'İlk seans memnun kalmazsanız iade'],
-[VIDEO, 'Kayıt İmkanı', 'Oturumunuzu kaydedin, tekrar izleyin']
-];
-var tc = document.createElement('div'); tc.className = 'kb-ud-trust';
-tc.innerHTML = rows.map(function (r) {
-return "<div class='kb-ud-trust-row'>" + r[0] + "<div class='kb-ud-trust-txt'><strong>" + r[1] + "</strong><span>" + r[2] + "</span></div></div>";
-}).join('');
-leftCol.appendChild(tc);
-}
 return true;
 }
-function pump() { try { build(); } catch (e) {  } }
+function pump() { try { build(); } catch (e) {} }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', pump);
 else pump();
 window.addEventListener('load', pump);
