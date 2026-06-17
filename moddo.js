@@ -116,7 +116,7 @@ return out;
 function renderHeader() {
 var home = '/';
 var danismanlar = '/uzmanlar';  
-var etkinlikler = '/s/canli-oturumlar';
+var etkinlikler = '/etkinlikler';
 var signup = '/signup';
 return [
 '<header class="md-header">',
@@ -218,7 +218,7 @@ return [
 '<div class="md-drawer-search">' + ICONS.search + '<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanına bağlanmak istiyorsun?" aria-label="Ara"></div>',
 '<nav class="md-drawer-nav">',
 '<a href="' + url('/') + '">Ana Sayfa</a>',
-'<a href="' + url('/s/canli-oturumlar') + '">Canlı Oturumlar</a>',
+'<a href="' + url('/etkinlikler') + '">Canlı Oturumlar</a>',
 '<a href="' + url('/uzmanlar') + '">Danışmanlar</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
 '</nav>',
@@ -265,7 +265,7 @@ return [
 '<div>',
 '<h4>Platform</h4>',
 '<ul>',
-'<li><a href="' + url('/s/canli-oturumlar') + '">Canlı Oturumlar</a></li>',
+'<li><a href="' + url('/etkinlikler') + '">Canlı Oturumlar</a></li>',
 '<li><a href="' + url('/uzmanlar') + '">Danışmanlar</a></li>',
 '<li><a href="' + url('/s/sponsorluk') + '">Sponsorluk</a></li>',
 '<li><a href="' + url('/s/ayricaliklar') + '">Ayrıcalıklar Kulübü</a></li>',
