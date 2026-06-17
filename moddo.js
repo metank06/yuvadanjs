@@ -17,6 +17,8 @@ return 'kb-page-cms-' + slug.replace(/[^a-z0-9-]/gi, '');
 if (p === '/uzmanlar') return 'kb-page-uzmanlar';
 if (p === '/blog') return 'kb-page-blog';
 if (p.match(/^\/blog\/[^\/]+$/)) return 'kb-page-blog-detay';
+if (p === '/etkinlikler') return 'kb-page-etkinlikler';
+if (p.match(/^\/etkinlikler\/[^\/]+$/)) return 'kb-page-etkinlik-detay';
 if (p === '/signup') return 'kb-page-signup';
 if (p === '/login')  return 'kb-page-login';
 var seg = p.split('/')[1] || '';
@@ -113,7 +115,7 @@ return out;
 }
 function renderHeader() {
 var home = '/';
-var kategoriler = '/kategori';
+var danismanlar = '/uzmanlar';  
 var etkinlikler = '/s/canli-oturumlar';
 var signup = '/signup';
 return [
@@ -123,7 +125,7 @@ return [
 '<div class="md-header-tier1-inner">',
 '<a href="' + url(home) + '">ModdoDay</a>',
 '<a href="' + url(etkinlikler) + '">Canlı Oturumlar</a>',
-'<a href="' + url(kategoriler) + '">1:1 Danışmanlık</a>',
+'<a href="' + url(danismanlar) + '">1:1 Danışmanlık</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
 '<a href="' + url('/s/kampanyalar') + '">Kampanyalar</a>',
 '<a href="' + url('/s/iletisim') + '">İletişim</a>',
@@ -217,7 +219,7 @@ return [
 '<nav class="md-drawer-nav">',
 '<a href="' + url('/') + '">Ana Sayfa</a>',
 '<a href="' + url('/s/canli-oturumlar') + '">Canlı Oturumlar</a>',
-'<a href="' + url('/kategori') + '">Danışmanlar</a>',
+'<a href="' + url('/uzmanlar') + '">Danışmanlar</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
 '</nav>',
 '<div class="md-drawer-brands">',
@@ -264,7 +266,7 @@ return [
 '<h4>Platform</h4>',
 '<ul>',
 '<li><a href="' + url('/s/canli-oturumlar') + '">Canlı Oturumlar</a></li>',
-'<li><a href="' + url('/kategori') + '">Danışmanlar</a></li>',
+'<li><a href="' + url('/uzmanlar') + '">Danışmanlar</a></li>',
 '<li><a href="' + url('/s/sponsorluk') + '">Sponsorluk</a></li>',
 '<li><a href="' + url('/s/ayricaliklar') + '">Ayrıcalıklar Kulübü</a></li>',
 '<li><a href="' + url('/s/iletisim') + '">İletişim</a></li>',
@@ -287,9 +289,9 @@ return [
 '<div class="md-footer-bottom">',
 '<p>© 2026 ModdoDay. Tüm hakları saklıdır.</p>',
 '<div style="display:flex; gap: 24px;">',
-'<a href="#">Gizlilik Politikası</a>',
-'<a href="#">Kullanım Koşulları</a>',
-'<a href="#">KVKK</a>',
+'<a href="' + url('/s/gizlilik-politikasi') + '">Gizlilik Politikası</a>',
+'<a href="' + url('/s/kullanim-kosullari') + '">Kullanım Koşulları</a>',
+'<a href="' + url('/s/kvkk') + '">KVKK</a>',
 '</div>',
 '</div>',
 '</div>',
@@ -442,11 +444,10 @@ return String(s == null ? '' : s)
   });
 })();
 /* ============================================================
-   SECTION: LOGIN — /login DOM enhance (tasarım: giris.html)
-   - Sol auth-side panel ("Tekrar hoş geldin!" + 4 fayda) inject
-   - Form başlığı ("Giriş Yap" + "Hesabın yok mu? Kayıt ol")
-   - Şifre göster/gizle toggle
-   - Sosyal butonları (Google + Apple + Facebook) submit altında .md-auth-social satırına grupla + "veya" divider
+   SECTION: LOGIN — /login DOM enhance (tasarım: moddo5 giris-yap.html)
+   Split layout: SOL .md-auth-side (h2 "ModdoDay'e Hoş Geldin" + 4 renkli özellik
+   + 3 stat) | SAĞ glass .lg-card (form). OAuth ÜSTTE + "veya" divider, sonra native
+   email/parola alanları, en altta "Üye Ol" linki + kullanım şartları.
    Native form fields/action/name DOKUNULMAZ. Scope: /login veya /xx-XX/login.
    ============================================================ */
 (function () {
@@ -456,766 +457,909 @@ return String(s == null ? '' : s)
   }
   if (!isLoginPage()) return;
   function $(s, r) { return (r || document).querySelector(s); }
-  var LOGIN = "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4'/><polyline points='10 17 15 12 10 7'/><line x1='15' x2='3' y1='12' y2='12'/></svg>";
-  var EYE = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z'/><circle cx='12' cy='12' r='3'/></svg>";
-  var EYEOFF = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9.88 9.88a3 3 0 1 0 4.24 4.24'/><path d='M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68'/><path d='M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61'/><line x1='2' x2='22' y1='2' y2='22'/></svg>";
+  function locPrefix() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : '/tr-TR'; }
+  function ic(p) { return "<svg width='20' height='20' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + p + "</svg>"; }
+  var LOGIN = ic("<path d='M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4'/><polyline points='10 17 15 12 10 7'/><line x1='15' x2='3' y1='12' y2='12'/>");
+  var EYE = ic("<path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z'/><circle cx='12' cy='12' r='3'/>");
+  var EYEOFF = ic("<path d='M9.88 9.88a3 3 0 1 0 4.24 4.24'/><path d='M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68'/><path d='M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61'/><line x1='2' x2='22' y1='2' y2='22'/>");
+  var SPARK = ic("<path d='M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z'/>");
+  var ZAP = ic("<path d='M4 14a1 1 0 0 1-.78-1.63l9.9-10.2a.5.5 0 0 1 .86.46l-1.92 6.02A1 1 0 0 0 13 10h7a1 1 0 0 1 .78 1.63l-9.9 10.2a.5.5 0 0 1-.86-.46l1.92-6.02A1 1 0 0 0 11 14z'/>");
+  var HEART = ic("<path d='M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z'/>");
+  var SHIELD = ic("<path d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/>");
   function buildAuthSide() {
     var side = document.createElement('div');
     side.className = 'md-auth-side';
     side.setAttribute('data-kb-login', 'side');
-    var feat = function (svg, t, s) { return "<div class='md-auth-feature'><div class='md-auth-feat-icn'>" + svg + "</div><div><strong>" + t + "</strong><span>" + s + "</span></div></div>"; };
-    var VIDEO = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='m22 8-6 4 6 4V8Z'/><rect x='2' y='6' width='14' height='12' rx='2'/></svg>";
-    var CAL = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><rect x='3' y='4' width='18' height='18' rx='2'/><line x1='16' y1='2' x2='16' y2='6'/><line x1='8' y1='2' x2='8' y2='6'/><line x1='3' y1='10' x2='21' y2='10'/></svg>";
-    var CROWN = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.52l4.276 3.664a1 1 0 0 0 1.516-.294z'/></svg>";
-    var TROPHY = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2'><path d='M6 9H4.5a2.5 2.5 0 0 1 0-5H6'/><path d='M18 9h1.5a2.5 2.5 0 0 0 0-5H18'/><path d='M4 22h16'/><path d='M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22'/><path d='M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22'/><path d='M18 2H6v7a6 6 0 0 0 12 0V2Z'/></svg>";
-    /* 6 mod ikon dairesi (tasarım: hammer/zap/smile/dumbbell/flame/users + mod renkleri) */
-    var ic = function (p) { return "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + p + "</svg>"; };
-    var MODS = [
-      ['#F59E0B', ic("<path d='m15 12-8.5 8.5a2.12 2.12 0 1 1-3-3L12 9'/><path d='M17.64 15 22 10.64'/><path d='m20.91 11.7-1.25-1.25c-.6-.6-.93-1.4-.93-2.25v-.86L16.01 4.6a5.56 5.56 0 0 0-3.94-1.64H9l.92.82A6.18 6.18 0 0 1 12 8.4v1.56l2 2h2.47l2.26 1.91'/>")],
-      ['#3B82F6', ic("<polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/>")],
-      ['#F43F5E', ic("<circle cx='12' cy='12' r='10'/><path d='M8 14s1.5 2 4 2 4-2 4-2'/><line x1='9' x2='9.01' y1='9' y2='9'/><line x1='15' x2='15.01' y1='9' y2='9'/>")],
-      ['#10B981', ic("<path d='M14.4 14.4 9.6 9.6'/><path d='M18.66 21.49a2 2 0 1 1-2.83-2.83l-1.77 1.77a2 2 0 1 1-2.83-2.83l6.37-6.36a2 2 0 1 1 2.82 2.83l-1.76 1.76a2 2 0 1 1 2.83 2.83z'/><path d='m21.5 21.5-1.4-1.4'/><path d='M3.9 3.9 2.5 2.5'/><path d='M6.4 12.77a2 2 0 1 1-2.83-2.83l1.77-1.77a2 2 0 1 1-2.83-2.83l2.83-2.83a2 2 0 1 1 2.83 2.83l1.77-1.77a2 2 0 1 1 2.83 2.83z'/>")],
-      ['#22C55E', ic("<path d='M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z'/>")],
-      ['#8B5CF6', ic("<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M22 21v-2a4 4 0 0 0-3-3.87'/><path d='M16 3.13a4 4 0 0 1 0 7.75'/>")]
-    ];
-    var modCircles = MODS.map(function (m) { return "<span class='md-auth-modicon' style='color:" + m[0] + ";background:" + m[0] + "1f;border-color:" + m[0] + "40'>" + m[1] + "</span>"; }).join('');
+    var feat = function (svg, color, t, s) {
+      return "<div class='md-auth-feature'><div class='md-auth-feat-icn' style='color:" + color + ";background:" + color + "33'>" + svg + "</div><div><strong>" + t + "</strong><span>" + s + "</span></div></div>";
+    };
     side.innerHTML = [
-      "<a href='index.html' class='md-auth-logo'>Moddo<span>Day</span></a>",
-      "<h2>Tekrar hoş geldin!</h2>",
-      "<p>Hesabına giriş yap, kaldığın yerden wellbeing yolculuğuna devam et. Bugün hangi moddasın?</p>",
-      "<div class='md-auth-modicons'>" + modCircles + "</div>",
+      "<div class='lg-feat-head'><h2>ModdoDay'e<br>Hoş Geldin</h2><p>6 farklı yaşam modunda kendini keşfet, uzmanlarla bağlan ve yaşamını dönüştür.</p></div>",
       "<div class='md-auth-features'>",
-      feat(VIDEO, "Canlı oturumlara devam et", "Kaldığın yerden canlı yayınlara katıl."),
-      feat(CAL, "Randevu & etkinlik takibi", "Randevularını ve etkinliklerini yönet."),
-      feat(CROWN, "Ayrıcalıklar Kulübü", "Üyelere özel indirim ve avantajlara eriş."),
-      feat(TROPHY, "ModProgress ödülleri", "Seviyeni ve kazandığın ödülleri gör."),
+      feat(SPARK, '#F59E0B', '6 Yaşam Modu', 'Üretken, Teknoloji, Keyif, Sağlıklı, Longevity ve Aile modlarında kendini keşfet'),
+      feat(ZAP, '#60a5fa', 'Uzman Danışmanlık', 'Alanında uzman profesyonellerle birebir veya grup oturumlarında bağlan'),
+      feat(HEART, '#34d399', 'Yaşam Dönüşümü', 'Kişiselleştirilmiş rehberlik ile hedeflerine ulaş ve yaşam kaliteni artır'),
+      feat(SHIELD, '#c084fc', 'Güvenli & Özel', 'Tüm verileriniz şifreli ve gizli tutulur, sadece siz kontrol edersiniz'),
+      "</div>",
+      "<div class='lg-stats'>",
+      "<div><p class='v' style='color:#F59E0B'>50K+</p><p class='l'>Aktif Kullanıcı</p></div>",
+      "<div><p class='v' style='color:#60a5fa'>200+</p><p class='l'>Uzman Danışman</p></div>",
+      "<div><p class='v' style='color:#34d399'>4.9★</p><p class='l'>Ortalama Puan</p></div>",
       "</div>"
     ].join('');
     return side;
   }
   function buildFormHead() {
-    var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//);
-    var prefix = m ? '/' + m[1] : '/tr-TR';
     var head = document.createElement('div');
     head.className = 'md-auth-form-head';
     head.setAttribute('data-kb-login', 'head');
-    head.innerHTML = "<div class='md-auth-head-row'><span class='md-auth-head-icn'>" + LOGIN + "</span><h1>Giriş Yap</h1></div><p class='md-auth-login-link'>Hesabın yok mu? <a href='" + prefix + "/signup'>Hemen kayıt ol &rarr;</a></p>";
+    head.innerHTML = "<div class='md-auth-head-row'><span class='md-auth-head-icn'>" + LOGIN + "</span><h1>Giriş Yap</h1></div><p>Hesabına giriş yap, kaldığın yerden devam et.</p>";
     return head;
+  }
+  function buildSignupFoot() {
+    var prefix = locPrefix();
+    var wrap = document.createElement('div');
+    wrap.setAttribute('data-kb-login', 'signupfoot');
+    wrap.innerHTML =
+      "<div class='lg-signup'><p>Henüz hesabınız yok mu? <a href='" + prefix + "/signup'>Üye Ol</a></p></div>" +
+      "<div class='lg-foot'><p>Giriş yaparak <a href='" + prefix + "/s/kullanim-kosullari'>Kullanım Şartları</a> ve <a href='" + prefix + "/s/gizlilik'>Gizlilik Politikası</a>'nı kabul etmiş olursunuz.</p></div>";
+    return wrap;
   }
   function enhance() {
     var wrap = $('.users-wrapper');
     var form = $('#login-form');
     if (!wrap || !form) return false;
-    /* submit metnini "Giriş Yap" yap (native "ÜYE GİRİŞİ"). Türkçe İ regex/i ile eşleşmiyor →
-       doğrudan değer kontrolü; idempotent (zaten "Giriş Yap" ise dokunma → observer loop yok). */
+    /* submit metnini "Giriş Yap" yap (native "ÜYE GİRİŞİ"). Türkçe İ regex tuzağı → değer kontrolü; idempotent. */
     var sBtn = form.querySelector('button[type="submit"]');
     if (sBtn && sBtn.textContent.trim() !== 'Giriş Yap') sBtn.innerHTML = LOGIN + 'Giriş Yap';
     if (wrap.hasAttribute('data-kb-login-done')) return true;
-    /* 1) Sol auth-side (form'dan önce) */
-    var userForm = $('.user-form.login', wrap);
-    if (userForm && !$('.md-auth-side', wrap)) wrap.insertBefore(buildAuthSide(), userForm);
-    /* 2) Form başlığı (Giriş Yap + Kayıt ol) — form'un ilk child'i */
-    if (!$('.md-auth-form-head', form)) form.insertBefore(buildFormHead(), form.firstChild);
-    /* 3) Şifre göster/gizle toggle */
-    var pass = $('#password', form);
-    if (pass && !$('.md-pass-toggle', form)) {
-      var w = document.createElement('div'); w.className = 'md-pass-wrap';
-      pass.parentNode.insertBefore(w, pass); w.appendChild(pass);
-      var t = document.createElement('button'); t.type = 'button'; t.className = 'md-pass-toggle'; t.setAttribute('aria-label', 'Şifreyi göster/gizle'); t.innerHTML = EYE;
-      w.appendChild(t);
-      t.addEventListener('click', function () { var s = pass.type === 'password'; pass.type = s ? 'text' : 'password'; t.innerHTML = s ? EYEOFF : EYE; });
-    }
-    /* 4) Sosyal butonları submit altında satıra grupla (+ "veya" divider) */
-    if (!$('.md-auth-social', form)) {
-      var gAnchor = form.querySelector('a[href*="glogin"]');
-      var apple = form.querySelector('#appleid-signin'); var appleField = apple ? apple.closest('.field') : null;
-      var fb = form.querySelector('.btn-primary-fblogin'); var fbField = fb ? fb.closest('.field') : null;
-      var submitBtn = form.querySelector('.btn-primary-sign') || form.querySelector('button[type="submit"]');
-      var submitField = submitBtn ? submitBtn.closest('.field') : null;
-      if ((gAnchor || appleField || fbField) && submitField) {
-        var social = document.createElement('div'); social.className = 'md-auth-social'; social.setAttribute('data-kb-login', 'social');
-        if (gAnchor) social.appendChild(gAnchor);
-        if (appleField) social.appendChild(appleField);
-        if (fbField) social.appendChild(fbField);
-        var divider = document.createElement('div'); divider.className = 'md-auth-divider'; divider.setAttribute('data-kb-login', 'divider'); divider.textContent = 'veya';
-        submitField.parentNode.insertBefore(divider, submitField.nextSibling);
-        divider.parentNode.insertBefore(social, divider.nextSibling);
-      }
-    }
-    wrap.setAttribute('data-kb-login-done', '1');
-    return true;
-  }
-  function run() { if (!enhance()) setTimeout(enhance, 100); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
-  else run();
-  window.addEventListener('load', function () { setTimeout(enhance, 300); });
-  var mo = new MutationObserver(function () { enhance(); });
-  if (document.body) mo.observe(document.body, { childList: true, subtree: true });
-  else document.addEventListener('DOMContentLoaded', function () { mo.observe(document.body, { childList: true, subtree: true }); });
+    /* 1) SOL auth-side (form'dan önce) */
+var userForm = $('.user-form.login', wrap);
+if (userForm && !$('.md-auth-side', wrap)) wrap.insertBefore(buildAuthSide(), userForm);
+if (!$('.md-auth-form-head', form)) form.insertBefore(buildFormHead(), form.firstChild);
+var msgBox = wrap.querySelector(':scope > .m');
+if (msgBox) { var hd = $('.md-auth-form-head', form); if (hd) hd.parentNode.insertBefore(msgBox, hd.nextSibling); else form.insertBefore(msgBox, form.firstChild); }
+var pass = $('#password', form);
+if (pass && !$('.md-pass-toggle', form)) {
+var w = document.createElement('div'); w.className = 'md-pass-wrap';
+pass.parentNode.insertBefore(w, pass); w.appendChild(pass);
+var t = document.createElement('button'); t.type = 'button'; t.className = 'md-pass-toggle'; t.setAttribute('aria-label', 'Şifreyi göster/gizle'); t.innerHTML = EYE;
+w.appendChild(t);
+t.addEventListener('click', function () { var s = pass.type === 'password'; pass.type = s ? 'text' : 'password'; t.innerHTML = s ? EYEOFF : EYE; });
+}
+if (!$('.md-auth-social', form)) {
+var gAnchor = form.querySelector('a[href*="glogin"]');
+var apple = form.querySelector('#appleid-signin'); var appleField = apple ? apple.closest('.field') : null;
+var fb = form.querySelector('.btn-primary-fblogin'); var fbField = fb ? fb.closest('.field') : null;
+var emailEl = $('#email', form); var emailField = emailEl ? emailEl.closest('.field') : null;
+if ((gAnchor || appleField || fbField) && emailField) {
+var social = document.createElement('div'); social.className = 'md-auth-social'; social.setAttribute('data-kb-login', 'social');
+if (gAnchor) social.appendChild(gAnchor);
+if (appleField) social.appendChild(appleField);
+if (fbField) social.appendChild(fbField);
+var divider = document.createElement('div'); divider.className = 'md-auth-divider'; divider.setAttribute('data-kb-login', 'divider'); divider.textContent = 'veya';
+emailField.parentNode.insertBefore(social, emailField);
+emailField.parentNode.insertBefore(divider, emailField);
+}
+}
+if (!$('.lg-signup', form)) form.appendChild(buildSignupFoot());
+wrap.setAttribute('data-kb-login-done', '1');
+return true;
+}
+function run() { if (!enhance()) setTimeout(enhance, 100); }
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+else run();
+window.addEventListener('load', function () { setTimeout(enhance, 300); });
+var mo = new MutationObserver(function () { enhance(); });
+if (document.body) mo.observe(document.body, { childList: true, subtree: true });
+else document.addEventListener('DOMContentLoaded', function () { mo.observe(document.body, { childList: true, subtree: true }); });
 })();
-/* ============================================================
-   SECTION: SIGNUP — /signup DOM enhance (tasarım: kayit-ol.html)
-   - Ortalı hero (badge "İlk 2 Ay Ücretsiz" + "ModdoDay'e Katıl" + alt metin) inject
-   - form + sağ AVANTAJ/GÜVEN paneli'ni .md-reg-grid'e sar
-   - Form başlığı (user-plus ikon + "Hesabını Oluştur" + "Zaten üye misin? Giriş Yap")
-   - Parola + Parola Tekrar yan yana (.md-reg-row2) + şifre göster/gizle toggle
-   - Sosyal butonları (Facebook + Google) submit altında .md-auth-social satırına grupla + "veya" divider
-   Native form fields/action/name DOKUNULMAZ. Scope: /signup veya /xx-XX/signup.
-   ============================================================ */
 (function () {
-  function isSignupPage() {
-    var p = location.pathname.replace(/\/$/, '');
-    return /(?:^|\/)signup$/.test(p);
+function isSignupPage() {
+var p = location.pathname.replace(/\/$/, '');
+return /(?:^|\/)signup$/.test(p);
+}
+if (!isSignupPage()) return;
+function $(s, r) { return (r || document).querySelector(s); }
+function ic(p) { return "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + p + "</svg>"; }
+var USERPLUS = "<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><line x1='19' x2='19' y1='8' y2='14'/><line x1='22' x2='16' y1='11' y2='11'/>";
+var GIFT = "<rect x='3' y='8' width='18' height='4' rx='1'/><path d='M12 8v13'/><path d='M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7'/><path d='M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5'/>";
+var SPARKLES = "<path d='M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z'/><path d='M20 3v4'/><path d='M22 5h-4'/><path d='M4 17v2'/><path d='M5 18H3'/>";
+var ZAP = "<polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/>";
+var CROWN = "<path d='M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.52l4.276 3.664a1 1 0 0 0 1.516-.294z'/>";
+var SHIELD = "<path d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/>";
+var CHECK = "<circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/>";
+var BUILDING = "<path d='M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z'/><path d='M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2'/><path d='M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2'/><path d='M10 6h4'/><path d='M10 10h4'/><path d='M10 14h4'/><path d='M10 18h4'/>";
+var EYE = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z'/><circle cx='12' cy='12' r='3'/></svg>";
+var EYEOFF = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9.88 9.88a3 3 0 1 0 4.24 4.24'/><path d='M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68'/><path d='M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61'/><line x1='2' x2='22' y1='2' y2='22'/></svg>";
+function loginHref() {
+var a = $('.users-wrapper > footer.footer a');
+if (a && a.getAttribute('href')) return a.getAttribute('href');
+var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//);
+return (m ? '/' + m[1] : '/tr-TR') + '/login';
+}
+function locUrl(p) { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return (m ? '/' + m[1] : '/tr-TR') + p; }
+function buildHero() {
+var h = document.createElement('div');
+h.className = 'md-reg-hero';
+h.setAttribute('data-kb-signup', 'hero');
+h.innerHTML =
+"<span class='md-reg-badge'>" + ic(GIFT) + "İlk 2 Ay Ücretsiz</span>" +
+"<h1>ModdoDay'e <span>Katıl</span></h1>" +
+"<p>Kurumsal wellbeing ve kişisel deneyim hizmetleriyle yaşam kaliteni yükselt. Kendin için en uygun modu seç, uzmanlarla tanış.</p>";
+return h;
+}
+function buildFormHead() {
+var head = document.createElement('div');
+head.className = 'md-auth-form-head';
+head.setAttribute('data-kb-signup', 'head');
+head.innerHTML =
+"<div class='md-auth-head-row'><span class='md-auth-head-icn'>" + ic(USERPLUS) + "</span><h2>Hesabını Oluştur</h2></div>" +
+"<p>Zaten üye misin? <a href='" + loginHref() + "'>Giriş Yap &rarr;</a></p>";
+return head;
+}
+function buildAside() {
+var aside = document.createElement('div');
+aside.className = 'md-reg-aside';
+aside.setAttribute('data-kb-signup', 'aside');
+var ben = function (svg, t, s) { return "<div class='md-reg-benefit'><div class='md-reg-benefit-icn'>" + ic(svg) + "</div><div><h4>" + t + "</h4><p>" + s + "</p></div></div>"; };
+var trust = function (svg, t) { return "<div class='md-reg-trust-row'>" + ic(svg) + "<span>" + t + "</span></div>"; };
+aside.innerHTML =
+"<div class='md-reg-card'>" +
+"<h3>ÜYELİK AVANTAJLARI</h3>" +
+ben(SPARKLES, "6 Farklı Yaşam Modu", "İlgi alanına uygun modlarda kişisel deneyim hizmeti") +
+ben(ZAP, "Canlı Oturumlar", "Haftanın 7 günü uzmanlarla birebir ve grup oturumları") +
+ben(CROWN, "Ayrıcalıklar Kulübü", "Özel indirimler, kampanyalar ve marka avantajları") +
+ben(GIFT, "2 Ay Ücretsiz Deneme", "Hemen kayıt ol, ilk 2 ay ücretsiz keşfet") +
+"</div>" +
+"<div class='md-reg-card'><div class='md-reg-trust'>" +
+trust(SHIELD, "256-bit SSL ile güvenli bağlantı") +
+trust(CHECK, "KVKK uyumlu veri işleme") +
+trust(CHECK, "İstediğin zaman iptal edebilirsin") +
+trust(CHECK, "7/24 destek hattı") +
+"</div></div>" +
+"<div class='md-reg-card md-reg-corp'>" +
+"<div class='md-reg-corp-icn'>" + ic(BUILDING) + "</div>" +
+"<h4>Kurumsal üyelik mi arıyorsunuz?</h4>" +
+"<p>Firmanız ve çalışanlarınız için toplu üyelik ve kurumsal wellbeing çözümleri.</p>" +
+"<a class='md-reg-corp-btn' href='" + locUrl('/s/kurumsal-kayit') + "'>Kurumsal Kayıt &rarr;</a>" +
+"</div>";
+return aside;
+}
+function addPassToggle(input) {
+if (!input || input.parentNode.classList.contains('md-pass-wrap')) return;
+var w = document.createElement('div'); w.className = 'md-pass-wrap';
+input.parentNode.insertBefore(w, input); w.appendChild(input);
+var t = document.createElement('button'); t.type = 'button'; t.className = 'md-pass-toggle';
+t.setAttribute('aria-label', 'Şifreyi göster/gizle'); t.innerHTML = EYE;
+w.appendChild(t);
+t.addEventListener('click', function () {
+var s = input.type === 'password'; input.type = s ? 'text' : 'password'; t.innerHTML = s ? EYEOFF : EYE;
+});
+}
+function enhance() {
+var wrap = $('.users-wrapper');
+var form = $('#register-form');
+if (!wrap || !form) return false;
+if (wrap.hasAttribute('data-kb-signup-done')) return true;
+if (!$('.md-reg-hero', wrap)) wrap.insertBefore(buildHero(), wrap.firstChild);
+var userForm = $('.user-form.register', wrap);
+if (userForm && !$('.md-reg-grid', wrap)) {
+var grid = document.createElement('div'); grid.className = 'md-reg-grid'; grid.setAttribute('data-kb-signup', 'grid');
+wrap.insertBefore(grid, userForm);
+grid.appendChild(userForm);
+grid.appendChild(buildAside());
+}
+if (!$('.md-auth-form-head', form)) form.insertBefore(buildFormHead(), form.firstChild);
+var msgBox = wrap.querySelector(':scope > .m');
+if (msgBox) { var hd = $('.md-auth-form-head', form); if (hd) hd.parentNode.insertBefore(msgBox, hd.nextSibling); else form.insertBefore(msgBox, form.firstChild); }
+[].forEach.call(form.querySelectorAll('.field > label'), function (l) {
+if (!l.textContent.trim() && !l.querySelector('input')) l.classList.add('md-label-empty');
+});
+var pass = $('#password', form), passR = $('#password-repeat', form);
+var pf = pass ? pass.closest('.field') : null, prf = passR ? passR.closest('.field') : null;
+if (pf && prf && !$('.md-reg-row2', form)) {
+var row = document.createElement('div'); row.className = 'md-reg-row2'; row.setAttribute('data-kb-signup', 'row2');
+pf.parentNode.insertBefore(row, pf); row.appendChild(pf); row.appendChild(prf);
+}
+addPassToggle(pass); addPassToggle(passR);
+var sBtn = form.querySelector('.btn-primary-signup');
+if (sBtn && !sBtn.querySelector('.md-btn-ic')) {
+var span = document.createElement('span'); span.className = 'md-btn-ic'; span.style.display = 'inline-flex'; span.innerHTML = ic(USERPLUS);
+sBtn.insertBefore(span, sBtn.firstChild);
+}
+if (!$('.md-auth-social', form)) {
+var fb = form.querySelector('.btn-primary-fbsignup'); var fbField = fb ? fb.closest('.field') : null;
+var gAnchor = form.querySelector('#google-login-link');
+var submitBtn = form.querySelector('.btn-primary-signup');
+var submitField = submitBtn ? submitBtn.closest('.field') : null;
+if ((fbField || gAnchor) && submitField) {
+var social = document.createElement('div'); social.className = 'md-auth-social'; social.setAttribute('data-kb-signup', 'social');
+if (fbField) social.appendChild(fbField);
+if (gAnchor) social.appendChild(gAnchor);
+var divider = document.createElement('div'); divider.className = 'md-auth-divider'; divider.setAttribute('data-kb-signup', 'divider'); divider.textContent = 'veya';
+submitField.parentNode.insertBefore(divider, submitField.nextSibling);
+divider.parentNode.insertBefore(social, divider.nextSibling);
+}
+}
+wrap.setAttribute('data-kb-signup-done', '1');
+return true;
+}
+var mo = null;
+function safeEnhance() {
+if (mo) mo.disconnect();
+var ok = enhance();
+if (mo && document.body) mo.observe(document.body, { childList: true, subtree: true });
+return ok;
+}
+function run() { if (!safeEnhance()) setTimeout(safeEnhance, 100); }
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+else run();
+window.addEventListener('load', function () { setTimeout(safeEnhance, 300); });
+mo = new MutationObserver(function () { safeEnhance(); });
+if (document.body) mo.observe(document.body, { childList: true, subtree: true });
+else document.addEventListener('DOMContentLoaded', function () { mo.observe(document.body, { childList: true, subtree: true }); });
+})();
+(function () {
+'use strict';
+var DONE = 'data-kb-card';
+var OBS_OPTS = { childList: true, subtree: true };
+var mo = null;
+var applying = false;
+var GRADIENTS = [
+['#10B981', '#14B8A6'], ['#3B82F6', '#06B6D4'], ['#F59E0B', '#EF4444'],
+['#F43F5E', '#EC4899'], ['#22C55E', '#84CC16'], ['#8B5CF6', '#A855F7']
+];
+var MODES = [
+{ re: /[üu]retken/i,  color: '#F59E0B' },
+{ re: /teknoloji/i,   color: '#3B82F6' },
+{ re: /keyif/i,       color: '#F43F5E' },
+{ re: /sa[ğg]l[ıi]k/i, color: '#10B981' },
+{ re: /longevity/i,   color: '#22C55E' },
+{ re: /aile/i,        color: '#8B5CF6' }
+];
+function matchMode(text) {
+for (var i = 0; i < MODES.length; i++) if (MODES[i].re.test(text)) return MODES[i];
+return null;
+}
+function hashStr(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
+function initialsOf(name) {
+var p = (name || '').trim().split(/\s+/).filter(Boolean);
+if (!p.length) return '?';
+if (p.length === 1) return p[0].slice(0, 2).toLocaleUpperCase('tr-TR');
+return (p[0].charAt(0) + p[p.length - 1].charAt(0)).toLocaleUpperCase('tr-TR');
+}
+function hasRealPhoto(img) {
+if (!img) return false;
+var src = img.getAttribute('src') || '';
+if (!src.trim()) return false;
+if (/user-circle-solid\.svg/i.test(src)) return false;
+if (img.complete && img.naturalWidth <= 1) return false;
+return true;
+}
+function buildAvatar(wrap, name) {
+if (!wrap) return;
+var g = GRADIENTS[hashStr(name) % GRADIENTS.length];
+wrap.style.setProperty('--kb-av-from', g[0]);
+wrap.style.setProperty('--kb-av-to', g[1]);
+var ini = wrap.querySelector('.kb-av-ini');
+if (!ini) {
+ini = document.createElement('span');
+ini.className = 'kb-av-ini';
+ini.setAttribute('aria-hidden', 'true');
+ini.textContent = initialsOf(name);
+wrap.appendChild(ini);
+}
+var img = wrap.querySelector('img');
+var sync = function () { wrap.classList.toggle('kb-has-photo', hasRealPhoto(img)); };
+if (img) {
+sync();
+img.addEventListener('load', sync);
+img.addEventListener('error', function () { wrap.classList.remove('kb-has-photo'); });
+} else {
+wrap.classList.remove('kb-has-photo');
+}
+}
+function extractMode(c) {
+var blocks = c.querySelectorAll('.profile-categories');
+if (!blocks.length) return null;
+var first = blocks[0];
+var btns = first.querySelectorAll('.pcategory-btn');
+if (btns.length !== 1) return null;             
+var label = (btns[0].textContent || '').trim();
+if (first.parentNode) first.parentNode.removeChild(first);  
+if (!label) return null;
+var m = matchMode(label);
+return { label: label, color: m ? m.color : '#F59E0B' };    
+}
+function buildCard(item) {
+var c = item.querySelector('.item-c');
+if (!c || c.getAttribute(DONE) === '1') return;
+var title = c.querySelector('.item-title');
+if (!title) return; 
+var name = title.textContent.trim();
+var imgWrap = c.querySelector('.item-image');
+var unvan = c.querySelector('.unvan-title');
+var mode = extractMode(c);
+var ebtns = c.querySelectorAll('.profile-categories .pcategory-btn');
+for (var ei = 0; ei < ebtns.length; ei++) {
+if (!(ebtns[ei].textContent || '').trim()) {
+var eblk = ebtns[ei].closest('.profile-categories');
+if (ebtns[ei].parentNode) ebtns[ei].parentNode.removeChild(ebtns[ei]);
+if (eblk && !eblk.querySelector('.pcategory-btn') && eblk.parentNode) eblk.parentNode.removeChild(eblk);
+}
+}
+var head = document.createElement('div');
+head.className = 'kb-head';
+var col = document.createElement('div');
+col.className = 'kb-headcol';
+if (mode) {
+var pill = document.createElement('span');
+pill.className = 'kb-mode-tag';
+pill.textContent = mode.label;
+pill.style.color = mode.color;
+pill.style.backgroundColor = mode.color + '22';   
+pill.style.borderColor = mode.color + '59';        
+col.appendChild(pill);
+}
+if (imgWrap) head.appendChild(imgWrap);             
+col.appendChild(title);                              
+if (unvan) col.appendChild(unvan);                   
+head.appendChild(col);
+c.appendChild(head);                                 
+buildAvatar(imgWrap, name);
+var foot = document.createElement('div');
+foot.className = 'kb-foot';
+var stars = c.querySelector('.profile-review-stars');
+if (stars) {
+var starCount = stars.querySelectorAll('.i-star').length;
+if (starCount) {
+var cc = stars.querySelector('.comment-count');
+var ccNum = cc ? (cc.textContent || '').replace(/[^\d]/g, '') : '';
+var r = document.createElement('div');
+r.className = 'kb-rating';
+r.innerHTML = '<span class="kb-star" aria-hidden="true">★</span>' +
+'<strong>' + starCount.toFixed(1) + '</strong>' +
+(ccNum ? '<span class="kb-rev">(' + ccNum + ')</span>' : '');
+foot.appendChild(r);
+}
+}
+var SESSION_RELS = ['service-video', 'service-phone', 'service-audio'];
+var sessions = 0;
+var svcWrap = c.querySelector('.item-services');
+if (svcWrap) {
+for (var s = 0; s < SESSION_RELS.length; s++) {
+var cnt = svcWrap.querySelector('.service-icon[rel="' + SESSION_RELS[s] + '"] .service-count');
+if (cnt) { var n = parseInt((cnt.textContent || '').replace(/[^\d]/g, ''), 10); if (!isNaN(n)) sessions += n; }
+}
+}
+if (sessions > 0) {
+var ses = document.createElement('div');
+ses.className = 'kb-sessions';
+ses.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
+'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+'<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
+'<span>' + sessions + ' seans</span>';
+foot.appendChild(ses);
+}
+if (foot.children.length) c.appendChild(foot);
+c.setAttribute(DONE, '1');
+}
+function unnestStray() {
+var grids = document.querySelectorAll('.agents .list.flex:not(.order-flex-list)');
+for (var g = 0; g < grids.length; g++) {
+var grid = grids[g];
+var stray = grid.querySelectorAll('.item .item'); 
+for (var i = 0; i < stray.length; i++) {
+var nested = stray[i];
+if (!nested.querySelector(':scope > .item-c')) continue; 
+var top = nested.parentElement;
+while (top && top.parentElement !== grid) top = top.parentElement;
+if (top && top !== nested && top.parentElement === grid) {
+grid.insertBefore(nested, top.nextSibling); 
+}
+}
+}
+}
+function run() {
+if (applying) return;
+if (!document.querySelector('.agents .item')) return;
+applying = true;
+if (mo) mo.disconnect();
+try {
+unnestStray();
+var cards = document.querySelectorAll('.agents .item');
+for (var i = 0; i < cards.length; i++) buildCard(cards[i]);
+} finally {
+applying = false;
+if (mo && document.body) mo.observe(document.body, OBS_OPTS);
+}
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+else run();
+window.addEventListener('load', function () { setTimeout(run, 300); });
+var startObserver = function () {
+if (!document.body) { setTimeout(startObserver, 50); return; }
+mo = new MutationObserver(function (muts) {
+for (var i = 0; i < muts.length; i++) if (muts[i].addedNodes && muts[i].addedNodes.length) { run(); return; }
+});
+mo.observe(document.body, OBS_OPTS);
+};
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startObserver, { once: true });
+else startObserver();
+})();
+(function () {
+function isPage() { return /(?:^|\/)s\/ayricaliklar-kategori$/.test(location.pathname.replace(/\/$/, '')); }
+if (!isPage()) return;
+function onTabClick(tab) {
+var root = tab.closest('.md-ayk-brand');
+if (!root) return;
+var key = tab.getAttribute('data-ayk-tab');
+root.querySelectorAll('[data-ayk-tab]').forEach(function (t) {
+t.classList.toggle('is-active', t.getAttribute('data-ayk-tab') === key);
+});
+root.querySelectorAll('[data-ayk-panel]').forEach(function (p) {
+p.classList.toggle('is-hidden', p.getAttribute('data-ayk-panel') !== key);
+});
+}
+document.addEventListener('click', function (e) {
+var tab = e.target.closest ? e.target.closest('.md-ayk-tab[data-ayk-tab]') : null;
+if (tab) { e.preventDefault(); onTabClick(tab); }
+});
+})();
+(function () {
+function isPage() {
+return /\/s\/ayricaliklar$/.test(location.pathname.replace(/\/$/, ''));
+}
+if (!isPage()) return;
+function faq() {
+var items = document.querySelectorAll('.kb-a-faq-item');
+items.forEach(function (it) {
+if (it.getAttribute('data-kb-a') === '1') return;
+it.setAttribute('data-kb-a', '1');
+var q = it.querySelector('.kb-a-faq-q');
+if (!q) return;
+q.addEventListener('click', function () { it.classList.toggle('is-open'); });
+});
+}
+function run() { faq(); }
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+else run();
+window.addEventListener('load', function () { setTimeout(run, 300); });
+var mo = new MutationObserver(function () { run(); });
+if (document.body) {
+mo.observe(document.body, { childList: true, subtree: true });
+setTimeout(function () { mo.disconnect(); }, 5000);
+}
+})();
+(function () {
+function isContactPage() {
+var p = location.pathname.replace(/\/$/, '');
+return /(?:^|\/)s\/iletisim$/.test(p);
+}
+if (!isContactPage()) return;
+var SVG = {
+home: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 2l9 7.5V21a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5z"/></svg>',
+chev: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
+arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
+msg: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+send: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>'
+};
+function injectHero() {
+var title = document.querySelector('.page-header .page-title');
+if (!title) return;
+var h1ref = title.querySelector('h1');
+if (!title.querySelector('.kb-c-breadcrumb')) {
+var bc = document.createElement('nav');
+bc.className = 'kb-c-breadcrumb';
+bc.setAttribute('data-kb-c', 'breadcrumb');
+bc.innerHTML = '<a href="/">Ana Sayfa</a> <span class="kb-c-bc-sep">' + SVG.chev + '</span> <span class="kb-c-bc-cur">İletişim</span>';
+title.insertBefore(bc, title.firstChild);
+}
+if (!title.querySelector('.kb-c-badge')) {
+var bd = document.createElement('div');
+bd.className = 'kb-c-badge';
+bd.setAttribute('data-kb-c', 'badge');
+bd.innerHTML = SVG.msg + ' <span>Bize Ulaşın</span>';
+title.insertBefore(bd, h1ref);
+}
+var h1 = title.querySelector('h1');
+if (h1 && h1.getAttribute('data-kb-c') !== 'title') {
+h1.innerHTML = 'Size Nasıl <span class="kb-gradient">Yardımcı</span> Olabiliriz?';
+h1.setAttribute('data-kb-c', 'title');
+}
+}
+function makeField(opts) {
+var w = document.createElement('div');
+w.className = 'kb-c-field' + (opts.full ? ' kb-c-field--full' : '');
+w.setAttribute('data-kb-c', 'field-' + opts.name);
+var lab = document.createElement('label');
+lab.textContent = opts.label;
+lab.setAttribute('for', 'kb-c-' + opts.name);
+w.appendChild(lab);
+var inp;
+if (opts.type === 'select') {
+inp = document.createElement('select');
+(opts.options || []).forEach(function (o) {
+var op = document.createElement('option');
+op.value = o.v; op.textContent = o.t;
+inp.appendChild(op);
+});
+} else {
+inp = document.createElement('input');
+inp.type = opts.type || 'text';
+if (opts.placeholder) inp.placeholder = opts.placeholder;
+}
+inp.id = 'kb-c-' + opts.name;
+inp.name = 'kb_c_' + opts.name;
+inp.setAttribute('autocomplete', 'off');
+w.appendChild(inp);
+return w;
+}
+function enhanceForm() {
+var container = document.querySelector('.form-container.contact-form');
+var formEl = document.querySelector('#contact-form');
+if (!container || !formEl) return;
+if (formEl.getAttribute('data-kb-c-built') === '1') return;
+if (!container.querySelector('.kb-c-form-title')) {
+var h2 = document.createElement('h2');
+h2.className = 'kb-c-form-title';
+h2.setAttribute('data-kb-c', 'form-title');
+h2.textContent = 'İletişim Formu';
+var lead = document.createElement('p');
+lead.className = 'kb-c-form-lead';
+lead.setAttribute('data-kb-c', 'form-lead');
+lead.textContent = 'Formu doldurun, ekibimiz 24 saat içinde size dönüş yapsın.';
+container.insertBefore(lead, container.firstChild);
+container.insertBefore(h2, lead);
+}
+var nameInp  = formEl.querySelector('input[name="name"]');
+var emailInp = formEl.querySelector('input[name="email"]');
+var phoneInp = formEl.querySelector('input[name="phone"]');
+var msgInp   = formEl.querySelector('textarea[name="message"]');
+var nameField  = nameInp  ? nameInp.closest('.field')  : null;
+var emailField = emailInp ? emailInp.closest('.field') : null;
+var phoneField = phoneInp ? phoneInp.closest('.field') : null;
+var msgField   = msgInp   ? msgInp.closest('.field')   : null;
+if (!nameField || !emailField || !phoneField || !msgField) return;
+var setLab = function (field, text) {
+var l = field.querySelector('label');
+if (l) l.textContent = text;
+};
+var setPh = function (input, ph) {
+if (input) input.setAttribute('placeholder', ph);
+};
+setLab(nameField, 'Ad Soyad');
+setLab(emailField, 'E-posta');
+setLab(phoneField, 'Telefon');
+setLab(msgField, 'Mesajınız');
+setPh(nameInp, 'Adınızı ve soyadınızı yazın');
+setPh(emailInp, 'ornek@eposta.com');
+setPh(phoneInp, '+90 5XX XXX XX XX');
+setPh(msgInp, 'Mesajınızı buraya yazın...');
+var sirketField = makeField({ name: 'sirket', label: 'Şirket', placeholder: 'Şirket adı (opsiyonel)' });
+var konuField = makeField({ name: 'konu', label: 'Konu', type: 'select', full: true, options: [
+{ v: '', t: 'Konu seçin' },
+{ v: 'genel', t: 'Genel Bilgi' },
+{ v: 'uyelik', t: 'Üyelik & Abonelik' },
+{ v: 'oturum', t: 'Canlı Oturum Sorgusu' },
+{ v: 'danismanlik', t: 'Danışmanlık Başvurusu' },
+{ v: 'sponsorluk', t: 'Sponsorluk & İş Birliği' },
+{ v: 'kurumsal', t: 'Kurumsal Çözümler' },
+{ v: 'teknik', t: 'Teknik Destek' },
+{ v: 'diger', t: 'Diğer' }
+] });
+['field-konusu', 'field-hata_kodu', 'field-konu_secin'].forEach(function (sel) {
+var old = formEl.querySelector('[data-kb-c="' + sel + '"]');
+if (old && old.parentNode) old.parentNode.removeChild(old);
+});
+if (!nameField.parentNode.classList.contains('kb-c-row')) {
+var row1 = document.createElement('div');
+row1.className = 'kb-c-row';
+row1.setAttribute('data-kb-c', 'row1');
+nameField.parentNode.insertBefore(row1, nameField);
+row1.appendChild(nameField);
+row1.appendChild(emailField);
+}
+if (!phoneField.parentNode.classList.contains('kb-c-row')) {
+var row2 = document.createElement('div');
+row2.className = 'kb-c-row';
+row2.setAttribute('data-kb-c', 'row2');
+phoneField.parentNode.insertBefore(row2, phoneField);
+row2.appendChild(phoneField);
+row2.appendChild(sirketField);
+}
+if (!formEl.querySelector('[data-kb-c="field-konu"]') && msgField && msgField.parentNode) {
+msgField.parentNode.insertBefore(konuField, msgField);
+}
+var btn = formEl.querySelector('button[type="submit"], input[type="submit"]');
+if (btn) {
+if (btn.tagName === 'INPUT') { btn.value = 'MESAJ GÖNDER'; }
+else { btn.innerHTML = SVG.send + ' MESAJ GÖNDER'; }
+}
+formEl.addEventListener('submit', function () {
+try {
+var konu = (formEl.querySelector('#kb-c-konu') || {}).value || '';
+var sirket = (formEl.querySelector('#kb-c-sirket') || {}).value || '';
+var lines = [];
+if (konu) lines.push('[Konu: ' + konu + ']');
+if (sirket) lines.push('[Şirket: ' + sirket + ']');
+if (lines.length && msgInp) {
+var orig = msgInp.value || '';
+if (orig.indexOf('[Konu:') !== 0 && orig.indexOf('[Şirket:') !== 0) {
+msgInp.value = lines.join('\n') + '\n\n' + orig;
+}
+}
+} catch (e) {  }
+}, true);
+formEl.setAttribute('data-kb-c-built', '1');
+}
+function faqAccordion() {
+var items = document.querySelectorAll('.kb-c-faq .kb-c-faq-item');
+if (!items.length) return;
+items.forEach(function (item) {
+if (item.getAttribute('data-kb-c-faq') === '1') return;
+item.setAttribute('data-kb-c-faq', '1');
+var q = item.querySelector('.kb-c-faq-q');
+if (!q) return;
+q.addEventListener('click', function () {
+item.classList.toggle('is-open');
+});
+});
+}
+function enhance() {
+injectHero();
+enhanceForm();
+faqAccordion();
+}
+if (document.readyState === 'loading') {
+document.addEventListener('DOMContentLoaded', enhance);
+} else {
+enhance();
+}
+window.addEventListener('load', function () { setTimeout(enhance, 300); });
+var mo = new MutationObserver(function () { enhance(); });
+if (document.body) {
+mo.observe(document.body, { childList: true, subtree: true });
+setTimeout(function () { mo.disconnect(); }, 5000);
+}
+})();
+(function () {
+function isPage() { return !!(document.body && document.body.classList.contains('kb-page-etkinlik-detay')); }
+function ic(p) { return "<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + p + "</svg>"; }
+var I = {
+back: "<path d='m12 19-7-7 7-7'/><path d='M19 12H5'/>",
+cal: "<rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/>",
+clock: "<circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/>",
+users: "<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M22 21v-2a4 4 0 0 0-3-3.87'/>",
+globe: "<circle cx='12' cy='12' r='10'/><path d='M2 12h20'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/>",
+check: "<path d='M20 6 9 17l-5-5'/>"
+};
+function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;'); }
+  function localePrefix() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : ''; }
+  function txt(el) { return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
+  /* Google Takvim linki — dateStr "DD.MM.YYYY[ - DD.MM.YYYY]", timeStr "HH:MM - HH:MM" */
+  function gcalUrl(title, dateStr, timeStr) {
+    var dm = (dateStr || '').match(/\d{2}\.\d{2}\.\d{4}/g) || [];
+    var tm = (timeStr || '').match(/\d{2}:\d{2}/g) || [];
+    if (!dm.length || !tm.length) return '';
+    function dmy(s) { var m = s.match(/(\d{2})\.(\d{2})\.(\d{4})/); return m ? m[3] + m[2] + m[1] : ''; }
+    var sd = dmy(dm[0]), ed = dmy(dm[dm.length > 1 ? 1 : 0]);
+    if (!sd) return '';
+    var st = tm[0].replace(':', ''), et = (tm[1] || tm[0]).replace(':', '');
+    return 'https://calendar.google.com/calendar/render?action=TEMPLATE&text=' + encodeURIComponent(title || 'Etkinlik') +
+      '&dates=' + sd + 'T' + st + '00/' + ed + 'T' + et + '00';
   }
-  if (!isSignupPage()) return;
-  function $(s, r) { return (r || document).querySelector(s); }
-  function ic(p) { return "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + p + "</svg>"; }
-  var USERPLUS = "<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><line x1='19' x2='19' y1='8' y2='14'/><line x1='22' x2='16' y1='11' y2='11'/>";
-  var GIFT = "<rect x='3' y='8' width='18' height='4' rx='1'/><path d='M12 8v13'/><path d='M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7'/><path d='M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5'/>";
-  var SPARKLES = "<path d='M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z'/><path d='M20 3v4'/><path d='M22 5h-4'/><path d='M4 17v2'/><path d='M5 18H3'/>";
-  var ZAP = "<polygon points='13 2 3 14 12 14 11 22 21 10 12 10 13 2'/>";
-  var CROWN = "<path d='M11.562 3.266a.5.5 0 0 1 .876 0L15.39 8.87a1 1 0 0 0 1.516.294L21.183 5.5a.5.5 0 0 1 .798.519l-2.834 10.246a1 1 0 0 1-.956.734H5.81a1 1 0 0 1-.957-.734L2.02 6.02a.5.5 0 0 1 .798-.52l4.276 3.664a1 1 0 0 0 1.516-.294z'/>";
-  var SHIELD = "<path d='M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z'/>";
-  var CHECK = "<circle cx='12' cy='12' r='10'/><path d='m9 12 2 2 4-4'/>";
-  var EYE = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7z'/><circle cx='12' cy='12' r='3'/></svg>";
-  var EYEOFF = "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M9.88 9.88a3 3 0 1 0 4.24 4.24'/><path d='M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68'/><path d='M6.61 6.61A13.526 13.526 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61'/><line x1='2' x2='22' y1='2' y2='22'/></svg>";
-  function loginHref() {
-    var a = $('.users-wrapper > footer.footer a');
-    if (a && a.getAttribute('href')) return a.getAttribute('href');
-    var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//);
-    return (m ? '/' + m[1] : '/tr-TR') + '/login';
+  /* native <add-to-calendar-button> (atcb v2.4.3) → moddo5 outline buton teması (dark scheme + transparent/border) */
+  var ATCB_VARS = "--btn-background:transparent;--btn-background-hover:rgba(255,255,255,0.08);--btn-border:rgba(255,255,255,0.25);--btn-text:#ffffff;--btn-text-hover:#ffffff;--btn-shadow:none;--btn-shadow-hover:none;--btn-shadow-active:none;--font:'Poppins',system-ui,sans-serif;--keyboard-focus:var(--md-orange,#F59E0B);--base-font-size-l:15px";
+  var _gcalHref = ''; /* native widget hiç yüklenmezse fallback */
+  function build() {
+    var ec = document.querySelector('.event-container');
+    if (!ec || ec.getAttribute('data-kb-sd')) return true;
+    /* ---- VERİ ÇIKAR ---- */
+    var title = txt(ec.querySelector(':scope > h2'));
+    var descEl = ec.querySelector('.event-description-text');
+    var desc = txt(descEl);
+    // cover: .event-bg-div bg-image (boş = .../<ym>/ ile biter → gradient)
+    var bgDiv = ec.querySelector('.event-bg-div');
+    var cover = '';
+    if (bgDiv) { var mm = (bgDiv.style.backgroundImage || '').match(/url\(["']?(.+?)["']?\)/); if (mm && mm[1] && !/\/$/.test(mm[1]) && !/\/\d{6}\/?$/.test(mm[1])) cover = mm[1]; }
+var exImg = ec.querySelector('.expert-profile-pic img');
+var exNameA = ec.querySelector('.expert-name a');
+var exName = txt(ec.querySelector('.expert-name'));
+var exTitle = txt(ec.querySelector('.expert-title'));
+var exStars = ec.querySelector('.expert-stars');
+var info = [].map.call(ec.querySelectorAll('.expert-bottom .info-label'), function (e) { return txt(e); }).filter(Boolean);
+var fmt = info[3] || ''; var cap = info[2] || '';
+var metaItems = [];
+if (info[0]) metaItems.push([I.cal, 'Tarih', info[0].replace(/\s*-\s*\1/, '')]);
+if (info[1]) metaItems.push([I.clock, 'Saat', info[1].replace(/UTC/i, '').trim() + ' (UTC)']);
+if (cap) metaItems.push([I.users, 'Kapasite', /^\d+$/.test(cap) ? cap + ' kişi' : cap]);
+if (fmt) metaItems.push([I.globe, 'Format', fmt]);
+var cat = txt(ec.querySelector('.event-category, [class*="event-cat"], .event-mode')) || '';
+_gcalHref = gcalUrl(title, info[0], info[1]);
+var sd = document.createElement('div');
+sd.className = 'kb-sd';
+var metaHtml = metaItems.map(function (m) {
+return "<div class='kb-sd-m'><span class='kb-sd-mic'>" + ic(m[0]) + "</span><span class='kb-sd-mt'><span class='lbl'>" + esc(m[1]) + "</span><span class='val'>" + esc(m[2]) + "</span></span></div>";
+}).join('');
+sd.innerHTML =
+"<section class='kb-sd-hero'>" +
+"<div class='kb-sd-img" + (cover ? '' : ' kb-sd-img--grad') + "'><div class='kb-sd-ov'></div>" +
+"<a class='kb-sd-back' href='" + localePrefix() + "/etkinlikler'>" + ic(I.back) + "<span>Geri</span></a>" +
+(cat ? "<span class='kb-sd-badge'>" + esc(cat) + "</span>" : '') +
+"</div>" +
+"<div class='kb-sd-expert'>" +
+(exImg ? "<div class='kb-sd-ph'><img src='" + esc(exImg.getAttribute('src')) + "' alt='" + esc(exName) + "'></div>" : '') +
+"<div class='kb-sd-exmeta'><h2>" + esc(exName || '') + "</h2><p>" + esc(exTitle || '') + "</p></div>" +
+"</div>" +
+"</section>" +
+"<section class='kb-sd-main'><div class='kb-sd-wrap'>" +
+(title ? "<h1>" + esc(title) + "</h1>" : '') +
+(desc ? "<p class='kb-sd-desc'>" + esc(desc) + "</p>" : '') +
+(metaHtml ? "<div class='kb-sd-meta'>" + metaHtml + "</div>" : '') +
+"<div class='kb-sd-tabslot'></div>" +
+"<div class='kb-sd-actions'><div class='kb-sd-actbtns'></div>" +
+"<div class='kb-sd-meta-right'>" +
+(fmt ? "<span>" + ic(I.globe) + esc(fmt) + "</span>" : '') +
+"<span>" + ic(I.check) + "Kayıt sonrası katılım linki gönderilir</span>" +
+"</div></div>" +
+"</div></section>" +
+"<div class='kb-sd-relslot'></div>";
+ec.insertBefore(sd, ec.firstChild);
+ec.setAttribute('data-kb-sd', '1');
+if (cover) { var imgEl = sd.querySelector('.kb-sd-img'); if (imgEl) imgEl.style.backgroundImage = "url('" + cover + "')"; }
+if (exStars) { var em = sd.querySelector('.kb-sd-exmeta'); if (em) em.appendChild(exStars); }
+var tabs = ec.querySelector('.event-tabs-container');
+if (tabs) sd.querySelector('.kb-sd-tabslot').appendChild(tabs);
+var reg = ec.querySelector('.register-button');
+if (reg) { var ab = sd.querySelector('.kb-sd-actbtns'); ab.insertBefore(reg, ab.firstChild); }
+var social = ec.querySelector('.event-social-share');
+if (social) sd.querySelector('.kb-sd-actbtns').appendChild(social);
+var related = ec.querySelector('.more-events-area');
+if (related) sd.querySelector('.kb-sd-relslot').appendChild(related);
+return true;
+}
+function relocateCalendar(sd) {
+var ab = sd.querySelector('.kb-sd-actbtns'); if (!ab) return true;
+if (ab.querySelector('.kb-sd-atcb')) return true; 
+var native = document.querySelector('add-to-calendar-button, #add-to-calendar-cn, .add-to-calendar');
+if (!native) return false; 
+var fresh = document.createElement('add-to-calendar-button');
+[].forEach.call(native.attributes, function (at) {
+var n = at.name.toLowerCase();
+if (n === 'id' || n === 'class' || n === 'style' || n === 'lightmode' || n === 'stylelight' || n === 'styledark' || n.indexOf('atcb-') === 0) return;
+fresh.setAttribute(at.name, at.value);
+});
+if (!fresh.getAttribute('label')) fresh.setAttribute('label', 'Takvime Ekle');
+fresh.setAttribute('lightMode', 'dark');
+fresh.setAttribute('size', '3');
+fresh.setAttribute('styleLight', ATCB_VARS);
+fresh.setAttribute('styleDark', ATCB_VARS);
+fresh.className = 'kb-sd-atcb';
+if (native.parentNode) native.parentNode.removeChild(native);
+var social = ab.querySelector('.event-social-share');
+if (social) ab.insertBefore(fresh, social); else ab.appendChild(fresh);
+return true;
+}
+function calendarFallback(sd) {
+var ab = sd && sd.querySelector('.kb-sd-actbtns'); if (!ab) return;
+if (ab.querySelector('.kb-sd-atcb') || ab.querySelector('.kb-sd-cal') || !_gcalHref) return;
+var a = document.createElement('a');
+a.className = 'kb-sd-cal'; a.href = _gcalHref; a.target = '_blank'; a.rel = 'noopener';
+a.innerHTML = ic(I.cal) + "<span>Takvime Ekle</span>";
+var social = ab.querySelector('.event-social-share');
+if (social) ab.insertBefore(a, social); else ab.appendChild(a);
+}
+function moveRelated() {
+var sd = document.querySelector('.kb-sd'); if (!sd) return;
+var slot = sd.querySelector('.kb-sd-relslot'); if (!slot) return;
+var rel = document.querySelector('.event-container > .more-events-area');
+if (rel && rel.parentNode !== slot) slot.appendChild(rel);
+}
+function labelByIcon(card, cls) {
+var labels = card.querySelectorAll('.info-label');
+for (var i = 0; i < labels.length; i++) {
+var ico = labels[i].querySelector('i');
+if (ico && ico.className.indexOf(cls) >= 0) {
+var sp = labels[i].querySelector('span');
+return txt(sp || labels[i]);
+}
+}
+return '';
+}
+function firstTime(s) { var m = (s || '').match(/\d{1,2}:\d{2}/); return m ? m[0] : ''; }
+function durMin(s) {
+var tm = (s || '').match(/\d{1,2}:\d{2}/g); if (!tm || tm.length < 2) return '';
+function mn(x) { var p = x.split(':'); return (+p[0]) * 60 + (+p[1]); }
+var d = mn(tm[1]) - mn(tm[0]); if (d < 0) d += 1440; return d > 0 ? d + ' dk' : '';
+}
+function initials(name) {
+var p = (name || '').trim().split(/\s+/); if (!p[0]) return '?';
+return (p[0].charAt(0) + (p.length > 1 ? p[p.length - 1].charAt(0) : '')).toLocaleUpperCase('tr-TR');
+}
+function coverUrl(card) {
+var im = card.querySelector('.event-image'); if (!im) return '';
+var m = (im.getAttribute('style') || '').match(/url\(["']?(.+?)["']?\)/);
+    return (m && m[1] && !/\/\d{6}\/?$/.test(m[1])) ? m[1] : '';
   }
-  function buildHero() {
-    var h = document.createElement('div');
-    h.className = 'md-reg-hero';
-    h.setAttribute('data-kb-signup', 'hero');
-    h.innerHTML =
-      "<span class='md-reg-badge'>" + ic(GIFT) + "İlk 2 Ay Ücretsiz</span>" +
-      "<h1>ModdoDay'e <span>Katıl</span></h1>" +
-      "<p>Kurumsal wellbeing ve kişisel deneyim hizmetleriyle yaşam kaliteni yükselt. Kendin için en uygun modu seç, uzmanlarla tanış.</p>";
-    return h;
-  }
-  function buildFormHead() {
-    var head = document.createElement('div');
-    head.className = 'md-auth-form-head';
-    head.setAttribute('data-kb-signup', 'head');
-    head.innerHTML =
-      "<div class='md-auth-head-row'><span class='md-auth-head-icn'>" + ic(USERPLUS) + "</span><h2>Hesabını Oluştur</h2></div>" +
-      "<p>Zaten üye misin? <a href='" + loginHref() + "'>Giriş Yap &rarr;</a></p>";
-    return head;
-  }
-  function buildAside() {
-    var aside = document.createElement('div');
-    aside.className = 'md-reg-aside';
-    aside.setAttribute('data-kb-signup', 'aside');
-    var ben = function (svg, t, s) { return "<div class='md-reg-benefit'><div class='md-reg-benefit-icn'>" + ic(svg) + "</div><div><h4>" + t + "</h4><p>" + s + "</p></div></div>"; };
-    var trust = function (svg, t) { return "<div class='md-reg-trust-row'>" + ic(svg) + "<span>" + t + "</span></div>"; };
-    aside.innerHTML =
-      "<div class='md-reg-card'>" +
-        "<h3>ÜYELİK AVANTAJLARI</h3>" +
-        ben(SPARKLES, "6 Farklı Yaşam Modu", "İlgi alanına uygun modlarda kişisel deneyim hizmeti") +
-        ben(ZAP, "Canlı Oturumlar", "Haftanın 7 günü uzmanlarla birebir ve grup oturumları") +
-        ben(CROWN, "Ayrıcalıklar Kulübü", "Özel indirimler, kampanyalar ve marka avantajları") +
-        ben(GIFT, "2 Ay Ücretsiz Deneme", "Hemen kayıt ol, ilk 2 ay ücretsiz keşfet") +
-      "</div>" +
-      "<div class='md-reg-card'><div class='md-reg-trust'>" +
-        trust(SHIELD, "256-bit SSL ile güvenli bağlantı") +
-        trust(CHECK, "KVKK uyumlu veri işleme") +
-        trust(CHECK, "İstediğin zaman iptal edebilirsin") +
-        trust(CHECK, "7/24 destek hattı") +
+  function relCardEl(d) {
+    var a = document.createElement('a');
+    a.className = 'kb-sd-rel'; a.href = d.href || '#';
+    a.innerHTML =
+      "<div class='media'><div class='kb-sd-rel-img'></div><div class='ov'></div>" +
+      (d.badge ? "<span class='dur'>" + esc(d.badge) + "</span>" : "") + "</div>" +
+      "<div class='b'><h3>" + esc(d.title) + "</h3>" +
+      "<div class='who'><span class='av'>" + esc(d.initials) + "</span><span>" + esc(d.expert) + "</span></div>" +
+      "<div class='rmeta'>" +
+      (d.date ? "<span>" + ic(I.cal) + esc(d.date) + "</span>" : "") +
+      (d.time ? "<span>" + ic(I.clock) + esc(d.time) + "</span>" : "") +
+      (d.dur ? "<span class='pill2'>" + esc(d.dur) + "</span>" : "") +
       "</div></div>";
-    return aside;
+    if (d.cover) { var im = a.querySelector('.kb-sd-rel-img'); im.style.backgroundImage = "url('" + d.cover + "')"; }
+    return a;
   }
-  function addPassToggle(input) {
-    if (!input || input.parentNode.classList.contains('md-pass-wrap')) return;
-    var w = document.createElement('div'); w.className = 'md-pass-wrap';
-    input.parentNode.insertBefore(w, input); w.appendChild(input);
-    var t = document.createElement('button'); t.type = 'button'; t.className = 'md-pass-toggle';
-    t.setAttribute('aria-label', 'Şifreyi göster/gizle'); t.innerHTML = EYE;
-    w.appendChild(t);
-    t.addEventListener('click', function () {
-      var s = input.type === 'password'; input.type = s ? 'text' : 'password'; t.innerHTML = s ? EYEOFF : EYE;
+  function buildRelated() {
+    var area = document.querySelector('.more-events-area');
+    if (!area || area.getAttribute('data-kb-rel')) return;
+    var cards = [].slice.call(area.querySelectorAll('.owl-item:not(.cloned) .event-cards'));
+    if (!cards.length) cards = [].slice.call(area.querySelectorAll('.event-cards'));
+    if (!cards.length) return; /* henüz yüklenmedi → retry */
+    /* başlık+tarihe göre dedup (klon sızıntısına karşı) */
+    var seen = {}, items = [];
+    cards.forEach(function (card) {
+      var title = txt(card.querySelector('.event-carousel-header-part')) || 'Etkinlik';
+      var date = labelByIcon(card, 'fa-calendar');
+      var key = title + '|' + date; if (seen[key]) return; seen[key] = 1;
+      var timeRaw = labelByIcon(card, 'fa-clock');
+      var fmt = labelByIcon(card, 'fa-chalkboard') || labelByIcon(card, 'fa-globe');
+      var dur = durMin(timeRaw);
+      var linkA = card.querySelector('.detailed-info-button a');
+      items.push({
+        title: title, expert: labelByIcon(card, 'fa-user'), initials: initials(labelByIcon(card, 'fa-user')),
+        date: date, time: firstTime(timeRaw), dur: dur, badge: dur || fmt, cover: coverUrl(card),
+        href: linkA ? linkA.getAttribute('href') : (localePrefix() + '/etkinlikler')
+      });
     });
-  }
-  function enhance() {
-    var wrap = $('.users-wrapper');
-    var form = $('#register-form');
-    if (!wrap || !form) return false;
-    if (wrap.hasAttribute('data-kb-signup-done')) return true;
-    /* 1) Hero (en üst) */
-    if (!$('.md-reg-hero', wrap)) wrap.insertBefore(buildHero(), wrap.firstChild);
-    /* 2) form + aside'ı .md-reg-grid'e sar */
-    var userForm = $('.user-form.register', wrap);
-    if (userForm && !$('.md-reg-grid', wrap)) {
-      var grid = document.createElement('div'); grid.className = 'md-reg-grid'; grid.setAttribute('data-kb-signup', 'grid');
-      wrap.insertBefore(grid, userForm);
-      grid.appendChild(userForm);
-      grid.appendChild(buildAside());
-    }
-    /* 3) Form başlığı (form'un ilk child'i) */
-    if (!$('.md-auth-form-head', form)) form.insertBefore(buildFormHead(), form.firstChild);
-    /* 4) Boş label'ları gizle (custom_profile alanları) */
-    [].forEach.call(form.querySelectorAll('.field > label'), function (l) {
-      if (!l.textContent.trim() && !l.querySelector('input')) l.classList.add('md-label-empty');
-    });
-    /* 5) Parola + Parola Tekrar yan yana */
-    var pass = $('#password', form), passR = $('#password-repeat', form);
-    var pf = pass ? pass.closest('.field') : null, prf = passR ? passR.closest('.field') : null;
-    if (pf && prf && !$('.md-reg-row2', form)) {
-      var row = document.createElement('div'); row.className = 'md-reg-row2'; row.setAttribute('data-kb-signup', 'row2');
-      pf.parentNode.insertBefore(row, pf); row.appendChild(pf); row.appendChild(prf);
-    }
-    /* 6) şifre göster/gizle */
-    addPassToggle(pass); addPassToggle(passR);
-    /* 7) Submit'e user-plus ikon (idempotent) */
-    var sBtn = form.querySelector('.btn-primary-signup');
-    if (sBtn && !sBtn.querySelector('.md-btn-ic')) {
-      var span = document.createElement('span'); span.className = 'md-btn-ic'; span.style.display = 'inline-flex'; span.innerHTML = ic(USERPLUS);
-      sBtn.insertBefore(span, sBtn.firstChild);
-    }
-    /* 8) Sosyal butonları (Facebook + Google) submit altında satıra grupla + "veya" divider */
-    if (!$('.md-auth-social', form)) {
-      var fb = form.querySelector('.btn-primary-fbsignup'); var fbField = fb ? fb.closest('.field') : null;
-      var gAnchor = form.querySelector('#google-login-link');
-      var submitBtn = form.querySelector('.btn-primary-signup');
-      var submitField = submitBtn ? submitBtn.closest('.field') : null;
-      if ((fbField || gAnchor) && submitField) {
-        var social = document.createElement('div'); social.className = 'md-auth-social'; social.setAttribute('data-kb-signup', 'social');
-        if (fbField) social.appendChild(fbField);
-        if (gAnchor) social.appendChild(gAnchor);
-        var divider = document.createElement('div'); divider.className = 'md-auth-divider'; divider.setAttribute('data-kb-signup', 'divider'); divider.textContent = 'veya';
-        submitField.parentNode.insertBefore(divider, submitField.nextSibling);
-        divider.parentNode.insertBefore(social, divider.nextSibling);
-      }
-    }
-    wrap.setAttribute('data-kb-signup-done', '1');
-    return true;
-  }
-  /* disconnect/reconnect ile self-trigger loop'unu engelle (body subtree observer) */
-  var mo = null;
-  function safeEnhance() {
-    if (mo) mo.disconnect();
-    var ok = enhance();
-    if (mo && document.body) mo.observe(document.body, { childList: true, subtree: true });
-    return ok;
-  }
-  function run() { if (!safeEnhance()) setTimeout(safeEnhance, 100); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
-  else run();
-  window.addEventListener('load', function () { setTimeout(safeEnhance, 300); });
-  mo = new MutationObserver(function () { safeEnhance(); });
-  if (document.body) mo.observe(document.body, { childList: true, subtree: true });
-  else document.addEventListener('DOMContentLoaded', function () { mo.observe(document.body, { childList: true, subtree: true }); });
-})();
-/* ============================================================
-   SECTION: AGENT CARDS — global (her sayfada)
-   .agents .item kartlarini ModdoDay YATAY kart tasarimina (uzmannew.PNG)
-   donusturur. GLOBAL — uzmanlar listesi, kategori-detay, vb. her yerde ayni.
-   Hedef yapi (flex order ile garanti):
-     .item-c
-       .kb-head  (yatay)        → .item-image(avatar sol) + .kb-headcol(col)
-                                    .kb-headcol: .kb-mode-tag + .item-title(isim) + .unvan-title(meslek)
-       .item-excerpt (aciklama)
-       .profile-categories (kategori pill'leri — mod disindakiler)
-       .kb-foot (yatay space-between) → .kb-rating(sol) [+ .kb-sessions(sag)]
-   VERI ESLESMESI (recon):
-   - mod-tag = bir KATEGORI (.pcategory-btn) — adi bir moda uyani (".. Modu")
-     secip isim ustune renkli pill yapariz; kalan kategoriler altta kalir.
-   - seans sayisi: platformda listede KAYNAK YOK → simdilik render edilmez.
-   - bos alanlar (.unvan-title/.item-excerpt/.profile-categories/.profile-review-stars)
-     CSS :empty ile gizli; prod verisi gelince otomatik gorunur. UYDURMA YOK.
-   ! Sonsuz dongu engeli: idempotency guard (data-kb-card) + run() icinde
-     observer disconnect/reconnect (bkz feedback_mutationobserver_infinite_loop).
-   ============================================================ */
-(function () {
-  'use strict';
-  var DONE = 'data-kb-card';
-  var OBS_OPTS = { childList: true, subtree: true };
-  var mo = null;
-  var applying = false;
-  /* Avatar fallback gradient paleti (isim hash'i) */
-  var GRADIENTS = [
-    ['#10B981', '#14B8A6'], ['#3B82F6', '#06B6D4'], ['#F59E0B', '#EF4444'],
-    ['#F43F5E', '#EC4899'], ['#22C55E', '#84CC16'], ['#8B5CF6', '#A855F7']
-  ];
-  /* Mod tespiti — kategori adina gore renk. */
-  var MODES = [
-    { re: /[üu]retken/i,  color: '#F59E0B' },
-    { re: /teknoloji/i,   color: '#3B82F6' },
-    { re: /keyif/i,       color: '#F43F5E' },
-    { re: /sa[ğg]l[ıi]k/i, color: '#10B981' },
-    { re: /longevity/i,   color: '#22C55E' },
-    { re: /aile/i,        color: '#8B5CF6' }
-  ];
-  function matchMode(text) {
-    for (var i = 0; i < MODES.length; i++) if (MODES[i].re.test(text)) return MODES[i];
-    return null;
-  }
-  function hashStr(s) { var h = 0; for (var i = 0; i < s.length; i++) h = (h * 31 + s.charCodeAt(i)) | 0; return Math.abs(h); }
-  function initialsOf(name) {
-    var p = (name || '').trim().split(/\s+/).filter(Boolean);
-    if (!p.length) return '?';
-    if (p.length === 1) return p[0].slice(0, 2).toLocaleUpperCase('tr-TR');
-    return (p[0].charAt(0) + p[p.length - 1].charAt(0)).toLocaleUpperCase('tr-TR');
-  }
-  function hasRealPhoto(img) {
-    if (!img) return false;
-    var src = img.getAttribute('src') || '';
-    if (!src.trim()) return false;
-    if (/user-circle-solid\.svg/i.test(src)) return false;
-    if (img.complete && img.naturalWidth <= 1) return false;
-    return true;
-  }
-  function buildAvatar(wrap, name) {
-    if (!wrap) return;
-    var g = GRADIENTS[hashStr(name) % GRADIENTS.length];
-    wrap.style.setProperty('--kb-av-from', g[0]);
-    wrap.style.setProperty('--kb-av-to', g[1]);
-    var ini = wrap.querySelector('.kb-av-ini');
-    if (!ini) {
-      ini = document.createElement('span');
-      ini.className = 'kb-av-ini';
-      ini.setAttribute('aria-hidden', 'true');
-      ini.textContent = initialsOf(name);
-      wrap.appendChild(ini);
-    }
-    var img = wrap.querySelector('img');
-    var sync = function () { wrap.classList.toggle('kb-has-photo', hasRealPhoto(img)); };
-    if (img) {
-      sync();
-      img.addEventListener('load', sync);
-      img.addEventListener('error', function () { wrap.classList.remove('kb-has-photo'); });
-    } else {
-      wrap.classList.remove('kb-has-photo');
-    }
-  }
-  /* Platform yapisi: 1. .profile-categories blogu = TAG (tek etiket),
-     sonraki blok(lar) = KATEGORILER. Tag'i (ilk blok) cikar, kalan
-     bloklar kategori pill'i olarak kalir. Renk tag adina gore (mod eslesmesi). */
-  function extractMode(c) {
-    var blocks = c.querySelectorAll('.profile-categories');
-    if (!blocks.length) return null;
-    var first = blocks[0];
-    var btns = first.querySelectorAll('.pcategory-btn');
-    if (btns.length !== 1) return null;             /* tek etiketli degilse tag blogu sayma */
-    var label = (btns[0].textContent || '').trim();
-    if (first.parentNode) first.parentNode.removeChild(first);  /* tag blogunu DOM'dan cikar */
-    if (!label) return null;
-    var m = matchMode(label);
-    return { label: label, color: m ? m.color : '#F59E0B' };    /* mod yoksa turuncu */
-  }
-  function buildCard(item) {
-    var c = item.querySelector('.item-c');
-    if (!c || c.getAttribute(DONE) === '1') return;
-    var title = c.querySelector('.item-title');
-    if (!title) return; /* icerik henuz yok; observer tekrar dener */
-    var name = title.textContent.trim();
-    var imgWrap = c.querySelector('.item-image');
-    var unvan = c.querySelector('.unvan-title');
-    var mode = extractMode(c);
-    /* Bos kategori pill'lerini temizle (platform bazen bos .pcategory-btn render eder) */
-    var ebtns = c.querySelectorAll('.profile-categories .pcategory-btn');
-    for (var ei = 0; ei < ebtns.length; ei++) {
-      if (!(ebtns[ei].textContent || '').trim()) {
-        var eblk = ebtns[ei].closest('.profile-categories');
-        if (ebtns[ei].parentNode) ebtns[ei].parentNode.removeChild(ebtns[ei]);
-        if (eblk && !eblk.querySelector('.pcategory-btn') && eblk.parentNode) eblk.parentNode.removeChild(eblk);
-      }
-    }
-    /* HEAD: avatar + (mod-tag, isim, meslek) */
-    var head = document.createElement('div');
-    head.className = 'kb-head';
-    var col = document.createElement('div');
-    col.className = 'kb-headcol';
-    if (mode) {
-      var pill = document.createElement('span');
-      pill.className = 'kb-mode-tag';
-      pill.textContent = mode.label;
-      pill.style.color = mode.color;
-      pill.style.backgroundColor = mode.color + '22';   /* ~13% alpha */
-      pill.style.borderColor = mode.color + '59';        /* ~35% alpha */
-      col.appendChild(pill);
-    }
-    if (imgWrap) head.appendChild(imgWrap);             /* avatar sola */
-    col.appendChild(title);                              /* isim */
-    if (unvan) col.appendChild(unvan);                   /* meslek */
-    head.appendChild(col);
-    c.appendChild(head);                                 /* sira CSS order ile */
-    buildAvatar(imgWrap, name);
-    /* FOOT: puan (+ ileride seans). Veri yoksa foot eklenmez. */
-    var foot = document.createElement('div');
-    foot.className = 'kb-foot';
-    var stars = c.querySelector('.profile-review-stars');
-    if (stars) {
-      var starCount = stars.querySelectorAll('.i-star').length;
-      if (starCount) {
-        var cc = stars.querySelector('.comment-count');
-        var ccNum = cc ? (cc.textContent || '').replace(/[^\d]/g, '') : '';
-        var r = document.createElement('div');
-        r.className = 'kb-rating';
-        r.innerHTML = '<span class="kb-star" aria-hidden="true">★</span>' +
-          '<strong>' + starCount.toFixed(1) + '</strong>' +
-          (ccNum ? '<span class="kb-rev">(' + ccNum + ')</span>' : '');
-        foot.appendChild(r);
-      }
-    }
-    /* Gorusme sayisi = .item-services icinde rel=service-video/-phone/-audio
-       olanlarin .service-count degerlerinin toplami (mesaj haric). */
-    var SESSION_RELS = ['service-video', 'service-phone', 'service-audio'];
-    var sessions = 0;
-    var svcWrap = c.querySelector('.item-services');
-    if (svcWrap) {
-      for (var s = 0; s < SESSION_RELS.length; s++) {
-        var cnt = svcWrap.querySelector('.service-icon[rel="' + SESSION_RELS[s] + '"] .service-count');
-        if (cnt) { var n = parseInt((cnt.textContent || '').replace(/[^\d]/g, ''), 10); if (!isNaN(n)) sessions += n; }
-      }
-    }
-    if (sessions > 0) {
-      var ses = document.createElement('div');
-      ses.className = 'kb-sessions';
-      ses.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" ' +
-        'stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
-        '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>' +
-        '<span>' + sessions + ' seans</span>';
-      foot.appendChild(ses);
-    }
-    if (foot.children.length) c.appendChild(foot);
-    c.setAttribute(DONE, '1');
-  }
-  /* SAVUNMA: bir uzmanin aciklama/alaninda kapanmamis HTML (orn `</p` eksik `>`)
-     varsa tarayici karti kapatamaz ve SONRAKI kart bu kartin .item'i ICINE
-     gomulur → tum liste cokmesi. Ic ice girmis .item'leri grid'e geri tasi
-     ki tek bozuk veri butun listeyi bozmasin. (Asil cozum: bozuk veriyi duzelt.) */
-  function unnestStray() {
-    var grids = document.querySelectorAll('.agents .list.flex:not(.order-flex-list)');
-    for (var g = 0; g < grids.length; g++) {
-      var grid = grids[g];
-      var stray = grid.querySelectorAll('.item .item'); /* .item icinde .item */
-      for (var i = 0; i < stray.length; i++) {
-        var nested = stray[i];
-        if (!nested.querySelector(':scope > .item-c')) continue; /* gercek kart mi */
-        var top = nested.parentElement;
-        while (top && top.parentElement !== grid) top = top.parentElement;
-        if (top && top !== nested && top.parentElement === grid) {
-          grid.insertBefore(nested, top.nextSibling); /* bozuk host'tan sonra grid'e al */
-        }
-      }
-    }
+    if (!items.length) return;
+    area.setAttribute('data-kb-rel', '1');
+    var grid = document.createElement('div'); grid.className = 'kb-sd-rel-grid';
+    items.forEach(function (d) { grid.appendChild(relCardEl(d)); });
+    var carousel = area.querySelector('.more-events-area-carousel, .owl-carousel, .event-page-carousel');
+    var header = area.querySelector('.more-events-area-header');
+    if (header && header.parentNode) header.parentNode.insertBefore(grid, header.nextSibling);
+    else area.appendChild(grid);
+    if (carousel) carousel.style.display = 'none';
   }
   function run() {
-    if (applying) return;
-    if (!document.querySelector('.agents .item')) return;
-    applying = true;
-    if (mo) mo.disconnect();
-    try {
-      unnestStray();
-      var cards = document.querySelectorAll('.agents .item');
-      for (var i = 0; i < cards.length; i++) buildCard(cards[i]);
-    } finally {
-      applying = false;
-      if (mo && document.body) mo.observe(document.body, OBS_OPTS);
-    }
+    if (!isPage()) return;
+    build();
+    var sd = document.querySelector('.kb-sd');
+    moveRelated();
+    buildRelated();
+    if (sd) relocateCalendar(sd);
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
   window.addEventListener('load', function () { setTimeout(run, 300); });
-  var startObserver = function () {
-    if (!document.body) { setTimeout(startObserver, 50); return; }
-    mo = new MutationObserver(function (muts) {
-      for (var i = 0; i < muts.length; i++) if (muts[i].addedNodes && muts[i].addedNodes.length) { run(); return; }
-    });
-    mo.observe(document.body, OBS_OPTS);
-  };
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', startObserver, { once: true });
-  else startObserver();
-})();
-/* ============================================================
-   SECTION: AYRICALIKLAR KATEGORİ — /s/ayricaliklar-kategori
-   MINIMAL JS — sadece marka kartı sekmeleri (AVANTAJLAR / NASIL YARARLANILIR).
-   Markup page content'te (editör); burada yalnız davranış. Event delegation
-   (server-rendered içerik load'da hazır) → idempotent, observer gerekmez.
-   ============================================================ */
-(function () {
-  function isPage() { return /(?:^|\/)s\/ayricaliklar-kategori$/.test(location.pathname.replace(/\/$/, '')); }
-  if (!isPage()) return;
-  function onTabClick(tab) {
-    var root = tab.closest('.md-ayk-brand');
-    if (!root) return;
-    var key = tab.getAttribute('data-ayk-tab');
-    root.querySelectorAll('[data-ayk-tab]').forEach(function (t) {
-      t.classList.toggle('is-active', t.getAttribute('data-ayk-tab') === key);
-    });
-    root.querySelectorAll('[data-ayk-panel]').forEach(function (p) {
-      p.classList.toggle('is-hidden', p.getAttribute('data-ayk-panel') !== key);
-    });
-  }
-  document.addEventListener('click', function (e) {
-    var tab = e.target.closest ? e.target.closest('.md-ayk-tab[data-ayk-tab]') : null;
-    if (tab) { e.preventDefault(); onTabClick(tab); }
-  });
-})();
-/* ============================================================
-   SECTION: AYRICALIKLAR — /s/ayricaliklar  (CMS özel sayfa)
-   MINIMAL JS — yalnizca HTML'in yapamadigi: FAQ akordeon davranisi.
-   Tasarim/hero/bölümler tamamen `content` HTML'i (kb-a-*) + css/_ayricaliklar.css;
-   ikonlar CSS ::before mask. Idempotent.
-   ============================================================ */
-(function () {
-  function isPage() {
-    return /\/s\/ayricaliklar$/.test(location.pathname.replace(/\/$/, ''));
-  }
-  if (!isPage()) return;
-  function faq() {
-    var items = document.querySelectorAll('.kb-a-faq-item');
-    items.forEach(function (it) {
-      if (it.getAttribute('data-kb-a') === '1') return;
-      it.setAttribute('data-kb-a', '1');
-      var q = it.querySelector('.kb-a-faq-q');
-      if (!q) return;
-      q.addEventListener('click', function () { it.classList.toggle('is-open'); });
-    });
-  }
-  function run() { faq(); }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
-  else run();
-  window.addEventListener('load', function () { setTimeout(run, 300); });
-  var mo = new MutationObserver(function () { run(); });
-  if (document.body) {
-    mo.observe(document.body, { childList: true, subtree: true });
-    setTimeout(function () { mo.disconnect(); }, 5000);
-  }
-})();
-/* ============================================================
-   SECTION: CONTACT — /tr-TR/s/iletisim
-   MINIMAL JS — only what HTML/CSS cannot do:
-     - Hero: breadcrumb badge + 1-word gradient title
-       (h1 is a plain-text admin field; gradient/breadcrumb can't be HTML there)
-     - Form: native contact-form is server-rendered → relabel, 2-col rows,
-       extra "Konusu" field, and submit-prefix behavior require JS
-     - FAQ: click-to-toggle accordion on the server-rendered .kb-c-faq-item
-       (markup lives in the editable page content; only the behavior is JS)
-   Everything visual (CTA row, info aside, FAQ markup, bottom CTA + all icons
-   as PNG <img>) now lives in the page `content` HTML, editable from admin and
-   safe from the TinyMCE sanitizer. Inline SVG below is JS-injected only (never
-   passes through TinyMCE), so it is safe.
-   Idempotent via data-kb-c attribute markers.
-   ============================================================ */
-(function () {
-  function isContactPage() {
-    var p = location.pathname.replace(/\/$/, '');
-    return /(?:^|\/)s\/iletisim$/.test(p);
-  }
-  if (!isContactPage()) return;
-  /* SVG icons used ONLY by JS-injected hero/form (not page content) → safe. */
-  var SVG = {
-    home: '<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 2l9 7.5V21a1 1 0 0 1-1 1h-5v-7h-6v7H4a1 1 0 0 1-1-1V9.5z"/></svg>',
-    chev: '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>',
-    arrow: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>',
-    msg: '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
-    send: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m22 2-7 20-4-9-9-4Z"/><path d="M22 2 11 13"/></svg>'
-  };
-  /* ---------------- Hero ---------------- */
-  function injectHero() {
-    var title = document.querySelector('.page-header .page-title');
-    if (!title) return;
-    var h1ref = title.querySelector('h1');
-    /* Breadcrumb nav (Ana Sayfa > İletişim) */
-    if (!title.querySelector('.kb-c-breadcrumb')) {
-      var bc = document.createElement('nav');
-      bc.className = 'kb-c-breadcrumb';
-      bc.setAttribute('data-kb-c', 'breadcrumb');
-      bc.innerHTML = '<a href="/">Ana Sayfa</a> <span class="kb-c-bc-sep">' + SVG.chev + '</span> <span class="kb-c-bc-cur">İletişim</span>';
-      title.insertBefore(bc, title.firstChild);
+  var tries = 0;
+  var iv = setInterval(function () {
+    run();
+    var area = document.querySelector('.more-events-area');
+    var sd = document.querySelector('.kb-sd');
+    var relDone = area && area.getAttribute('data-kb-rel');
+    var calDone = sd && sd.querySelector('.kb-sd-actbtns .kb-sd-atcb');
+    if (++tries > 24 || (relDone && calDone)) {
+      clearInterval(iv);
+      if (sd && !calDone) calendarFallback(sd); /* native widget hiç yüklenmedi → gcal fallback */
     }
-    /* Badge ("Bize Ulaşın") — blue */
-    if (!title.querySelector('.kb-c-badge')) {
-      var bd = document.createElement('div');
-      bd.className = 'kb-c-badge';
-      bd.setAttribute('data-kb-c', 'badge');
-      bd.innerHTML = SVG.msg + ' <span>Bize Ulaşın</span>';
-      title.insertBefore(bd, h1ref);
-    }
-    /* H1 — replace text with gradient-wrapped title */
-    var h1 = title.querySelector('h1');
-    if (h1 && h1.getAttribute('data-kb-c') !== 'title') {
-      h1.innerHTML = 'Size Nasıl <span class="kb-gradient">Yardımcı</span> Olabiliriz?';
-      h1.setAttribute('data-kb-c', 'title');
-    }
-  }
-  /* ---------------- Form Intro + JS-inject fields + Row wrapping ---------------- */
-  function makeField(opts) {
-    /* opts: { name, label, type, placeholder, full, options:[{v,t}] } */
-    var w = document.createElement('div');
-    w.className = 'kb-c-field' + (opts.full ? ' kb-c-field--full' : '');
-    w.setAttribute('data-kb-c', 'field-' + opts.name);
-    var lab = document.createElement('label');
-    lab.textContent = opts.label;
-    lab.setAttribute('for', 'kb-c-' + opts.name);
-    w.appendChild(lab);
-    var inp;
-    if (opts.type === 'select') {
-      inp = document.createElement('select');
-      (opts.options || []).forEach(function (o) {
-        var op = document.createElement('option');
-        op.value = o.v; op.textContent = o.t;
-        inp.appendChild(op);
-      });
-    } else {
-      inp = document.createElement('input');
-      inp.type = opts.type || 'text';
-      if (opts.placeholder) inp.placeholder = opts.placeholder;
-    }
-    inp.id = 'kb-c-' + opts.name;
-    inp.name = 'kb_c_' + opts.name;
-    inp.setAttribute('autocomplete', 'off');
-    w.appendChild(inp);
-    return w;
-  }
-  function enhanceForm() {
-    var container = document.querySelector('.form-container.contact-form');
-    var formEl = document.querySelector('#contact-form');
-    if (!container || !formEl) return;
-    if (formEl.getAttribute('data-kb-c-built') === '1') return;
-    /* Intro */
-    if (!container.querySelector('.kb-c-form-title')) {
-      var h2 = document.createElement('h2');
-      h2.className = 'kb-c-form-title';
-      h2.setAttribute('data-kb-c', 'form-title');
-      h2.textContent = 'İletişim Formu';
-      var lead = document.createElement('p');
-      lead.className = 'kb-c-form-lead';
-      lead.setAttribute('data-kb-c', 'form-lead');
-      lead.textContent = 'Formu doldurun, ekibimiz 24 saat içinde size dönüş yapsın.';
-      container.insertBefore(lead, container.firstChild);
-      container.insertBefore(h2, lead);
-    }
-    /* Built-in fields */
-    var nameInp  = formEl.querySelector('input[name="name"]');
-    var emailInp = formEl.querySelector('input[name="email"]');
-    var phoneInp = formEl.querySelector('input[name="phone"]');
-    var msgInp   = formEl.querySelector('textarea[name="message"]');
-    var nameField  = nameInp  ? nameInp.closest('.field')  : null;
-    var emailField = emailInp ? emailInp.closest('.field') : null;
-    var phoneField = phoneInp ? phoneInp.closest('.field') : null;
-    var msgField   = msgInp   ? msgInp.closest('.field')   : null;
-    if (!nameField || !emailField || !phoneField || !msgField) return;
-    /* Set label texts (upper-case styling handled by CSS, content is uppercase visually but stored Turkish-cased) */
-    var setLab = function (field, text) {
-      var l = field.querySelector('label');
-      if (l) l.textContent = text;
-    };
-    var setPh = function (input, ph) {
-      if (input) input.setAttribute('placeholder', ph);
-    };
-    setLab(nameField, 'Ad Soyad');
-    setLab(emailField, 'E-posta');
-    setLab(phoneField, 'Telefon');
-    setLab(msgField, 'Mesajınız');
-    setPh(nameInp, 'Adınızı ve soyadınızı yazın');
-    setPh(emailInp, 'ornek@eposta.com');
-    setPh(phoneInp, '+90 5XX XXX XX XX');
-    setPh(msgInp, 'Mesajınızı buraya yazın...');
-    /* Build new field nodes (design2 birebir: Sirket + Konu select) */
-    var sirketField = makeField({ name: 'sirket', label: 'Şirket', placeholder: 'Şirket adı (opsiyonel)' });
-    var konuField = makeField({ name: 'konu', label: 'Konu', type: 'select', full: true, options: [
-      { v: '', t: 'Konu seçin' },
-      { v: 'genel', t: 'Genel Bilgi' },
-      { v: 'uyelik', t: 'Üyelik & Abonelik' },
-      { v: 'oturum', t: 'Canlı Oturum Sorgusu' },
-      { v: 'danismanlik', t: 'Danışmanlık Başvurusu' },
-      { v: 'sponsorluk', t: 'Sponsorluk & İş Birliği' },
-      { v: 'kurumsal', t: 'Kurumsal Çözümler' },
-      { v: 'teknik', t: 'Teknik Destek' },
-      { v: 'diger', t: 'Diğer' }
-    ] });
-    /* Clean up older injected fields (konusu/hata/konu_secin) */
-    ['field-konusu', 'field-hata_kodu', 'field-konu_secin'].forEach(function (sel) {
-      var old = formEl.querySelector('[data-kb-c="' + sel + '"]');
-      if (old && old.parentNode) old.parentNode.removeChild(old);
-    });
-    /* Row1 = name + email */
-    if (!nameField.parentNode.classList.contains('kb-c-row')) {
-      var row1 = document.createElement('div');
-      row1.className = 'kb-c-row';
-      row1.setAttribute('data-kb-c', 'row1');
-      nameField.parentNode.insertBefore(row1, nameField);
-      row1.appendChild(nameField);
-      row1.appendChild(emailField);
-    }
-    /* Row2 = phone + sirket */
-    if (!phoneField.parentNode.classList.contains('kb-c-row')) {
-      var row2 = document.createElement('div');
-      row2.className = 'kb-c-row';
-      row2.setAttribute('data-kb-c', 'row2');
-      phoneField.parentNode.insertBefore(row2, phoneField);
-      row2.appendChild(phoneField);
-      row2.appendChild(sirketField);
-    }
-    /* Konu select (full width) — message'tan once */
-    if (!formEl.querySelector('[data-kb-c="field-konu"]') && msgField && msgField.parentNode) {
-      msgField.parentNode.insertBefore(konuField, msgField);
-    }
-    /* Submit button: MESAJ GÖNDER + send ikonu */
-    var btn = formEl.querySelector('button[type="submit"], input[type="submit"]');
-    if (btn) {
-      if (btn.tagName === 'INPUT') { btn.value = 'MESAJ GÖNDER'; }
-      else { btn.innerHTML = SVG.send + ' MESAJ GÖNDER'; }
-    }
-    /* Submit handler: Konu + Şirket degerlerini mesaj govdesine prefix'le
-       (native backend yalnizca name/email/phone/message gonderir) */
-    formEl.addEventListener('submit', function () {
-      try {
-        var konu = (formEl.querySelector('#kb-c-konu') || {}).value || '';
-        var sirket = (formEl.querySelector('#kb-c-sirket') || {}).value || '';
-        var lines = [];
-        if (konu) lines.push('[Konu: ' + konu + ']');
-        if (sirket) lines.push('[Şirket: ' + sirket + ']');
-        if (lines.length && msgInp) {
-          var orig = msgInp.value || '';
-          if (orig.indexOf('[Konu:') !== 0 && orig.indexOf('[Şirket:') !== 0) {
-            msgInp.value = lines.join('\n') + '\n\n' + orig;
-          }
-        }
-      } catch (e) { /* never block submit */ }
-    }, true);
-    formEl.setAttribute('data-kb-c-built', '1');
-  }
-  /* ---------------- FAQ accordion (markup is in page content; behavior only) ---------------- */
-  function faqAccordion() {
-    var items = document.querySelectorAll('.kb-c-faq .kb-c-faq-item');
-    if (!items.length) return;
-    items.forEach(function (item) {
-      if (item.getAttribute('data-kb-c-faq') === '1') return;
-      item.setAttribute('data-kb-c-faq', '1');
-      var q = item.querySelector('.kb-c-faq-q');
-      if (!q) return;
-      q.addEventListener('click', function () {
-        item.classList.toggle('is-open');
-      });
-    });
-  }
-  function enhance() {
-    injectHero();
-    enhanceForm();
-    faqAccordion();
-  }
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', enhance);
-  } else {
-    enhance();
-  }
-  window.addEventListener('load', function () { setTimeout(enhance, 300); });
-  var mo = new MutationObserver(function () { enhance(); });
-  if (document.body) {
-    mo.observe(document.body, { childList: true, subtree: true });
-    setTimeout(function () { mo.disconnect(); }, 5000);
-  }
+  }, 350);
 })();
 /* ============================================================
    CANLI OTURUMLAR — /s/canli-oturumlar (kb-page-cms-canli-oturumlar)
    Etkinlikleri public /event-load JSON endpoint'inden çeker ve KENDİ
-   markup'ımızla render eder (native DOM'dan bağımsız). Client-side filtre:
-   zaman (Yaklaşan/Geçmiş/Tümü) + arama + kategori. Statik kabuk CMS content'te.
+markup'ımızla render eder (native DOM'dan bağımsız). Client-side filtre:
+zaman (Yaklaşan/Geçmiş/Tümü) + arama + kategori. Statik kabuk CMS content'te.
    Referans: app/Views/partials/event.list.php (tz, fiyat, detay url mantığı).
    ============================================================ */
 (function () {
@@ -1230,89 +1374,90 @@ return String(s == null ? '' : s)
     return null;
   }
   // native /etkinlikler'de kendi .md-ev host'umuzu inject et (CMS'te host zaten
-  // sayfa içeriğinde). Native page-header + .container.events-container CSS ile gizli.
-  function ensureHost(mode) {
-    var host = document.querySelector('.md-ev');
-    if (host) return host;
-    if (mode !== 'native') return null;
-    var page = document.querySelector('.page.events') || document.querySelector('.page') ||
-               document.querySelector('.page-content') || document.body;
-    host = document.createElement('div');
-    host.className = 'md-ev';
-    host.setAttribute('data-kb-ev-host', '1');
-    host.innerHTML =
-      '<section class="md-ev-hero"><h1>Canlı Oturumlar</h1><p>Uzmanlarımız ve Mod Elçisi Firmalarımızdan canlı oturumlara katılın, öğrenin ve uygulamaya başlayın.</p></section>' +
-      '<div class="md-ev-grid"></div>' +
-      '<div class="md-ev-empty" hidden>Bu kriterlere uygun oturum bulunamadı.</div>' +
-      '<div class="md-ev-loader" hidden>Yükleniyor…</div>';
-    page.appendChild(host);
-    return host;
+function ensureHost(mode) {
+var host = document.querySelector('.md-ev');
+if (host) return host;
+if (mode !== 'native') return null;
+var page = document.querySelector('.page.events') || document.querySelector('.page') ||
+document.querySelector('.page-content') || document.body;
+host = document.createElement('div');
+host.className = 'md-ev';
+host.setAttribute('data-kb-ev-host', '1');
+host.setAttribute('data-md-ev-view', 'calendar');
+host.innerHTML =
+'<section class="md-ev-hero"><h1>Canlı Oturumlar</h1><p>Uzmanlarımız ve Mod Elçisi Firmalarımızdan canlı oturumlara katılın, öğrenin ve uygulamaya başlayın.</p></section>' +
+'<div class="md-cal"></div>' +
+'<div class="md-ev-grid"></div>' +
+'<div class="md-ev-empty" hidden>Bu kriterlere uygun oturum bulunamadı.</div>' +
+'<div class="md-ev-loader" hidden>Yükleniyor…</div>';
+page.appendChild(host);
+return host;
+}
+var ALL = [];        
+var loaded = false;  
+var bound = false;   
+var state = { time: 'upcoming', q: '', cat: '' };
+function localePrefix() {
+var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//);
+return m ? '/' + m[1] : '';
+}
+function esc(s) {
+return String(s == null ? '' : s)
+.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
   }
-  var ALL = [];        // /event-load'dan gelen tüm etkinlikler
-  var loaded = false;  // veri çekildi mi
-  var bound = false;   // filtreler bağlandı mı
-  var state = { time: 'upcoming', q: '', cat: '' };
-  function localePrefix() {
-    var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//);
-    return m ? '/' + m[1] : '';
+  function imgUrl(p) {
+    if (!p) return '';
+    p = String(p);
+    return p.charAt(0) === '/' ? p : '/images/' + p;
   }
-  function esc(s) {
-    return String(s == null ? '' : s)
-      .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-}
-function imgUrl(p) {
-if (!p) return '';
-p = String(p);
-return p.charAt(0) === '/' ? p : '/images/' + p;
-}
-function emptyImg(p) { return !p || /\/$/.test(String(p)); } 
-function parseUtc(s) {
-if (!s) return null;
-s = String(s);
-if (s.indexOf('Z') < 0 && s.indexOf('+') < 0) s = s.replace(' ', 'T') + 'Z';
-var d = new Date(s);
-return isNaN(d.getTime()) ? null : d;
-}
-function initials(name) {
-var p = String(name || '').trim().split(/\s+/);
-var a = (p[0] || '?').charAt(0);
-var b = p.length > 1 ? p[p.length - 1].charAt(0) : '';
-return (a + b).toLocaleUpperCase('tr-TR');
-}
-function ico(k) { return '<span class="md-ev-ico md-ev-ico--' + k + '"></span>'; }
-function startOf(e) { return parseUtc(e.start_date && (e.start_date.date || e.start_date)); }
-function tkey(e) { var d = startOf(e); return d ? d.getTime() : 0; }
-function fmtDate(d) {
-try { return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }); }
-catch (x) { return ''; }
-}
-function fmtTime(d) {
-try { return d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); }
-catch (x) { return ''; }
-}
-function priceText(e) {
-var pr = e.price;
-if (!pr) return '';
-var free = (pr.price == 0 && pr.credit == 0);
-if (free) return 'Ücretsiz';
-var sym = (pr.currency_iso && pr.currency_iso.symbol) ? pr.currency_iso.symbol : '';
-return (sym + ' ' + pr.price).trim();
-}
-function card(e) {
-var st = startOf(e);
-var past = st ? (st.getTime() < Date.now()) : false;
-var typeOnline = (String(e.event_type) === '1') || (e.event_type_str === 'Online');
-var typeLabel = e.event_type_str || (typeOnline ? 'Online' : 'Offline');
-var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
-var cover = emptyImg(e.image) ? '' : imgUrl(e.image);
-var avatar = emptyImg(e.agent_image) ? '' : imgUrl(e.agent_image);
-var href = localePrefix() + (e.url || '/etkinlikler');
-var cat = String(e.event_category_name || '').trim();
-var dur = String(e.duration || '').trim();
-var price = priceText(e);
-var h = '';
-h += '<a class="md-ev-card' + (past ? ' is-past' : '') + '" href="' + esc(href) + '">';
-h +=   '<div class="md-ev-cover' + (cover ? '' : ' md-ev-cover--ph') + '"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : '') + '>';
+  function emptyImg(p) { return !p || /\/$/.test(String(p)); } // "/images/202604/" gibi dosyasız
+  function parseUtc(s) {
+    if (!s) return null;
+    s = String(s);
+    if (s.indexOf('Z') < 0 && s.indexOf('+') < 0) s = s.replace(' ', 'T') + 'Z';
+    var d = new Date(s);
+    return isNaN(d.getTime()) ? null : d;
+  }
+  function initials(name) {
+    var p = String(name || '').trim().split(/\s+/);
+    var a = (p[0] || '?').charAt(0);
+    var b = p.length > 1 ? p[p.length - 1].charAt(0) : '';
+    return (a + b).toLocaleUpperCase('tr-TR');
+  }
+  function ico(k) { return '<span class="md-ev-ico md-ev-ico--' + k + '"></span>'; }
+  function startOf(e) { return parseUtc(e.start_date && (e.start_date.date || e.start_date)); }
+  function tkey(e) { var d = startOf(e); return d ? d.getTime() : 0; }
+  function fmtDate(d) {
+    try { return d.toLocaleDateString('tr-TR', { day: '2-digit', month: 'long', year: 'numeric' }); }
+    catch (x) { return ''; }
+  }
+  function fmtTime(d) {
+    try { return d.toLocaleTimeString('tr-TR', { hour: '2-digit', minute: '2-digit' }); }
+    catch (x) { return ''; }
+  }
+  function priceText(e) {
+    var pr = e.price;
+    if (!pr) return '';
+    var free = (pr.price == 0 && pr.credit == 0);
+    if (free) return 'Ücretsiz';
+    var sym = (pr.currency_iso && pr.currency_iso.symbol) ? pr.currency_iso.symbol : '';
+    return (sym + ' ' + pr.price).trim();
+  }
+  function card(e) {
+    var st = startOf(e);
+    var past = st ? (st.getTime() < Date.now()) : false;
+    var typeOnline = (String(e.event_type) === '1') || (e.event_type_str === 'Online');
+    var typeLabel = e.event_type_str || (typeOnline ? 'Online' : 'Offline');
+    var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
+    var cover = emptyImg(e.image) ? '' : imgUrl(e.image);
+    var avatar = emptyImg(e.agent_image) ? '' : imgUrl(e.agent_image);
+    var href = localePrefix() + (e.url || '/etkinlikler');
+    var cat = String(e.event_category_name || '').trim();
+    var dur = String(e.duration || '').trim();
+    var price = priceText(e);
+    var h = '';
+    h += '<a class="md-ev-card' + (past ? ' is-past' : '') + '" href="' + esc(href) + '">';
+    h +=   '<div class="md-ev-cover' + (cover ? '' : ' md-ev-cover--ph') + '"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : '') + '>';
 h +=     '<span class="md-ev-type">' + ico(typeOnline ? 'video' : 'pin') + esc(typeLabel) + '</span>';
 h +=     '<span class="md-ev-avatar">' + (avatar ? '<img src="' + esc(avatar) + '" alt="" loading="lazy">' : '<span class="md-ev-ini">' + esc(initials(e.agent_name)) + '</span>') + '</span>';
 h +=   '</div>';
@@ -2265,7 +2410,8 @@ var sessTxt = ((item.querySelector('.package-meta-sessions') || {}).textContent 
 var meta = sessTxt ? (sessTxt + (durTxt ? ' · ' + durTxt : '')) : durTxt;
 var a = item.querySelector('.package-button a, a.btn-appointment, a.btn-appointment-package');
 var href = a ? a.getAttribute('href') : '#';
-return '<div class="cd-stype" data-kb-href="' + esc(href) + '">' +
+var pkg = (href.match(/package=(\d+)/) || [])[1] || (a && a.id ? (a.id.match(/package-(\d+)/) || [])[1] : '') || '';
+return '<div class="cd-stype" data-kb-href="' + esc(href) + '" data-kb-pkg="' + esc(pkg) + '">' +
 '<div class="row"><div class="left"><span class="radio"></span><div>' +
 '<p class="nm">' + esc(title || 'Seans') + '</p>' + (desc ? '<p class="ds">' + esc(desc) + '</p>' : '') + '</div></div>' +
 '<div class="cd-stype-r"><span class="price">' + esc(price) + '</span>' +
@@ -2298,9 +2444,22 @@ var panel = row.parentNode;
 row.classList.add('sel');
 var href = row.getAttribute('data-kb-href') || '#';
 ctaEl.setAttribute('href', href);
+ctaEl.setAttribute('data-kb-pkg', row.getAttribute('data-kb-pkg') || '');
 }
 [].slice.call(card.querySelectorAll('.cd-stype')).forEach(function (row) {
 row.addEventListener('click', function () { selectRow(row); });
+});
+ctaEl.addEventListener('click', function (e) {
+var pkg = ctaEl.getAttribute('data-kb-pkg') || '';
+var nat = pkg ? document.getElementById('package-' + pkg) : null;
+if (!nat && pkg) {
+var all = [].slice.call(document.querySelectorAll('a.get-appointment-v2'));
+for (var i = 0; i < all.length; i++) {
+if ((all[i].getAttribute('href') || '').indexOf('package=' + pkg) >= 0) { nat = all[i]; break; }
+}
+}
+if (!nat) nat = document.querySelector('a.get-appointment-v2');
+if (nat) { e.preventDefault(); nat.click(); }
 });
 function setTab(k) {
 [].slice.call(card.querySelectorAll('.cd-tab')).forEach(function (b) { b.classList.toggle('active', b.getAttribute('data-kb-tab') === k); });
