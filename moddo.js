@@ -793,12 +793,25 @@ if (!first) return null;
 var btns = [].slice.call(first.querySelectorAll('.pcategory-btn')).filter(function (b) {
 return (b.textContent || '').trim() && !isFirmBtn(b);
 });
-if (first.parentNode) first.parentNode.removeChild(first);  
-if (btns.length !== 1) return null;             
-var label = (btns[0].textContent || '').trim();
-if (!label) return null;
+var pickLabel = function (el) {
+var label = (el.textContent || '').trim();
 var m = matchMode(label);
-return { label: label, color: m ? m.color : '#F59E0B' };    
+return label ? { label: label, color: m ? m.color : '#F59E0B' } : null;
+};
+if (btns.length === 0) {                 
+if (first.parentNode) first.parentNode.removeChild(first);
+return null;
+}
+if (btns.length === 1) {                 
+if (first.parentNode) first.parentNode.removeChild(first);
+return pickLabel(btns[0]);
+}
+var pick = null;
+for (var i = 0; i < btns.length; i++) { if (matchMode((btns[i].textContent || '').trim())) { pick = btns[i]; break; } }
+if (!pick) pick = btns[0];
+var res = pickLabel(pick);
+if (pick.parentNode) pick.parentNode.removeChild(pick);   
+return res;
 }
 function buildFirmStats(c) {
 var stats = document.createElement('div');
