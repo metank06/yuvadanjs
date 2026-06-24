@@ -2324,18 +2324,24 @@ el.setAttribute('data-kb-ic', '1');
 });
 }
 function bindTabs() {
-var tabs = document.querySelectorAll('.kb-ip-tab');
-var panels = document.querySelectorAll('.kb-ip-panel');
-if (!tabs.length) return;
-[].forEach.call(tabs, function (tab) {
+var tabs = [].slice.call(document.querySelectorAll('.kb-ip-tab'));
+var panels = [].slice.call(document.querySelectorAll('.kb-ip-panel'));
+if (!tabs.length || !panels.length) return;
+function activate(i) {
+tabs.forEach(function (t, j) { t.classList.toggle('active', j === i); });
+panels.forEach(function (pp, j) { pp.style.display = (j === i) ? '' : 'none'; });
+}
+var firstBind = !tabs[0].getAttribute('data-kb-bound');
+tabs.forEach(function (tab, i) {
 if (tab.getAttribute('data-kb-bound')) return;
 tab.setAttribute('data-kb-bound', '1');
-tab.addEventListener('click', function () {
-var idx = tab.getAttribute('data-tab');
-[].forEach.call(tabs, function (t) { t.classList.toggle('active', t === tab); });
-[].forEach.call(panels, function (pp) { pp.style.display = (pp.getAttribute('data-panel') === idx) ? '' : 'none'; });
+tab.addEventListener('click', function () { activate(i); });
+tab.addEventListener('keydown', function (e) { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(i); } });
 });
-});
+if (firstBind) {                              
+var act = tabs.indexOf(document.querySelector('.kb-ip-tab.active'));
+activate(act >= 0 ? act : 0);
+}
 }
 function run() {
 if (!onIp()) return;
