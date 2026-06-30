@@ -274,7 +274,6 @@ return [
 '<div>',
 '<a href="' + url('/') + '" class="md-logo" style="display:inline-block; margin-bottom: 16px;">Moddo<span>Day</span></a>',
 '<p style="font-size: var(--fs-sm); line-height: 1.7;">Bugün Hangi Moddasın? Kurumsal Wellbeing & Concierge Servisi ile canlı oturumlara katıl, uzmanlardan profesyonel danışmanlık al ve yaşam kaliteni yükselt.</p>',
-'<p style="margin-top: 16px; font-size: 12px;">Powered by <span style="color: var(--md-orange); font-weight: 500;">Gurulize</span></p>',
 '</div>',
 '<div>',
 '<h4>Modlar</h4>',
