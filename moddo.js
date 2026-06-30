@@ -1476,15 +1476,15 @@ if (header && header.parentNode) header.parentNode.insertBefore(grid, header.nex
 else area.appendChild(grid);
 if (carousel) carousel.style.display = 'none';
 }
-function bulletizeWhy() {
+function bulletizePaneByNav(re, markerAttr) {
 var nav = [].slice.call(document.querySelectorAll('.event-tabs-container .nav-link, .event-tabs-container [data-bs-target], .event-tabs-container [role="tab"]'));
 var link = null;
-for (var i = 0; i < nav.length; i++) { if (/neden\s*kat[ıi]lmal/i.test(nav[i].textContent || '')) { link = nav[i]; break; } }
+for (var i = 0; i < nav.length; i++) { if (re.test(nav[i].textContent || '')) { link = nav[i]; break; } }
 if (!link) return;
 var sel = link.getAttribute('data-bs-target') || link.getAttribute('href');
 if (!sel || sel.charAt(0) !== '#') return;
 var pane = document.getElementById(sel.slice(1));
-if (!pane || pane.getAttribute('data-kb-why') === '1') return;
+if (!pane || pane.getAttribute(markerAttr) === '1') return;
 var raw = (pane.textContent || '').replace(/\s+/g, ' ').trim();
 if (!raw) return;
 var parts = null;
@@ -1500,8 +1500,12 @@ if (listLike) parts = cand;
 if (!parts) return;
 parts = parts.map(function (s) { return s.trim().replace(/[.;,]+$/, '').trim(); }).filter(Boolean);
 if (parts.length < 2) return;   
-pane.setAttribute('data-kb-why', '1');
+pane.setAttribute(markerAttr, '1');
 pane.innerHTML = "<ul class='kb-sd-why'>" + parts.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join('') + "</ul>";
+}
+function bulletizeWhy() {
+bulletizePaneByNav(/neden\s*kat[ıi]lmal/i, 'data-kb-why');                       
+bulletizePaneByNav(/kat[ıi]l[ıi]m\s*[şs]art|terms?\s*of\s*particip/i, 'data-kb-terms'); 
 }
 function normName(s) {
 return (s || '').toLocaleLowerCase('tr')
