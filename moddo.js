@@ -1427,7 +1427,7 @@ var m = (im.getAttribute('style') || '').match(/url\(["']?(.+?)["']?\)/);
       "<span class='kb-sd-rel-ser' data-ev='" + esc(d.id || '') + "'></span>" +   /* SERİ rozeti (async /event-load groupID) */
       "<span class='dur kb-sd-rel-mode' data-ev='" + esc(d.id || '') + "' data-title='" + esc(d.title || '') + "' data-fmt='" + esc(d.fmt || '') + "'></span></div>" +   /* MOD (async /event-load: id→isim fallback); yoksa fmt */
       "<div class='b'><h3>" + esc(d.title) + "</h3>" +
-      "<div class='who'><span class='av'>" + esc(d.initials) + "</span><span>" + esc(d.expert) + "</span></div>" +
+      "<div class='who'><span class='av' data-ev='" + esc(d.id || '') + "' data-agent='" + esc(d.expert || '') + "'>" + esc(d.initials) + "</span><span>" + esc(d.expert) + "</span></div>" +
       "<div class='rmeta'>" +
       (d.date ? "<span>" + ic(I.cal) + esc(d.date) + "</span>" : "") +
       (d.time ? "<span>" + ic(I.clock) + esc(d.time) + "</span>" : "") +
@@ -1521,11 +1521,15 @@ _el = fetch('/event-load?limit=200&offset=0', { headers: { 'X-Requested-With': '
 .then(function (r) { return r.json(); })
 .then(function (j) {
 var arr = Array.isArray(j) ? j : (j.data || j.events || j.rows || []);
-var byId = {}, byName = {};
-arr.forEach(function (e) { if (e && e.id != null) byId[String(e.id)] = e; if (e && e.event_name) byName[normName(e.event_name)] = e; });
-return { byId: byId, byName: byName };
+var byId = {}, byName = {}, byAgent = {};
+arr.forEach(function (e) {
+if (e && e.id != null) byId[String(e.id)] = e;
+if (e && e.event_name) byName[normName(e.event_name)] = e;
+if (e && e.agent_name && e.agent_image) byAgent[normName(e.agent_name)] = e.agent_image;   
+});
+return { byId: byId, byName: byName, byAgent: byAgent };
 })
-.catch(function () { _el = null; return { byId: {}, byName: {} }; });   
+.catch(function () { _el = null; return { byId: {}, byName: {}, byAgent: {} }; });   
 return _el;
 }
 function fillPrice(sd) {
@@ -1553,7 +1557,8 @@ slot.setAttribute('data-kb-done', '1');
 function fillRelatedModes() {
 var pills = [].slice.call(document.querySelectorAll('.kb-sd-rel-mode[data-ev]:not([data-kb-mode])'));
 var sers = [].slice.call(document.querySelectorAll('.kb-sd-rel-ser[data-ev]:not([data-kb-ser])'));
-if (!pills.length && !sers.length) return;
+var avs = [].slice.call(document.querySelectorAll('.kb-sd-rel .who .av[data-ev]:not([data-kb-av])'));
+if (!pills.length && !sers.length && !avs.length) return;
 loadEl().then(function (map) {
 pills.forEach(function (p) {
 if (p.getAttribute('data-kb-mode')) return;
@@ -1567,6 +1572,18 @@ if (!map.byId[id]) return;
 var si = seriesInfo(map.byId, id);
 if (si) s.textContent = 'Seri · ' + si.idx + '/' + si.total;
 s.setAttribute('data-kb-ser', '1');
+});
+avs.forEach(function (av) {                   
+if (av.getAttribute('data-kb-av')) return;
+var ev = map.byId[av.getAttribute('data-ev')];
+var img = (ev && ev.agent_image) || map.byAgent[normName(av.getAttribute('data-agent') || '')] || '';
+if (!ev && !img) return;                    
+if (img) {
+var src = /^(https?:)?\//.test(img) ? img : '/images/' + img;   
+av.innerHTML = "<img src='" + esc(src) + "' alt='' loading='lazy'>";
+av.classList.add('has-photo');
+}
+av.setAttribute('data-kb-av', '1');         
 });
 });
 }
