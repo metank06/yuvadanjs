@@ -2529,9 +2529,18 @@ var m = ((el && el.getAttribute('style')) || '').match(/url\(["']?(.+?)["']?\)/)
     if (owl) owl.style.display = 'none';
     applyData(); /* MAP zaten geldiyse hemen uygula */
   }
-  /* ---- MARKA ELÇİLERİ bölümü: firma-kategorili agent'ları (.item.kb-firm — normal
-listede gizli) gerçek kartlarla göster. Veri kaynağı: agents widget'ındaki firma
-     kartları (ad=.item-title, href=onclick, mod=data-kb-modes, logo=img). ---- */
+  /* ---- MARKA ELÇİLERİ bölümü: firma-kategorili agent'ları gerçek kartlarla göster.
+VERİ KAYNAĞI: /<locale>/mod-elcisi-firma firma kategori sayfası — SADECE firmaları
+listeler (kategori 57), anasayfa agents widget'ının priority/limit cutoff'una
+BAĞIMSIZ. Sayfa fetch'lenir, ham HTML parse edilir (.item[id^=agent-] kartları:
+     ad=.item-title, href=link, görsel=.item-image img, mod=.profile-categories pill'leri
+— "Mod Elçisi Firma" marker'ı elenir). Fetch boş/başarısızsa eski yöntem
+     (.item.kb-firm DOM-scrape) fallback. ---- */
+  var FIRM_CAT_SLUG = 'mod-elcisi-firma';
+  function localePrefix() {
+    var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})(?:\/|$)/);
+    return m ? '/' + m[1] : '';
+  }
   function brandInitials(n) {
     var p = String(n || '').trim().split(/\s+/).filter(Boolean);
     if (!p.length) return '?';
@@ -2543,72 +2552,131 @@ listede gizli) gerçek kartlarla göster. Veri kaynağı: agents widget'ındaki 
     for (var i = 0; i < a.length; i++) if (/modu$/i.test(a[i])) return a[i];
     return a[0];
   }
+  /* firma kategori sayfasındaki tek bir .item kartından firma verisi çıkar */
+  function parseFirmCard(it) {
+    var link = it.querySelector('.item-title a[href]') || it.querySelector('.item-image a[href]') || it.querySelector('a[href]');
+    var href = link ? link.getAttribute('href') : '';
+    if (!href) { var oc = it.getAttribute('onclick') || ''; href = (oc.match(/location\.href='([^']+)'/) || [])[1] || ''; }
+href = String(href || '').replace(/[?#].*$/, '');   
+if (!href) return null;
+var nameEl = it.querySelector('.item-title') || it.querySelector('h3');
+var img = it.querySelector('.item-image img') || it.querySelector('img');
+var modes = [].slice.call(it.querySelectorAll('.profile-categories .pcategory-btn'))
+.map(function (b) { return (b.textContent || '').replace(/\s+/g, ' ').trim(); })
+.filter(function (t) { return t && !/mod\s*el[çc]isi/i.test(t); });   
+return {
+href: href,
+name: (nameEl ? nameEl.textContent.replace(/\s+/g, ' ').trim() : '') || 'Marka',
+mod: pickMod(modes.join('|')),
+logo: img ? (img.getAttribute('src') || '') : ''
+};
+}
+function parseFirms(html) {
+if (!html) return [];
+var doc;
+try { doc = new DOMParser().parseFromString(html, 'text/html'); } catch (e) { return []; }
+var seen = {}, out = [];
+[].slice.call(doc.querySelectorAll('.item[id^="agent-"]')).forEach(function (it) {
+var f = parseFirmCard(it);
+if (f && f.href && !seen[f.href]) { seen[f.href] = 1; out.push(f); }
+});
+return out;
+}
+function brandsFromDom() {
+var seen = {}, firms = [];
+[].slice.call(document.querySelectorAll('.item.kb-firm')).forEach(function (f) {
+var oc = f.getAttribute('onclick') || '';
+var href = (oc.match(/location\.href='([^']+)'/) || [])[1] ||
+        ((f.querySelector('a[href]') || {}).getAttribute ? f.querySelector('a[href]').getAttribute('href') : '');
+      if (!href || seen[href]) return; seen[href] = 1;
+      var nameEl = f.querySelector('.item-title') || f.querySelector('.item-name') || f.querySelector('h3');
+      var img = f.querySelector('img');
+      firms.push({ href: String(href).replace(/[?#].*$/, ''), name: (nameEl ? nameEl.textContent.trim() : '') || 'Marka', mod: pickMod(f.getAttribute('data-kb-modes')), logo: img ? img.getAttribute('src') : '' });
+    });
+    return firms;
+  }
+  function renderBrands(firms, row) {
+    if (!firms.length) return;
+    firms = firms.slice(0, 7);   /* en fazla 7 firma */
+    row.innerHTML = firms.map(function (d) {
+      var inner = d.logo ? "<img src='" + esc(d.logo) + "' alt='" + esc(d.name) + "'>" : esc(brandInitials(d.name));
+      return "<a class='md-expert corp' href='" + esc(d.href) + "'><div class='md-expert-img'>" + inner + "</div><p>" + esc(d.name) + "</p><small>" + esc(d.mod) + "</small></a>";
+    }).join('');
+    row.setAttribute('data-kb-brands', '1');
+  }
+  var firmFetchStarted = false, fetchedFirms = null;   /* fetch bir kez; null=henüz dönmedi */
+  function startFirmFetch() {
+    firmFetchStarted = true;
+    /* X-Requested-With YOK: AJAX header'ı app'e partial/boş döndürtüyor; tam HTML sayfa istiyoruz */
+    fetch(localePrefix() + '/' + FIRM_CAT_SLUG, { credentials: 'same-origin' })
+      .then(function (r) { return r.ok ? r.text() : ''; })
+      .then(function (html) { fetchedFirms = parseFirms(html); })
+      .catch(function () { fetchedFirms = []; });
+  }
   function buildBrands() {
     var row = document.querySelector('.md-experts-row');
     if (!row || row.getAttribute('data-kb-brands')) return;
-    var seen = {}, firms = [];
-    [].slice.call(document.querySelectorAll('.item.kb-firm')).forEach(function (f) {
-      var oc = f.getAttribute('onclick') || '';
-      var href = (oc.match(/location\.href='([^']+)'/) || [])[1] ||
-((f.querySelector('a[href]') || {}).getAttribute ? f.querySelector('a[href]').getAttribute('href') : '');
-if (!href || seen[href]) return; seen[href] = 1;
-var nameEl = f.querySelector('.item-title') || f.querySelector('.item-name') || f.querySelector('h3');
-var img = f.querySelector('img');
-firms.push({ href: href, name: (nameEl ? nameEl.textContent.trim() : '') || 'Marka', mod: pickMod(f.getAttribute('data-kb-modes')), logo: img ? img.getAttribute('src') : '' });
-});
-if (!firms.length) return;   
-firms = firms.slice(0, 7);   
-row.innerHTML = firms.map(function (d) {
-var inner = d.logo ? "<img src='" + esc(d.logo) + "' alt='" + esc(d.name) + "'>" : esc(brandInitials(d.name));
-return "<a class='md-expert corp' href='" + esc(d.href) + "'><div class='md-expert-img'>" + inner + "</div><p>" + esc(d.name) + "</p><small>" + esc(d.mod) + "</small></a>";
-}).join('');
-row.setAttribute('data-kb-brands', '1');
-}
-function limitExperts() {
-var w = document.querySelector('div[data-name="agents"]') || document.querySelector('.agents');
-if (!w) return;
-var experts = [].slice.call(w.querySelectorAll('.item:not(.kb-firm)'));
-experts.forEach(function (el, i) { if (i >= 7) el.classList.add('kb-ovf7'); else el.classList.remove('kb-ovf7'); });
-}
-var catsKicked = false;
-function run() { if (!isHome()) return; if (!catsKicked) { catsKicked = true; loadData(); } build(); buildBrands(); limitExperts(); }
-if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
-window.addEventListener('load', function () { setTimeout(run, 300); });
-var tries = 0;
-var iv = setInterval(function () {
-run();
-var a = document.querySelector('.event-home-no-emphasis');
-var brandsDone = !document.querySelector('.md-experts-row') || !!document.querySelector('.md-experts-row[data-kb-brands]');
-if (++tries > 24 || ((a && a.getAttribute('data-kb-wc')) && brandsDone)) { clearInterval(iv); applyData(); }
-}, 350);
+    if (!firmFetchStarted) startFirmFetch();
+    if (fetchedFirms == null) return;                               /* fetch henüz dönmedi → sonraki tick */
+    var firms = fetchedFirms.length ? fetchedFirms : brandsFromDom();  /* fetch boşsa DOM fallback */
+    if (!firms.length) return;                                      /* ne fetch ne DOM → sonraki tick dener */
+    renderBrands(firms, row);
+  }
+  /* Deneyimli Uzmanlar bandı (öne çıkan agents widget) — firma olmayan en fazla 7 uzman göster */
+  function limitExperts() {
+    var w = document.querySelector('div[data-name="agents"]') || document.querySelector('.agents');
+    if (!w) return;
+    var experts = [].slice.call(w.querySelectorAll('.item:not(.kb-firm)'));
+    experts.forEach(function (el, i) { if (i >= 7) el.classList.add('kb-ovf7'); else el.classList.remove('kb-ovf7'); });
+  }
+  var catsKicked = false;
+  function run() { if (!isHome()) return; if (!catsKicked) { catsKicked = true; loadData(); } build(); buildBrands(); limitExperts(); }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
+  window.addEventListener('load', function () { setTimeout(run, 300); });
+  var tries = 0;
+  var iv = setInterval(function () {
+    run();
+    var a = document.querySelector('.event-home-no-emphasis');
+    var brandsDone = !document.querySelector('.md-experts-row') || !!document.querySelector('.md-experts-row[data-kb-brands]');
+    if (++tries > 24 || ((a && a.getAttribute('data-kb-wc')) && brandsDone)) { clearInterval(iv); applyData(); }
+  }, 350);
 })();
+/* ============================================================
+   SECTION: IKEA PROJELERİ — CMS /s/ikea-projeleri (body.kb-page-cms-ikea-projeleri)
+   İçerik HTML (ikea-projeleri-create.mjs) ikon yerine <span class="kb-ip-ic" data-ic="X">
+   placeholder kullanır (TinyMCE inline SVG'yi siler). Burada ikonları hidrate eder +
+3 sekme (proje) geçişini bağlar. CSS: _ikea-projeleri.css. Idempotent; observer YOK
+(içerik server-render, DCL'de hazır) → sonsuz-döngü riski yok.
+   ============================================================ */
 (function () {
-function onIp() { return document.body && document.body.classList.contains('kb-page-cms-ikea-projeleri'); }
-var ICONS = {
-'arrow-left': '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
-'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
-'gift': '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
-'trending-up': '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
-'star': '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
-'book-open': '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
-'zap': '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
-'target': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
-'award': '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
-'trophy': '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
-'heart': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
-'check-circle': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>'
-};
-function svg(name) {
-var p = ICONS[name]; if (!p) return '';
-return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
-}
-function hydrateIcons() {
-var ics = document.querySelectorAll('.kb-ip-ic[data-ic]:not([data-kb-ic])');
-[].forEach.call(ics, function (el) {
-el.innerHTML = svg(el.getAttribute('data-ic'));
-el.setAttribute('data-kb-ic', '1');
-});
-}
+  function onIp() { return document.body && document.body.classList.contains('kb-page-cms-ikea-projeleri'); }
+  var ICONS = {
+    'arrow-left': '<path d="m12 19-7-7 7-7"/><path d="M19 12H5"/>',
+    'users': '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/>',
+    'gift': '<rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/>',
+    'trending-up': '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>',
+    'star': '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>',
+    'book-open': '<path d="M12 7v14"/><path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>',
+    'zap': '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>',
+    'target': '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    'award': '<circle cx="12" cy="8" r="6"/><path d="M15.477 12.89 17 22l-5-3-5 3 1.523-9.11"/>',
+    'trophy': '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/>',
+    'heart': '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>',
+    'check-circle': '<circle cx="12" cy="12" r="10"/><path d="m9 12 2 2 4-4"/>'
+  };
+  function svg(name) {
+    var p = ICONS[name]; if (!p) return '';
+    return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + p + '</svg>';
+  }
+  function hydrateIcons() {
+    var ics = document.querySelectorAll('.kb-ip-ic[data-ic]:not([data-kb-ic])');
+    [].forEach.call(ics, function (el) {
+      el.innerHTML = svg(el.getAttribute('data-ic'));
+      el.setAttribute('data-kb-ic', '1');
+    });
+  }
+  /* KONUMSAL bağlama — N. tab ↔ N. panel. data-tab/data-panel'e BAĞIMLI DEĞİL (TinyMCE
+silse bile çalışır). JS başlangıç durumunu da kurar (inline display:none silinmiş olabilir). */
 function bindTabs() {
 var tabs = [].slice.call(document.querySelectorAll('.kb-ip-tab'));
 var panels = [].slice.call(document.querySelectorAll('.kb-ip-panel'));
