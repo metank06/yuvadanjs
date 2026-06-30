@@ -92,7 +92,9 @@ message: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="cu
 logout: '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>'
 };
 function isLoggedIn() {
-return !!(document.body && document.body.classList.contains('loggedIn'));
+if (document.body && document.body.classList.contains('loggedIn')) return true;
+if (/\/payment\//.test(location.pathname)) return true;
+return false;
 }
 function loginLink(opts) {
 var li = isLoggedIn();
@@ -1254,6 +1256,7 @@ var I = {
 back: "<path d='m12 19-7-7 7-7'/><path d='M19 12H5'/>",
 cal: "<rect x='3' y='4' width='18' height='18' rx='2'/><path d='M16 2v4M8 2v4M3 10h18'/>",
 clock: "<circle cx='12' cy='12' r='10'/><path d='M12 6v6l4 2'/>",
+timer: "<line x1='10' x2='14' y1='2' y2='2'/><line x1='12' x2='15' y1='14' y2='11'/><circle cx='12' cy='14' r='8'/>",
 users: "<path d='M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2'/><circle cx='9' cy='7' r='4'/><path d='M22 21v-2a4 4 0 0 0-3-3.87'/>",
 globe: "<circle cx='12' cy='12' r='10'/><path d='M2 12h20'/><path d='M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z'/>",
 check: "<path d='M20 6 9 17l-5-5'/>"
@@ -1294,9 +1297,14 @@ var exTitle = txt(ec.querySelector('.expert-title'));
 var exStars = ec.querySelector('.expert-stars');
 var info = [].map.call(ec.querySelectorAll('.expert-bottom .info-label'), function (e) { return txt(e); }).filter(Boolean);
 var fmt = info[3] || ''; var cap = info[2] || '';
+var startDate = (info[0] || '').match(/\d{1,2}\.\d{1,2}\.\d{4}/);
+startDate = startDate ? startDate[0] : (info[0] || '');
+var startTime = firstTime(info[1] || '');
+var dur = durMin(info[1] || '');
 var metaItems = [];
-if (info[0]) metaItems.push([I.cal, 'Tarih', info[0].replace(/\s*-\s*\1/, '')]);
-if (info[1]) metaItems.push([I.clock, 'Saat', info[1].replace(/UTC/i, '').trim() + ' (UTC)']);
+if (startDate) metaItems.push([I.cal, 'Tarih', startDate]);
+if (startTime) metaItems.push([I.clock, 'Saat', startTime + ' (UTC)']);
+if (dur) metaItems.push([I.timer, 'Süre', dur]);
 if (cap) metaItems.push([I.users, 'Kapasite', /^\d+$/.test(cap) ? cap + ' kişi' : cap]);
 if (fmt) metaItems.push([I.globe, 'Format', fmt]);
 var cat = txt(ec.querySelector('.event-category, [class*="event-cat"], .event-mode')) || '';
@@ -1318,15 +1326,21 @@ sd.innerHTML =
 "</div>" +
 "</section>" +
 "<section class='kb-sd-main'><div class='kb-sd-wrap'>" +
+"<div class='kb-sd-content'>" +
 (title ? "<h1>" + esc(title) + "</h1>" : '') +
 (desc ? "<p class='kb-sd-desc'>" + esc(desc) + "</p>" : '') +
 (metaHtml ? "<div class='kb-sd-meta'>" + metaHtml + "</div>" : '') +
 "<div class='kb-sd-tabslot'></div>" +
-"<div class='kb-sd-actions'><div class='kb-sd-actbtns'></div>" +
-"<div class='kb-sd-meta-right'>" +
+"<div class='kb-sd-share'></div>" +
+"</div>" +
+"<aside class='kb-sd-buy'>" +                       
+"<div class='kb-sd-price'></div>" +               
+"<div class='kb-sd-buybtns'></div>" +             
+"<div class='kb-sd-note'>" +
 (fmt ? "<span>" + ic(I.globe) + esc(fmt) + "</span>" : '') +
 "<span>" + ic(I.check) + "Kayıt sonrası katılım linki gönderilir</span>" +
-"</div></div>" +
+"</div>" +
+"</aside>" +
 "</div></section>" +
 "<div class='kb-sd-relslot'></div>";
 ec.insertBefore(sd, ec.firstChild);
@@ -1335,17 +1349,17 @@ if (cover) { var imgEl = sd.querySelector('.kb-sd-img'); if (imgEl) imgEl.style.
 if (exStars) { var em = sd.querySelector('.kb-sd-exmeta'); if (em) em.appendChild(exStars); }
 var tabs = ec.querySelector('.event-tabs-container');
 if (tabs) sd.querySelector('.kb-sd-tabslot').appendChild(tabs);
-var ab = sd.querySelector('.kb-sd-actbtns');
+var ab = sd.querySelector('.kb-sd-buybtns');
 var regs = [].slice.call(ec.querySelectorAll('.register-button, .join-free-button'));
 regs.reverse().forEach(function (reg) { if (reg && ab) ab.insertBefore(reg, ab.firstChild); });
 var social = ec.querySelector('.event-social-share');
-if (social) sd.querySelector('.kb-sd-actbtns').appendChild(social);
+if (social) sd.querySelector('.kb-sd-share').appendChild(social);
 var related = ec.querySelector('.more-events-area');
 if (related) sd.querySelector('.kb-sd-relslot').appendChild(related);
 return true;
 }
 function relocateCalendar(sd) {
-var ab = sd.querySelector('.kb-sd-actbtns'); if (!ab) return true;
+var ab = sd.querySelector('.kb-sd-buybtns'); if (!ab) return true;
 if (ab.querySelector('.kb-sd-atcb')) return true; 
 var native = document.querySelector('add-to-calendar-button, #add-to-calendar-cn, .add-to-calendar');
 if (!native) return false; 
@@ -1362,18 +1376,16 @@ fresh.setAttribute('styleLight', ATCB_VARS);
 fresh.setAttribute('styleDark', ATCB_VARS);
 fresh.className = 'kb-sd-atcb';
 if (native.parentNode) native.parentNode.removeChild(native);
-var social = ab.querySelector('.event-social-share');
-if (social) ab.insertBefore(fresh, social); else ab.appendChild(fresh);
+ab.appendChild(fresh);
 return true;
 }
 function calendarFallback(sd) {
-var ab = sd && sd.querySelector('.kb-sd-actbtns'); if (!ab) return;
+var ab = sd && sd.querySelector('.kb-sd-buybtns'); if (!ab) return;
 if (ab.querySelector('.kb-sd-atcb') || ab.querySelector('.kb-sd-cal') || !_gcalHref) return;
 var a = document.createElement('a');
 a.className = 'kb-sd-cal'; a.href = _gcalHref; a.target = '_blank'; a.rel = 'noopener';
 a.innerHTML = ic(I.cal) + "<span>Takvime Ekle</span>";
-var social = ab.querySelector('.event-social-share');
-if (social) ab.insertBefore(a, social); else ab.appendChild(a);
+ab.appendChild(a);
 }
 function moveRelated() {
 var sd = document.querySelector('.kb-sd'); if (!sd) return;
@@ -1412,7 +1424,8 @@ var m = (im.getAttribute('style') || '').match(/url\(["']?(.+?)["']?\)/);
     a.className = 'kb-sd-rel'; a.href = d.href || '#';
     a.innerHTML =
       "<div class='media'><div class='kb-sd-rel-img'></div><div class='ov'></div>" +
-      (d.badge ? "<span class='dur'>" + esc(d.badge) + "</span>" : "") + "</div>" +
+      "<span class='kb-sd-rel-ser' data-ev='" + esc(d.id || '') + "'></span>" +   /* SERİ rozeti (async /event-load groupID) */
+      "<span class='dur kb-sd-rel-mode' data-ev='" + esc(d.id || '') + "' data-title='" + esc(d.title || '') + "' data-fmt='" + esc(d.fmt || '') + "'></span></div>" +   /* MOD (async /event-load: id→isim fallback); yoksa fmt */
       "<div class='b'><h3>" + esc(d.title) + "</h3>" +
       "<div class='who'><span class='av'>" + esc(d.initials) + "</span><span>" + esc(d.expert) + "</span></div>" +
       "<div class='rmeta'>" +
@@ -1438,66 +1451,210 @@ var m = (im.getAttribute('style') || '').match(/url\(["']?(.+?)["']?\)/);
       var timeRaw = labelByIcon(card, 'fa-clock');
       var fmt = labelByIcon(card, 'fa-chalkboard') || labelByIcon(card, 'fa-globe');
       var dur = durMin(timeRaw);
-      var linkA = card.querySelector('.detailed-info-button a');
-      items.push({
-        title: title, expert: labelByIcon(card, 'fa-user'), initials: initials(labelByIcon(card, 'fa-user')),
-        date: date, time: firstTime(timeRaw), dur: dur, badge: dur || fmt, cover: coverUrl(card),
-        href: linkA ? linkA.getAttribute('href') : (localePrefix() + '/etkinlikler')
-      });
-    });
-    if (!items.length) return;
-    area.setAttribute('data-kb-rel', '1');
-    var grid = document.createElement('div'); grid.className = 'kb-sd-rel-grid';
-    items.forEach(function (d) { grid.appendChild(relCardEl(d)); });
-    var carousel = area.querySelector('.more-events-area-carousel, .owl-carousel, .event-page-carousel');
-    var header = area.querySelector('.more-events-area-header');
-    if (header && header.parentNode) header.parentNode.insertBefore(grid, header.nextSibling);
-    else area.appendChild(grid);
-    if (carousel) carousel.style.display = 'none';
-  }
-  function run() {
-    if (!isPage()) return;
-    build();
-    var sd = document.querySelector('.kb-sd');
-    moveRelated();
-    buildRelated();
-    if (sd) relocateCalendar(sd);
-  }
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
-  else run();
-  window.addEventListener('load', function () { setTimeout(run, 300); });
-  var tries = 0;
-  var iv = setInterval(function () {
-    run();
-    var area = document.querySelector('.more-events-area');
-    var sd = document.querySelector('.kb-sd');
-    var relDone = area && area.getAttribute('data-kb-rel');
-    var calDone = sd && sd.querySelector('.kb-sd-actbtns .kb-sd-atcb');
-    if (++tries > 24 || (relDone && calDone)) {
-      clearInterval(iv);
-      if (sd && !calDone) calendarFallback(sd); /* native widget hiç yüklenmedi → gcal fallback */
-    }
-  }, 350);
+      /* id'yi karttaki HERHANGİ etkinlik linkinden çıkar (bazı kartlarda .detailed-info-button yok) */
+var id = '', href = '';
+var anchors = [].slice.call(card.querySelectorAll('a[href]'));
+for (var ai = 0; ai < anchors.length; ai++) {
+var hh = anchors[ai].getAttribute('href') || '';
+var mm = hh.match(/\/etkinlikler\/(\d+)/);
+if (mm) { id = mm[1]; href = hh; break; }
+}
+if (!href) { var dib = card.querySelector('.detailed-info-button a'); href = (dib && dib.getAttribute('href')) || (localePrefix() + '/etkinlikler'); }
+items.push({
+title: title, expert: labelByIcon(card, 'fa-user'), initials: initials(labelByIcon(card, 'fa-user')),
+date: date, time: firstTime(timeRaw), dur: dur, fmt: fmt, id: id, cover: coverUrl(card),
+href: href
+});
+});
+if (!items.length) return;
+area.setAttribute('data-kb-rel', '1');
+var grid = document.createElement('div'); grid.className = 'kb-sd-rel-grid';
+items.forEach(function (d) { grid.appendChild(relCardEl(d)); });
+var carousel = area.querySelector('.more-events-area-carousel, .owl-carousel, .event-page-carousel');
+var header = area.querySelector('.more-events-area-header');
+if (header && header.parentNode) header.parentNode.insertBefore(grid, header.nextSibling);
+else area.appendChild(grid);
+if (carousel) carousel.style.display = 'none';
+}
+function bulletizeWhy() {
+var nav = [].slice.call(document.querySelectorAll('.event-tabs-container .nav-link, .event-tabs-container [data-bs-target], .event-tabs-container [role="tab"]'));
+var link = null;
+for (var i = 0; i < nav.length; i++) { if (/neden\s*kat[ıi]lmal/i.test(nav[i].textContent || '')) { link = nav[i]; break; } }
+if (!link) return;
+var sel = link.getAttribute('data-bs-target') || link.getAttribute('href');
+if (!sel || sel.charAt(0) !== '#') return;
+var pane = document.getElementById(sel.slice(1));
+if (!pane || pane.getAttribute('data-kb-why') === '1') return;
+var raw = (pane.textContent || '').replace(/\s+/g, ' ').trim();
+if (!raw) return;
+var parts = null;
+if (raw.indexOf('•') >= 0) parts = raw.split('•');            
+else if (raw.indexOf(';') >= 0) parts = raw.split(';');
+else if (raw.indexOf(',') >= 0) {
+var cand = raw.split(',').map(function (s) { return s.trim(); }).filter(Boolean);
+var listLike = cand.length >= 2 && !/[.!?]\s*$/.test(raw) && cand.every(function (s) {
+return s.length > 0 && s.length <= 50 && !/[.!?]/.test(s);
+});
+if (listLike) parts = cand;
+}
+if (!parts) return;
+parts = parts.map(function (s) { return s.trim().replace(/[.;,]+$/, '').trim(); }).filter(Boolean);
+if (parts.length < 2) return;   
+pane.setAttribute('data-kb-why', '1');
+pane.innerHTML = "<ul class='kb-sd-why'>" + parts.map(function (p) { return "<li>" + esc(p) + "</li>"; }).join('') + "</ul>";
+}
+function normName(s) {
+return (s || '').toLocaleLowerCase('tr')
+.replace(/\s+/g, ' ')          
+.replace(/\s*([?.!])/g, '$1')  
+.replace(/[?.!\s]+$/, '')      
+.trim();
+}
+var _el = null;
+function loadEl() {
+if (_el) return _el;
+_el = fetch('/event-load?limit=200&offset=0', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+.then(function (r) { return r.json(); })
+.then(function (j) {
+var arr = Array.isArray(j) ? j : (j.data || j.events || j.rows || []);
+var byId = {}, byName = {};
+arr.forEach(function (e) { if (e && e.id != null) byId[String(e.id)] = e; if (e && e.event_name) byName[normName(e.event_name)] = e; });
+return { byId: byId, byName: byName };
+})
+.catch(function () { _el = null; return { byId: {}, byName: {} }; });   
+return _el;
+}
+function fillPrice(sd) {
+var slot = sd && sd.querySelector('.kb-sd-price'); if (!slot || slot.getAttribute('data-kb-done')) return;
+var id = (location.pathname.match(/\/etkinlikler\/(\d+)/) || [])[1]; if (!id) return;
+loadEl().then(function (map) {
+var ev = map.byId[id]; if (!ev) return;   
+var p = ev.price || {};
+var sym = (p.currency_iso && p.currency_iso.symbol) || '₺';
+var amt = p.price, cr = p.credit;
+var paid = amt && String(amt) !== '0';
+var html = "<span class='kb-sd-price-lbl'>Etkinlik Ücreti</span>";
+if (paid) {
+html += "<span class='kb-sd-price-amt'>" + esc(sym + amt) + "</span>";
+if (cr && String(cr) !== '0') html += "<span class='kb-sd-price-cr'>veya " + esc(cr) + " Kredi</span>";
+} else if (cr && String(cr) !== '0') {
+html += "<span class='kb-sd-price-amt'>" + esc(cr) + " Kredi</span>";
+} else {
+html += "<span class='kb-sd-price-amt kb-sd-price-free'>Ücretsiz</span>";
+}
+slot.innerHTML = html;
+slot.setAttribute('data-kb-done', '1');   
+});
+}
+function fillRelatedModes() {
+var pills = [].slice.call(document.querySelectorAll('.kb-sd-rel-mode[data-ev]:not([data-kb-mode])'));
+var sers = [].slice.call(document.querySelectorAll('.kb-sd-rel-ser[data-ev]:not([data-kb-ser])'));
+if (!pills.length && !sers.length) return;
+loadEl().then(function (map) {
+pills.forEach(function (p) {
+if (p.getAttribute('data-kb-mode')) return;
+var ev = map.byId[p.getAttribute('data-ev')] || map.byName[normName(p.getAttribute('data-title') || '')];
+var txt = (ev && ev.event_category_name) || p.getAttribute('data-fmt') || '';
+if (txt) { p.textContent = txt; p.setAttribute('data-kb-mode', '1'); }
+});
+sers.forEach(function (s) {
+var id = s.getAttribute('data-ev');
+if (!map.byId[id]) return;                 
+var si = seriesInfo(map.byId, id);
+if (si) s.textContent = 'Seri · ' + si.idx + '/' + si.total;
+s.setAttribute('data-kb-ser', '1');
+});
+});
+}
+function directBuyRedirect() {
+[].slice.call(document.querySelectorAll('.register-button')).forEach(function (b) {
+if (b.getAttribute('data-kb-buy')) return;
+var oc = b.getAttribute('onclick') || '';
+if (oc.indexOf('eventRegisterPopUp') < 0) return;          
+if (b.classList.contains('passed-event') || b.disabled) return;
+var pc = document.querySelector('.event-detail-price-content');
+var links = pc ? [].slice.call(pc.querySelectorAll('a[href*="/payment/review/event/"], a[href*="/payment/event/"]')) : [];
+if (links.length !== 1) return;                            
+var url = links[0].getAttribute('href'); if (!url) return;
+b.setAttribute('data-kb-buy', '1');
+b.removeAttribute('onclick');                              
+b.addEventListener('click', function (e) { e.preventDefault(); window.location.href = url; });
+});
+}
+function evTs(ev) {
+var s = ev && ev.start_date && (ev.start_date.date || ev.start_date);
+if (!s) return 0; s = String(s);
+if (s.indexOf('Z') < 0 && s.indexOf('+') < 0) s = s.replace(' ', 'T') + 'Z';
+var d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+function seriesInfo(byId, id) {
+var ev = byId[String(id)]; if (!ev) return null;
+var g = ev.groupID; if (g == null || g === '') return null;
+var members = [];
+for (var k in byId) { if (byId.hasOwnProperty(k) && byId[k] && String(byId[k].groupID) === String(g)) members.push(byId[k]); }
+if (members.length < 2) return null;
+members.sort(function (a, b) { return evTs(a) - evTs(b); });
+for (var i = 0; i < members.length; i++) if (String(members[i].id) === String(id)) return { idx: i + 1, total: members.length };
+return null;
+}
+function fillSeriesBadge(sd) {
+var h1 = sd && sd.querySelector('.kb-sd-content h1'); if (!h1) return;
+if (h1.querySelector('.kb-sd-series')) return;                 
+var id = (location.pathname.match(/\/etkinlikler\/(\d+)/) || [])[1]; if (!id) return;
+loadEl().then(function (map) {
+if (h1.querySelector('.kb-sd-series')) return;
+var ev = map.byId[id]; if (!ev) return;
+var g = ev.groupID;
+if (g == null || g === '') return;                           
+var members = [];
+Object.keys(map.byId).forEach(function (k) { var e = map.byId[k]; if (e && String(e.groupID) === String(g)) members.push(e); });
+if (members.length < 2) return;
+members.sort(function (a, b) { return evTs(a) - evTs(b); });
+var idx = 0; for (var i = 0; i < members.length; i++) { if (String(members[i].id) === String(id)) { idx = i + 1; break; } }
+if (!idx) return;
+var span = document.createElement('span');
+span.className = 'kb-sd-series';
+span.textContent = 'Seri · ' + idx + '/' + members.length;
+h1.appendChild(span);
+});
+}
+function run() {
+if (!isPage()) return;
+build();
+var sd = document.querySelector('.kb-sd');
+moveRelated();
+buildRelated();
+bulletizeWhy();
+fillRelatedModes();
+directBuyRedirect();
+if (sd) { relocateCalendar(sd); fillPrice(sd); fillSeriesBadge(sd); }
+}
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
+else run();
+window.addEventListener('load', function () { setTimeout(run, 300); });
+var tries = 0;
+var iv = setInterval(function () {
+run();
+var area = document.querySelector('.more-events-area');
+var sd = document.querySelector('.kb-sd');
+var relDone = area && area.getAttribute('data-kb-rel');
+var calDone = sd && sd.querySelector('.kb-sd-buybtns .kb-sd-atcb');
+if (++tries > 24 || (relDone && calDone)) {
+clearInterval(iv);
+if (sd && !calDone) calendarFallback(sd); 
+}
+}, 350);
 })();
-/* ============================================================
-   CANLI OTURUMLAR — /s/canli-oturumlar (kb-page-cms-canli-oturumlar)
-   Etkinlikleri public /event-load JSON endpoint'inden çeker ve KENDİ
-markup'ımızla render eder (native DOM'dan bağımsız). Client-side filtre:
-zaman (Yaklaşan/Geçmiş/Tümü) + arama + kategori. Statik kabuk CMS content'te.
-   Referans: app/Views/partials/event.list.php (tz, fiyat, detay url mantığı).
-   ============================================================ */
 (function () {
-  // Hangi sayfadayız: 'cms' (/s/canli-oturumlar, B) | 'native' (/etkinlikler, A) | null
-  function pageMode() {
-    var b = document.body;
-    if (!b) return null;
-    var dk = b.getAttribute('data-kb-page') || '';
-    if (dk === 'kb-page-cms-canli-oturumlar' || b.classList.contains('kb-page-cms-canli-oturumlar')) return 'cms';
-    if (dk === 'kb-page-cms-etkinlikler-2' || b.classList.contains('kb-page-cms-etkinlikler-2')) return 'cms';
-    if (dk === 'kb-page-etkinlikler' || b.classList.contains('kb-page-etkinlikler')) return 'native';
-    return null;
-  }
-  // native /etkinlikler'de kendi .md-ev host'umuzu inject et (CMS'te host zaten
+function pageMode() {
+var b = document.body;
+if (!b) return null;
+var dk = b.getAttribute('data-kb-page') || '';
+if (dk === 'kb-page-cms-canli-oturumlar' || b.classList.contains('kb-page-cms-canli-oturumlar')) return 'cms';
+if (dk === 'kb-page-cms-etkinlikler-2' || b.classList.contains('kb-page-cms-etkinlikler-2')) return 'cms';
+if (dk === 'kb-page-etkinlikler' || b.classList.contains('kb-page-etkinlikler')) return 'native';
+return null;
+}
 function ensureHost(mode) {
 var host = document.querySelector('.md-ev');
 if (host) return host;
@@ -1520,7 +1677,20 @@ return host;
 var ALL = [];        
 var loaded = false;  
 var bound = false;   
-var state = { time: 'upcoming', q: '', cat: '' };
+var state = { time: 'upcoming', q: '', cat: '', seriesOnly: false };
+function buildSeries() {
+var groups = {};
+ALL.forEach(function (e) {
+var g = e.groupID;
+if (g != null && g !== '') { (groups[g] = groups[g] || []).push(e); }
+e._seriesIdx = 0; e._seriesTotal = 0;
+});
+Object.keys(groups).forEach(function (g) {
+var arr = groups[g].slice().sort(function (a, b) { return tkey(a) - tkey(b); });
+arr.forEach(function (e, i) { e._seriesIdx = i + 1; e._seriesTotal = arr.length; });
+});
+}
+function isSeries(e) { return e._seriesTotal >= 2; }
 function localePrefix() {
 var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//);
 return m ? '/' + m[1] : '';
@@ -1579,10 +1749,12 @@ return String(s == null ? '' : s)
     var cat = String(e.event_category_name || '').trim();
     var dur = String(e.duration || '').trim();
     var price = priceText(e);
+    var ser = isSeries(e);
     var h = '';
-    h += '<a class="md-ev-card' + (past ? ' is-past' : '') + '" href="' + esc(href) + '">';
+    h += '<a class="md-ev-card' + (past ? ' is-past' : '') + (ser ? ' is-series' : '') + '" href="' + esc(href) + '">';
     h +=   '<div class="md-ev-cover' + (cover ? '' : ' md-ev-cover--ph') + '"' + (cover ? ' style="background-image:url(\'' + esc(cover) + '\')"' : '') + '>';
 h +=     '<span class="md-ev-type">' + ico(typeOnline ? 'video' : 'pin') + esc(typeLabel) + '</span>';
+if (ser) h += '<span class="md-ev-series">Seri · ' + e._seriesIdx + '/' + e._seriesTotal + '</span>';
 h +=     '<span class="md-ev-avatar">' + (avatar ? '<img src="' + esc(avatar) + '" alt="" loading="lazy">' : '<span class="md-ev-ini">' + esc(initials(e.agent_name)) + '</span>') + '</span>';
 h +=   '</div>';
 h +=   '<div class="md-ev-body">';
@@ -1606,6 +1778,7 @@ var t = tkey(e);
 if (state.time === 'upcoming' && !(t >= now)) return false;
 if (state.time === 'past' && !(t < now)) return false;
 if (state.cat && String(e.event_category_name || '') !== state.cat) return false;
+if (state.seriesOnly && !isSeries(e)) return false;
 if (q) {
 var hay = ((e.event_name || '') + ' ' + (e.agent_name || '') + ' ' + (e.agent_title || '') + ' ' + (e.event_category_name || '')).toLocaleLowerCase('tr');
 if (hay.indexOf(q) < 0) return false;
@@ -1664,6 +1837,7 @@ wrap.innerHTML =
 '<button type="button" class="md-ev-tab" data-ev-time="past">Geçmiş</button>' +
 '<button type="button" class="md-ev-tab" data-ev-time="all">Tümü</button>' +
 '</div>' +
+'<button type="button" class="md-ev-series-toggle" data-ev-series aria-pressed="false">Seri Etkinlikler</button>' +
 '<span class="md-ev-filter-spacer"></span>' +
 '<span class="md-ev-search-wrap">' + ico('search') +
 '<input type="text" class="md-ev-search" placeholder="Oturum ara..." autocomplete="off" spellcheck="false" aria-label="Oturum ara">' +
@@ -1694,6 +1868,13 @@ render();
 });
 var sel = wrap.querySelector('.md-ev-cat');
 if (sel) sel.addEventListener('change', function () { state.cat = sel.value; render(); });
+var seriesBtn = wrap.querySelector('.md-ev-series-toggle');
+if (seriesBtn) seriesBtn.addEventListener('click', function () {
+state.seriesOnly = !state.seriesOnly;
+seriesBtn.classList.toggle('is-active', state.seriesOnly);
+seriesBtn.setAttribute('aria-pressed', state.seriesOnly ? 'true' : 'false');
+render();
+});
 }
 async function loadData() {
 if (loaded) return;
@@ -1714,6 +1895,7 @@ offset += LIMIT;
 if (batch.length < LIMIT || acc.length >= MAX) break;
 }
 ALL = acc;
+buildSeries();
 if (cal.active) { try { CATLIST = await fetchCategories(); } catch (e) { CATLIST = null; } }  
 if (loader) loader.hidden = true;
 if (cal.active) { calBuild(); sxRender(); }   
@@ -1826,11 +2008,13 @@ return '<a class="md-cal-sess" href="' + esc(href) + '" data-mode="' + esc(md.sl
 '<span class="md-cal-sess-arrow">' + ico('arrow') + '</span>' +
 '<span class="md-cal-sess-title">' + esc(title) + '</span>' +
 '<span class="md-cal-sess-meta"><span>' + esc(time) + '</span><span>' + esc(dur) + '</span></span>' +
+(isSeries(e) ? '<span class="md-cal-sess-ser">Seri ' + e._seriesIdx + '/' + e._seriesTotal + '</span>' : '') +
 '</a>';
 }
 function calDayBody(k) {
 var list = (cal.byDate && cal.byDate[k]) || [];
 if (cal.modes.length) list = list.filter(function (e) { var s = modeOf(e).slug; return s === '__other' || cal.modes.indexOf(s) !== -1; });
+if (pg.seriesOnly) list = list.filter(isSeries);
 if (!list.length) return '<div class="md-cal-empty">Oturum yok</div>';
 return '<div class="md-cal-sess-list">' + list.map(calSessHTML).join('') + '</div>';
 }
@@ -1952,7 +2136,7 @@ applyMode();
 });
 }
 }
-var pg = { time: 'upcoming', view: 'calendar', qc: '', qs: '' };  
+var pg = { time: 'upcoming', view: 'calendar', qc: '', qs: '', seriesOnly: false };  
 function pgHost() { return document.querySelector('.md-ev'); }
 function sxRows() {
 var now = Date.now();
@@ -1961,6 +2145,7 @@ var t = tkey(e);
 if (pg.time === 'upcoming' && !(t >= now)) return false;
 if (pg.time === 'past' && !(t < now)) return false;
 if (cal.modes.length) { var s = modeOf(e).slug; if (s !== '__other' && cal.modes.indexOf(s) === -1) return false; }
+if (pg.seriesOnly && !isSeries(e)) return false;
 if (pg.qc && trNorm(e.agent_name || '').indexOf(trNorm(pg.qc)) < 0) return false;
 if (pg.qs && trNorm((e.event_name || '') + ' ' + (e.event_category_name || '')).indexOf(trNorm(pg.qs)) < 0) return false;
 return true;
@@ -1976,9 +2161,9 @@ var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
 var dur = String(e.duration || '').trim();
 var avatar = emptyImg(e.agent_image) ? '' : imgUrl(e.agent_image);
 var role = String(e.agent_title || '').trim() || 'Uzman Danışman';
-var isSeries = /b[öo]l[üu]m/i.test(title);
-var badge = past ? '<span class="md-cal-row-badge is-done">Tamamlandı</span>'
-: (isSeries ? '<span class="md-cal-row-badge" style="border-color:' + md.color + ';color:' + md.color + '">Seri</span>' : '');
+var ser = isSeries(e);
+var badge = ser ? '<span class="md-cal-row-badge" style="border-color:' + md.color + ';color:' + md.color + '">Seri · ' + e._seriesIdx + '/' + e._seriesTotal + '</span>'
+: (past ? '<span class="md-cal-row-badge is-done">Tamamlandı</span>' : '');
 var h = '<a class="md-cal-row' + (past ? ' is-past' : '') + '" href="' + esc(href) + '" data-mode="' + esc(md.slug) + '" style="--rc:' + md.color + '">';
 h += '<div class="md-cal-row-left"><div class="md-cal-row-av" style="border-color:' + md.color + '">' +
 (avatar ? '<img src="' + esc(avatar) + '" alt="" loading="lazy">' : '<span class="md-cal-row-ini">' + esc(initials(e.agent_name)) + '</span>') + '</div>' +
@@ -2022,6 +2207,7 @@ fb.innerHTML =
 '<div class="md-cal-timebtns">' +
 '<button type="button" class="md-cal-tbtn is-active" data-pg-time="upcoming">Yaklaşan Oturumlar</button>' +
 '<button type="button" class="md-cal-tbtn" data-pg-time="past">Geçmiş Oturumlar</button>' +
+'<button type="button" class="md-cal-sertoggle" data-pg-series aria-pressed="false">Seri Etkinlikler</button>' +
 '</div>' +
 '<div class="md-cal-selects">' +
 '<div class="md-cal-field"><span class="md-ev-ico md-ev-ico--search md-cal-sicon"></span><input type="text" class="md-cal-qc" placeholder="Danışman ara..." autocomplete="off" spellcheck="false" aria-label="Danışman ara"></div>' +
@@ -2043,6 +2229,13 @@ rows.insertAdjacentElement('beforebegin', note);
 }
 fb.querySelectorAll('[data-pg-time]').forEach(function (btn) {
 btn.addEventListener('click', function () { pg.time = btn.getAttribute('data-pg-time'); sxRender(); });
+});
+var serBtn = fb.querySelector('.md-cal-sertoggle');
+if (serBtn) serBtn.addEventListener('click', function () {
+pg.seriesOnly = !pg.seriesOnly;
+serBtn.classList.toggle('is-active', pg.seriesOnly);
+serBtn.setAttribute('aria-pressed', pg.seriesOnly ? 'true' : 'false');
+calRender(); sxRenderRows();
 });
 vt.querySelectorAll('[data-pg-view]').forEach(function (btn) {
 btn.addEventListener('click', function () { pg.view = btn.getAttribute('data-pg-view'); pgApply(); });
@@ -2220,93 +2413,173 @@ var m = ((el && el.getAttribute('style')) || '').match(/url\(["']?(.+?)["']?\)/)
   }
   function trNorm(s) {
     return String(s == null ? '' : s).replace(/[İI]/g, 'i').replace(/ı/g, 'i').replace(/[Şş]/g, 's')
-      .replace(/[Ğğ]/g, 'g').replace(/[Üü]/g, 'u').replace(/[Çç]/g, 'c').replace(/[Öö]/g, 'o').toLowerCase();
+      .replace(/[Ğğ]/g, 'g').replace(/[Üü]/g, 'u').replace(/[Çç]/g, 'c').replace(/[Öö]/g, 'o').toLowerCase()
+      .replace(/\s+/g, ' ').trim();
   }
+  function eidFromHref(h) { var m = String(h == null ? '' : h).match(/\/etkinlikler\/(\d+)/); return m ? m[1] : ''; }
   var PAL = [['uretken', '#F59E0B'], ['teknoloji', '#3B82F6'], ['keyif', '#F43F5E'], ['saglik', '#10B981'], ['longevity', '#22C55E'], ['aile', '#8B5CF6']];
   function colorForCat(name) { var h = trNorm(name); for (var i = 0; i < PAL.length; i++) if (h.indexOf(PAL[i][0]) >= 0) return PAL[i][1]; return '#F59E0B'; }
-  /* /event-load: normalize-isim → kategori adı (bir kez); gelince applyCats çağırır */
-  var CATMAP = null;
-  function loadCats() {
+  var ICON_CLOCK = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></svg>";
+  var ICON_DUR = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='M7 3h10M7 21h10M8 3v3a4 4 0 0 0 8 0V3M8 21v-3a4 4 0 0 1 8 0v3'/></svg>";
+  function evTs(e) {
+    var s = e && e.start_date && (e.start_date.date || e.start_date);
+    if (!s) return 0; s = String(s);
+    if (s.indexOf('Z') < 0 && s.indexOf('+') < 0) s = s.replace(' ', 'T') + 'Z';
+    var d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime();
+  }
+  /* /event-load: id/isim → {kategori, süre, seri N/M} (bir kez); gelince applyData çağırır */
+  var MAP = null;
+  function loadData() {
     fetch('/event-load?limit=200&offset=0', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
       .then(function (r) { return r.ok ? r.json() : null; })
       .then(function (j) {
         var arr = Array.isArray(j) ? j : (j && j.data ? j.data : []);
-        var m = {};
+        var m = {}, byGid = {};
         (arr || []).forEach(function (e) {
           var nm = trNorm(e.event_name || e.name || e.title || '');
-          var cat = (e.event_category_name || '').trim();
-          if (nm && cat && !m[nm]) m[nm] = cat;
+          var obj = { cat: (e.event_category_name || '').trim(), dur: (e.duration == null ? '' : e.duration).toString().trim() };
+          if (e.id != null && !m['#' + e.id]) m['#' + e.id] = obj;   /* id ile birebir (aynı isimli etkinlikler için) */
+          if (nm && !m[nm]) m[nm] = obj;                             /* başlık fallback */
+          var g = e.groupID;                                         /* SERİ: aynı groupID = aynı seri */
+          if (e.id != null && g != null && g !== '') (byGid[g] = byGid[g] || []).push({ id: String(e.id), ts: evTs(e) });
         });
-        CATMAP = m; applyCats();
+        Object.keys(byGid).forEach(function (g) {                    /* her seriye kronolojik N/M ata (id objesine) */
+          var a = byGid[g].sort(function (x, y) { return x.ts - y.ts; });
+          if (a.length < 2) return;
+          a.forEach(function (x, i) { var o = m['#' + x.id]; if (o) { o.serIdx = i + 1; o.serTotal = a.length; } });
+        });
+        MAP = m; applyData();
       })
-      .catch(function () { CATMAP = {}; });
+      .catch(function () { MAP = {}; });
   }
-  /* kurulmuş kartlardaki pill'leri kategoriyle güncelle (CATMAP geldiğinde) */
-function applyCats() {
-if (!CATMAP) return;
-[].slice.call(document.querySelectorAll('.kb-wc-pill[data-pt]')).forEach(function (p) {
-var cat = CATMAP[p.getAttribute('data-pt')];
-if (cat) { var col = colorForCat(cat); p.textContent = cat; p.style.background = col + '26'; p.style.color = col; }
+  /* kurulmuş kartlara kategori pill + süre yaz (MAP geldiğinde) */
+  function applyData() {
+    if (!MAP) return;
+    function look(el) { return MAP[el.getAttribute('data-eid')] || MAP[el.getAttribute('data-pt')]; }
+    [].slice.call(document.querySelectorAll('.kb-wc-pill[data-pt]')).forEach(function (p) {
+      var d = look(p);
+      if (d && d.cat) { var col = colorForCat(d.cat); p.textContent = d.cat; p.style.background = col + '26'; p.style.color = col; }
+    });
+    [].slice.call(document.querySelectorAll('.kb-wc-dur[data-pt]')).forEach(function (s) {
+      var d = look(s);
+      var t = s.querySelector('.kb-wc-t');
+      if (d && d.dur && t && !t.textContent) t.textContent = d.dur;
+    });
+    [].slice.call(document.querySelectorAll('.kb-wc-ser[data-eid]')).forEach(function (s) {
+      var d = MAP[s.getAttribute('data-eid')];
+      if (d && d.serTotal >= 2 && !s.textContent) s.textContent = 'Seri · ' + d.serIdx + '/' + d.serTotal;
+    });
+  }
+  function build() {
+    var area = document.querySelector('.event-home-no-emphasis');
+    if (!area || area.getAttribute('data-kb-wc')) return;
+    var cards = [].slice.call(area.querySelectorAll('.owl-item:not(.cloned) .item'));
+    if (!cards.length) cards = [].slice.call(area.querySelectorAll('.item'));
+    if (!cards.length) return;
+    var seen = {}, items = [];
+    cards.forEach(function (c) {
+      var title = txt(c.querySelector('.eventname')) || '';
+      var date = txt(c.querySelector('.eventdate'));
+      var key = (title || '?') + '|' + date; if (seen[key]) return; seen[key] = 1;
+      var ag = c.querySelector('.agentimg');
+      var linkA = c.querySelector('.details-button a') || c.querySelector('a');
+      var fmt = '', time = '';
+      [].slice.call(c.querySelectorAll('.eventinfo i')).forEach(function (i) {
+        if (/chalkboard|globe/.test(i.className) && !fmt) fmt = txt(i.parentElement).replace(/etkinlik/i, '').trim();
+        if (/fa-clock|\bclock\b/.test(i.className) && !time) time = txt(i.parentElement).trim();
+      });
+      var href = linkA ? linkA.getAttribute('href') : '';
+      items.push({
+        title: title || 'Etkinlik', titleKey: trNorm(title), date: date, name: txt(c.querySelector('.agentname')),
+        avatar: ag ? ag.getAttribute('src') : '', cover: coverUrl(c.querySelector('.eventimg')),
+        fmt: fmt, time: time, eid: eidFromHref(href), href: href
+      });
+    });
+    if (!items.length) return;
+    area.setAttribute('data-kb-wc', '1');
+    var grid = document.createElement('div');
+    grid.className = 'kb-wgrid';
+    items.forEach(function (d) {
+      var a = document.createElement('a');
+      a.className = 'kb-wc'; a.href = d.href || '#';
+      /* pill: başta format (fallback); kategori CATMAP gelince applyCats üzerine yazar */
+      a.innerHTML =
+        "<div class='kb-wc-media'><div class='kb-wc-bg'></div><div class='kb-wc-ov'></div>" +
+        "<span class='kb-wc-ser' data-eid='" + (d.eid ? '#' + esc(d.eid) : '') + "'></span></div>" +
+        "<div class='kb-wc-body'>" +
+        "<span class='kb-wc-pill' data-pt='" + esc(d.titleKey) + "' data-eid='" + (d.eid ? '#' + esc(d.eid) : '') + "'>" + esc(d.fmt) + "</span>" +
+        "<h4>" + esc(d.title) + "</h4>" +
+        "<div class='kb-wc-foot'>" +
+        "<div class='kb-wc-when-row'>" +
+        "<span class='kb-wc-when'>" + ICON_CLOCK + "<span class='kb-wc-t'>" + esc(d.time) + "</span></span>" +
+        "<span class='kb-wc-dur' data-pt='" + esc(d.titleKey) + "' data-eid='" + (d.eid ? '#' + esc(d.eid) : '') + "'>" + ICON_DUR + "<span class='kb-wc-t'></span></span>" +
+        "</div>" +
+        "<div class='kb-wc-meta'><span class='kb-wc-who'>" +
+        (d.avatar ? "<span class='kb-wc-av'><img src='" + esc(d.avatar) + "' alt=''></span>" : "") +
+        "<span>" + esc(d.name) + "</span></span>" +
+        (d.date ? "<span>" + esc(d.date) + "</span>" : "") +
+        "</div>" +
+        "</div></div>";
+      if (d.cover) { var bg = a.querySelector('.kb-wc-bg'); bg.style.backgroundImage = "url('" + d.cover + "')"; }
+      grid.appendChild(a);
+    });
+    var owl = area.querySelector('.owl-carousel');
+    var target = owl ? owl.parentElement : area;
+    target.appendChild(grid);
+    if (owl) owl.style.display = 'none';
+    applyData(); /* MAP zaten geldiyse hemen uygula */
+  }
+  /* ---- MARKA ELÇİLERİ bölümü: firma-kategorili agent'ları (.item.kb-firm — normal
+listede gizli) gerçek kartlarla göster. Veri kaynağı: agents widget'ındaki firma
+     kartları (ad=.item-title, href=onclick, mod=data-kb-modes, logo=img). ---- */
+  function brandInitials(n) {
+    var p = String(n || '').trim().split(/\s+/).filter(Boolean);
+    if (!p.length) return '?';
+    return ((p[0].charAt(0)) + (p.length > 1 ? p[p.length - 1].charAt(0) : '')).toLocaleUpperCase('tr-TR');
+  }
+  function pickMod(modes) {
+    var a = String(modes || '').split('|').map(function (s) { return s.trim(); }).filter(Boolean);
+    if (!a.length) return 'Marka Elçisi';
+    for (var i = 0; i < a.length; i++) if (/modu$/i.test(a[i])) return a[i];
+    return a[0];
+  }
+  function buildBrands() {
+    var row = document.querySelector('.md-experts-row');
+    if (!row || row.getAttribute('data-kb-brands')) return;
+    var seen = {}, firms = [];
+    [].slice.call(document.querySelectorAll('.item.kb-firm')).forEach(function (f) {
+      var oc = f.getAttribute('onclick') || '';
+      var href = (oc.match(/location\.href='([^']+)'/) || [])[1] ||
+((f.querySelector('a[href]') || {}).getAttribute ? f.querySelector('a[href]').getAttribute('href') : '');
+if (!href || seen[href]) return; seen[href] = 1;
+var nameEl = f.querySelector('.item-title') || f.querySelector('.item-name') || f.querySelector('h3');
+var img = f.querySelector('img');
+firms.push({ href: href, name: (nameEl ? nameEl.textContent.trim() : '') || 'Marka', mod: pickMod(f.getAttribute('data-kb-modes')), logo: img ? img.getAttribute('src') : '' });
 });
+if (!firms.length) return;   
+firms = firms.slice(0, 7);   
+row.innerHTML = firms.map(function (d) {
+var inner = d.logo ? "<img src='" + esc(d.logo) + "' alt='" + esc(d.name) + "'>" : esc(brandInitials(d.name));
+return "<a class='md-expert corp' href='" + esc(d.href) + "'><div class='md-expert-img'>" + inner + "</div><p>" + esc(d.name) + "</p><small>" + esc(d.mod) + "</small></a>";
+}).join('');
+row.setAttribute('data-kb-brands', '1');
 }
-function build() {
-var area = document.querySelector('.event-home-no-emphasis');
-if (!area || area.getAttribute('data-kb-wc')) return;
-var cards = [].slice.call(area.querySelectorAll('.owl-item:not(.cloned) .item'));
-if (!cards.length) cards = [].slice.call(area.querySelectorAll('.item'));
-if (!cards.length) return;
-var seen = {}, items = [];
-cards.forEach(function (c) {
-var title = txt(c.querySelector('.eventname')) || '';
-var date = txt(c.querySelector('.eventdate'));
-var key = (title || '?') + '|' + date; if (seen[key]) return; seen[key] = 1;
-var ag = c.querySelector('.agentimg');
-var linkA = c.querySelector('.details-button a') || c.querySelector('a');
-var fmt = '';
-[].slice.call(c.querySelectorAll('.eventinfo i')).forEach(function (i) {
-if (/chalkboard|globe/.test(i.className) && !fmt) fmt = txt(i.parentElement).replace(/etkinlik/i, '').trim();
-});
-items.push({
-title: title || 'Etkinlik', titleKey: trNorm(title), date: date, name: txt(c.querySelector('.agentname')),
-avatar: ag ? ag.getAttribute('src') : '', cover: coverUrl(c.querySelector('.eventimg')),
-fmt: fmt, href: linkA ? linkA.getAttribute('href') : ''
-});
-});
-if (!items.length) return;
-area.setAttribute('data-kb-wc', '1');
-var grid = document.createElement('div');
-grid.className = 'kb-wgrid';
-items.forEach(function (d) {
-var a = document.createElement('a');
-a.className = 'kb-wc'; a.href = d.href || '#';
-a.innerHTML =
-"<div class='kb-wc-media'><div class='kb-wc-bg'></div><div class='kb-wc-ov'></div></div>" +
-"<div class='kb-wc-body'>" +
-"<span class='kb-wc-pill' data-pt='" + esc(d.titleKey) + "'>" + esc(d.fmt) + "</span>" +
-"<h4>" + esc(d.title) + "</h4>" +
-"<div class='kb-wc-meta'><span class='kb-wc-who'>" +
-(d.avatar ? "<span class='kb-wc-av'><img src='" + esc(d.avatar) + "' alt=''></span>" : "") +
-"<span>" + esc(d.name) + "</span></span>" +
-(d.date ? "<span>" + esc(d.date) + "</span>" : "") +
-"</div></div>";
-if (d.cover) { var bg = a.querySelector('.kb-wc-bg'); bg.style.backgroundImage = "url('" + d.cover + "')"; }
-grid.appendChild(a);
-});
-var owl = area.querySelector('.owl-carousel');
-var target = owl ? owl.parentElement : area;
-target.appendChild(grid);
-if (owl) owl.style.display = 'none';
-applyCats(); 
+function limitExperts() {
+var w = document.querySelector('div[data-name="agents"]') || document.querySelector('.agents');
+if (!w) return;
+var experts = [].slice.call(w.querySelectorAll('.item:not(.kb-firm)'));
+experts.forEach(function (el, i) { if (i >= 7) el.classList.add('kb-ovf7'); else el.classList.remove('kb-ovf7'); });
 }
 var catsKicked = false;
-function run() { if (!isHome()) return; if (!catsKicked) { catsKicked = true; loadCats(); } build(); }
+function run() { if (!isHome()) return; if (!catsKicked) { catsKicked = true; loadData(); } build(); buildBrands(); limitExperts(); }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run); else run();
 window.addEventListener('load', function () { setTimeout(run, 300); });
 var tries = 0;
 var iv = setInterval(function () {
 run();
 var a = document.querySelector('.event-home-no-emphasis');
-if (++tries > 24 || (a && a.getAttribute('data-kb-wc'))) { clearInterval(iv); applyCats(); }
+var brandsDone = !document.querySelector('.md-experts-row') || !!document.querySelector('.md-experts-row[data-kb-brands]');
+if (++tries > 24 || ((a && a.getAttribute('data-kb-wc')) && brandsDone)) { clearInterval(iv); applyData(); }
 }, 350);
 })();
 (function () {
@@ -2769,19 +3042,14 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
     if (!page) return;
     if (page.querySelector('[data-kb-prof="head"]')) return;
     var name = userName();
-    var photo = userPhoto();
     var head = document.createElement('section');
     head.className = 'kb-prof-head';
     head.setAttribute('data-kb-prof', 'head');
+    /* Kullanıcı isteği: hero'da MA monogramı (.kb-ph-av) + Mesajlarım/Çıkış Yap (.kb-ph-acts) YOK. */
     head.innerHTML =
       '<div class="kb-ph-inner">' +
         '<div class="kb-ph-who">' +
-          '<div class="kb-ph-av">' + (photo ? '<img src="' + esc(photo) + '" alt="">' : esc(initials(name))) + '</div>' +
           '<div><h1>Hoş geldin, ' + esc(name) + '!</h1><p class="kb-ph-sub">Profilini yönet, randevularını ve etkinliklerini takip et.</p></div>' +
-        '</div>' +
-        '<div class="kb-ph-acts">' +
-          '<a class="kb-ph-msg" href="' + localePrefix() + '/mesajlar">' + svg(I_MSG) + 'Mesajlarım</a>' +
-          '<a class="kb-ph-logout" href="' + localePrefix() + '/cikis">' + svg(I_OUT) + 'Çıkış Yap</a>' +
         '</div>' +
       '</div>';
     page.insertBefore(head, page.firstChild);
@@ -2856,12 +3124,41 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
       });
     }
   }
+  /* YENİ profile2 dashboard: "Randevular" → "Birebir Danışmanlık" (sekme + panel başlığı).
+     (Favoriler/Görüşmeler kaldırma CSS ile.) Idempotent; AJAX panel render'ında tekrar uygula. */
+  var RANDEVU_OLD = 'Randevular', RANDEVU_NEW = 'Birebir Danışmanlık';
+  function renameProfile2() {
+    // sekme etiketi (data-tab=0 → randevular)
+    var nav = document.querySelector('.p2-nav-item[data-tab="0"]');
+    if (nav) {
+      var spans = nav.querySelectorAll('span');
+      for (var i = 0; i < spans.length; i++) {
+        if ((spans[i].textContent || '').trim() === RANDEVU_OLD) { spans[i].textContent = RANDEVU_NEW; break; }
+      }
+    }
+    // panel başlık(lar)ı
+    [].forEach.call(document.querySelectorAll('.p2-panel-title'), function (h) {
+      if ((h.textContent || '').trim() === RANDEVU_OLD) h.textContent = RANDEVU_NEW;
+    });
+  }
+  var _p2Hooked = false;
+  function setupProfile2() {
+    renameProfile2();
+    var dash = document.querySelector('.profile2-dashboard');
+    if (dash && !_p2Hooked && window.MutationObserver) {
+      _p2Hooked = true;
+      var t = null;
+      new MutationObserver(function () { clearTimeout(t); t = setTimeout(renameProfile2, 80); })
+        .observe(dash, { childList: true, subtree: true });
+    }
+  }
   function run() {
     if (!isProfile() || !document.querySelector('.page.users')) return;
     buildHero();
     adjustStickyTop();
     enhanceContent();
     setupObserver();
+    setupProfile2();
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
   else run();
@@ -2897,6 +3194,58 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
   function locale() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : ''; }
   function txt(el) { return el ? (el.textContent || '').replace(/\s+/g, ' ').trim() : ''; }
   function coverUrl(el) { var m = ((el && el.getAttribute('style')) || '').match(/url\(["']?(.+?)["']?\)/); return (m && m[1] && !/\/\d{6}\/?$/.test(m[1])) ? m[1] : ''; }
+function durFromClock(t) {
+var m = (t || '').match(/(\d{1,2}):(\d{2})\D+(\d{1,2}):(\d{2})/);
+if (!m) return '';
+var d = ((+m[3]) * 60 + (+m[4])) - ((+m[1]) * 60 + (+m[2]));
+if (d <= 0) return '';
+var h = Math.floor(d / 60), mn = d % 60;
+return (h ? h + ' sa' : '') + (h && mn ? ' ' : '') + (mn ? mn + ' dk' : '');
+}
+var _evData = null;
+function loadEvData() {
+if (_evData) return _evData;
+_evData = fetch('/event-load?limit=200&offset=0', { headers: { 'X-Requested-With': 'XMLHttpRequest' } })
+.then(function (r) { return r.json(); })
+.then(function (j) {
+var arr = Array.isArray(j) ? j : (j.data || j.events || j.rows || []);
+var map = {};
+arr.forEach(function (e) { if (e && e.id != null) map[String(e.id)] = e; });
+return map;
+}).catch(function () { return {}; });
+return _evData;
+}
+function evTs(e) {
+var s = e && e.start_date && (e.start_date.date || e.start_date);
+if (!s) return 0; s = String(s);
+if (s.indexOf('Z') < 0 && s.indexOf('+') < 0) s = s.replace(' ', 'T') + 'Z';
+var d = new Date(s); return isNaN(d.getTime()) ? 0 : d.getTime();
+}
+function seriesInfo(map, id) {
+var ev = map[String(id)]; if (!ev) return null;
+var g = ev.groupID; if (g == null || g === '') return null;
+var members = [];
+for (var k in map) { if (map.hasOwnProperty(k) && map[k] && String(map[k].groupID) === String(g)) members.push(map[k]); }
+if (members.length < 2) return null;
+members.sort(function (a, b) { return evTs(a) - evTs(b); });
+for (var i = 0; i < members.length; i++) if (String(members[i].id) === String(id)) return { idx: i + 1, total: members.length };
+return null;
+}
+function fillEventModes(grid) {
+var pills = [].slice.call(grid.querySelectorAll('.kb-wc-mode[data-ev]'));
+if (!pills.length) return;
+loadEvData().then(function (map) {
+pills.forEach(function (p) {
+var id = p.getAttribute('data-ev');
+var ev = map[id]; if (!ev) return;
+if (ev.event_category_name) p.textContent = ev.event_category_name;
+var durT = p.parentNode.querySelector('.kb-wc-dur .kb-wc-t');
+if (durT && !durT.textContent.trim() && ev.duration) durT.textContent = ev.duration;
+var ser = p.closest('.kb-wc') && p.closest('.kb-wc').querySelector('.kb-wc-ser');
+if (ser && !ser.textContent) { var si = seriesInfo(map, id); if (si) ser.textContent = 'Seri · ' + si.idx + '/' + si.total; }
+});
+});
+}
 function buildEvents() {
 var area = document.querySelector('.profile-event-carousel');
 if (!area || area.getAttribute('data-kb-wc')) return;
@@ -2906,15 +3255,21 @@ if (!cards.length) return;
 var seen = {}, items = [];
 cards.forEach(function (c) {
 var title = txt(c.querySelector('.event-header-part span, .event-carousel-header-part')) || 'Etkinlik';
-var date = '', fmt = '';
+var dateRange = '', timeRange = '';
 [].slice.call(c.querySelectorAll('.info-label')).forEach(function (l) {
 var ic = l.querySelector('i'); if (!ic) return;
-if (/calendar/.test(ic.className) && !date) date = txt(l);
-if (/(chalkboard|globe)/.test(ic.className) && !fmt) fmt = txt(l).replace(/etkinlik/i, '').trim();
+if (/calendar/.test(ic.className) && !dateRange) dateRange = txt(l);
+if (/clock/.test(ic.className) && !timeRange) timeRange = txt(l);
 });
-var key = title + '|' + date; if (seen[key]) return; seen[key] = 1;
-var linkA = c.closest('a') || c.querySelector('a');
-items.push({ title: title, date: date, fmt: fmt, cover: coverUrl(c.querySelector('.event-image')), href: linkA ? linkA.getAttribute('href') : '' });
+var startDate = (dateRange.split('-')[0] || '').trim();       
+var startTime = (timeRange.split('-')[0] || '').trim();       
+var when = (startDate + ' ' + startTime).trim();
+var dur = durFromClock(timeRange);                            
+var linkA = c.closest('a') || c.querySelector('a[href*="/etkinlikler/"]') || c.querySelector('a');
+var href = linkA ? linkA.getAttribute('href') : '';
+var id = (href.match(/\/etkinlikler\/(\d+)/) || [])[1] || '';
+var key = title + '|' + when; if (seen[key]) return; seen[key] = 1;
+items.push({ title: title, when: when, dur: dur, id: id, cover: coverUrl(c.querySelector('.event-image')), href: href });
 });
 if (!items.length) return;
 area.setAttribute('data-kb-wc', '1');
@@ -2922,16 +3277,23 @@ var grid = document.createElement('div'); grid.className = 'kb-wgrid';
 items.forEach(function (d) {
 var a = document.createElement('a'); a.className = 'kb-wc'; a.href = d.href || '#';
 a.innerHTML =
-"<div class='kb-wc-media'><div class='kb-wc-bg'></div><div class='kb-wc-ov'></div></div>" +
-"<div class='kb-wc-body'>" + (d.fmt ? "<span class='kb-wc-pill'>" + esc(d.fmt) + "</span>" : "") +
+"<div class='kb-wc-media'><div class='kb-wc-bg'></div><div class='kb-wc-ov'></div>" +
+"<span class='kb-wc-ser' data-ev='" + esc(d.id || '') + "'></span></div>" +
+"<div class='kb-wc-body'>" +
+"<span class='kb-wc-pill kb-wc-mode'" + (d.id ? " data-ev='" + esc(d.id) + "'" : "") + "></span>" +
 "<h4>" + esc(d.title) + "</h4>" +
-"<div class='kb-wc-meta'><span class='kb-wc-who'></span>" + (d.date ? "<span>" + esc(d.date) + "</span>" : "") + "</div></div>";
+"<div class='kb-wc-meta'>" +
+"<span class='kb-wc-when'>" + svg(I_CAL, 'currentColor', 13) + "<span class='kb-wc-t'>" + esc(d.when) + "</span></span>" +
+"<span class='kb-wc-dur'>" + svg(I_CLOCK, 'currentColor', 13) + "<span class='kb-wc-t'>" + esc(d.dur) + "</span></span>" +
+"</div>" +
+"</div>";
 if (d.cover) { var bg = a.querySelector('.kb-wc-bg'); bg.style.backgroundImage = "url('" + d.cover + "')"; }
 grid.appendChild(a);
 });
 var owl = area.querySelector('.owl-carousel');
 (owl ? owl.parentElement : area).appendChild(grid);
 if (owl) owl.style.display = 'none';
+fillEventModes(grid);   
 }
 function moveEventsBelowReviews() {
 var events = document.querySelector('.profile-event-carousel');
@@ -3060,14 +3422,8 @@ if (aside.querySelector('.kb-ud-actcard')) return;
 var card = document.createElement('div');
 card.className = 'cd-sidecard cd-actcard kb-ud-actcard';
 card.innerHTML =
-'<a href="#" class="kb-ud-act btn-msg">' + svg(I_MSG, 'currentColor', 16) + 'Mesaj Gönder</a>' +
+'<span class="kb-ud-act btn-msg kb-ud-act--disabled" aria-disabled="true">' + svg(I_MSG, 'currentColor', 16) + 'Mesaj Gönder</span>' +
 '<a href="#" class="kb-ud-act btn-sess">' + svg(I_PLAY, 'currentColor', 16) + 'Canlı Oturumlarına Göz At</a>';
-var msg = card.querySelector('.btn-msg');
-msg.addEventListener('click', function (e) {
-e.preventDefault();
-var ac = document.querySelector('#acdiv, .profile-interact-btn a');
-if (ac) ac.click();
-});
 var sess = card.querySelector('.btn-sess');
 sess.addEventListener('click', function (e) {
 e.preventDefault();
