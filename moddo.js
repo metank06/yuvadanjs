@@ -108,14 +108,17 @@ return '<a href="' + href + '" data-kb-login="1">' + icon + ' <span>' + label + 
 }
 function headerActions() {
 var li = isLoggedIn();
-var out = loginLink();
+var privilege = '<a href="' + url('/s/ayricaliklar') + '" class="md-privilege">' + ICONS.gift + ' <span>Ayrıcalıklar Kulübü</span></a>';
 if (li) {
-out += '<a class="md-icon-btn" href="' + url('/mesajlar') + '" title="Mesajlarım" aria-label="Mesajlarım" data-kb-msg="1">' + ICONS.message + '</a>';
-out += '<a class="md-icon-btn" href="' + url('/cikis') + '" title="Çıkış Yap" aria-label="Çıkış Yap">' + ICONS.logout + '</a>';
-} else {
-out += '<a href="' + url('/signup') + '" class="md-cta-solid">Üye Ol</a>';
+var out = privilege;
+out += '<a href="' + url('/profile') + '" class="md-act-stack" data-kb-login="1" title="Panelim">' + ICONS.user + '<span>Panelim</span></a>';
+out += '<a href="' + url('/mesajlar') + '" class="md-act-stack" data-kb-msg="1" title="Mesajlarım">' + ICONS.message + '<span>Mesajlar</span></a>';
+out += '<a href="' + url('/cikis') + '" class="md-act-stack" title="Çıkış Yap">' + ICONS.logout + '<span>Çıkış Yap</span></a>';
+return out;
 }
-out += '<a href="' + url('/s/ayricaliklar') + '" class="md-privilege">' + ICONS.gift + ' <span>Ayrıcalıklar Kulübü</span></a>';
+var out = loginLink();
+out += '<a href="' + url('/signup') + '" class="md-cta-solid">Üye Ol</a>';
+out += privilege;
 return out;
 }
 function drawerActions() {
@@ -141,7 +144,6 @@ return [
 '<div class="md-header-tier1">',
 '<div class="md-container">',
 '<div class="md-header-tier1-inner">',
-'<a href="' + url(home) + '">ModdoDay</a>',
 '<a href="' + url(etkinlikler) + '">Canlı Oturumlar</a>',
 '<a href="' + url(danismanlar) + '">1:1 Danışmanlık</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
@@ -196,7 +198,7 @@ return [
 '</div>',
 '</div>',
 '<form class="md-search" role="search" data-kb-search="1">',
-'<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanına bağlanmak istiyorsun?" aria-label="Ara">',
+'<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="modunu/danışmanını ara" aria-label="Ara">',
 '</form>',
 '<div class="md-header-actions">',
 '          ' + headerActions() + '',
@@ -233,7 +235,7 @@ return [
 '<a href="' + url('/') + '" class="md-logo">Moddo<span>Day</span></a>',
 '<button class="md-drawer-close" type="button" aria-label="Kapat">' + ICONS.close + '</button>',
 '</div>',
-'<div class="md-drawer-search">' + ICONS.search + '<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Hangi konuda uzmanına bağlanmak istiyorsun?" aria-label="Ara"></div>',
+'<div class="md-drawer-search">' + ICONS.search + '<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="modunu/danışmanını ara" aria-label="Ara"></div>',
 '<nav class="md-drawer-nav">',
 '<a href="' + url('/') + '">Ana Sayfa</a>',
 '<a href="' + url('/etkinlikler') + '">Canlı Oturumlar</a>',
@@ -466,6 +468,62 @@ return String(s == null ? '' : s)
   window.addEventListener('load', function () {
     setTimeout(function () { injectChrome(); ensureSearch(); }, 300);
   });
+})();
+/* ============================================================
+   GLOBAL BREADCRUMB — anasayfa hariç tüm sayfalara "Ana Sayfa > [Sayfa]"
+   (İletişim'deki .kb-c-breadcrumb'ın global versiyonu; contact.js kendi
+   breadcrumb'ını kurar → orada bu atlanır, çift olmasın).
+   Yerleşim: native .page-header .page-title varsa oraya (contact gibi hero içi);
+   yoksa (custom-hero sayfalar) header'dan hemen sonra ince .kb-bc-bar.
+   ============================================================ */
+(function () {
+  var CHEV = '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>';
+  function localePrefix() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : ''; }
+  function esc(s) { return (s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;'); }
+  function isHome() { return /^\/([a-z]{2}-[A-Z]{2}\/?)?$/.test(location.pathname); }
+  /* etiket: birkaç sayfa için map (h1 yok/uygun değil), diğerleri ana h1'den */
+  function label() {
+    if (/\/s\/iletisim$/.test(location.pathname)) return 'İletişim'; /* h1 gradient'e çevrildi → URL'den */
+    var b = document.body ? document.body.classList : null;
+    if (!b) return null;
+    var MAP = { 'kb-page-blog': 'Blog', 'kb-page-signup': 'Üye Ol', 'kb-page-login': 'Giriş Yap', 'kb-page-profile': 'Panelim', 'kb-page-etkinlikler': 'Canlı Oturumlar', 'kb-page-uzmanlar': 'Danışmanlar' };
+    for (var k in MAP) if (b.contains(k)) return MAP[k];
+    var h = document.querySelector('.page-header .page-title h1, .kb-ud-hero h1, h1');
+    if (h) { var t = (h.textContent || '').replace(/\s+/g, ' ').trim(); if (t) return t; }
+    return null;
+  }
+  function build(lbl) {
+    var bc = document.createElement('nav');
+    bc.className = 'kb-breadcrumb';
+    bc.setAttribute('data-kb-bc', '1');
+    bc.innerHTML = '<a href="' + localePrefix() + '/">Ana Sayfa</a> <span class="kb-bc-sep">' + CHEV + '</span> <span class="kb-bc-cur">' + esc(lbl) + '</span>';
+    return bc;
+  }
+  var stop = false;
+  function inject() {
+    if (stop || !document.body) return;
+    if (isHome()) { stop = true; return; }
+    /* KRİTİK: moddo header (.md-header) hazır olmadan ANCHOR etme (yapı oturmamış olabilir). */
+    var header = document.querySelector('.md-header');
+    if (!header || !header.parentNode) return;
+    /* zaten varsa dokunma; YOKSA (silinmişse) yeniden ekle → self-heal */
+    if (document.querySelector('.kb-breadcrumb')) return;
+    var lbl = label();
+    if (!lbl) return;
+    /* TÜM sayfalarda aynı: header'ın hemen altına ince .kb-bc-bar (page-header/hero'ya DEĞİL) */
+    var bc = build(lbl);
+    var bar = document.createElement('div'); bar.className = 'kb-bc-bar'; bar.setAttribute('data-kb-bc-bar', '1');
+    var cont = document.createElement('div'); cont.className = 'md-container';
+    cont.appendChild(bc); bar.appendChild(cont);
+    header.parentNode.insertBefore(bar, header.nextSibling);
+  }
+  /* Poll (moddo.js HEAD'de çalışır → body/DCL yokken). Self-heal için done yerine
+     "silinirse yeniden ekle" mantığı; poll ~8sn sonra durur (yapı oturur). */
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', inject);
+  else inject();
+  window.addEventListener('load', function () { setTimeout(inject, 300); });
+  var tries = 0;
+  var iv = setInterval(function () { inject(); if (stop || ++tries > 26) clearInterval(iv); }, 300);
 })();
 /* ============================================================
    SECTION: LOGIN — /login DOM enhance (tasarım: moddo5 giris-yap.html)
@@ -1073,13 +1131,6 @@ function injectHero() {
 var title = document.querySelector('.page-header .page-title');
 if (!title) return;
 var h1ref = title.querySelector('h1');
-if (!title.querySelector('.kb-c-breadcrumb')) {
-var bc = document.createElement('nav');
-bc.className = 'kb-c-breadcrumb';
-bc.setAttribute('data-kb-c', 'breadcrumb');
-bc.innerHTML = '<a href="/">Ana Sayfa</a> <span class="kb-c-bc-sep">' + SVG.chev + '</span> <span class="kb-c-bc-cur">İletişim</span>';
-title.insertBefore(bc, title.firstChild);
-}
 if (!title.querySelector('.kb-c-badge')) {
 var bd = document.createElement('div');
 bd.className = 'kb-c-badge';
@@ -1249,6 +1300,137 @@ setTimeout(function () { mo.disconnect(); }, 5000);
 }
 })();
 (function () {
+function isPage() { return /(?:^|\/)s\/danismanlik-basvurusu$/.test(location.pathname.replace(/\/$/, '')); }
+if (!isPage()) return;
+function $(s, r) { return (r || document).querySelector(s); }
+var SVG = {
+briefcase: "<svg width='24' height='24' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><rect width='20' height='14' x='2' y='7' rx='2'/><path d='M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16'/></svg>",
+send: "<svg width='18' height='18' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><path d='m22 2-7 20-4-9-9-4Z'/><path d='M22 2 11 13'/></svg>"
+};
+function makeField(opts) {
+var w = document.createElement('div');
+w.className = 'md-kk-field' + (opts.full ? ' md-kk-field--full' : '');
+w.setAttribute('data-db', 'field-' + opts.name);
+var lab = document.createElement('label');
+lab.textContent = opts.label; lab.setAttribute('for', 'db-' + opts.name);
+w.appendChild(lab);
+var inp;
+if (opts.type === 'select') {
+inp = document.createElement('select');
+(opts.options || []).forEach(function (o) { var op = document.createElement('option'); op.value = o.v; op.textContent = o.t; inp.appendChild(op); });
+} else {
+inp = document.createElement('input'); inp.type = opts.type || 'text';
+if (opts.placeholder) inp.placeholder = opts.placeholder;
+}
+inp.id = 'db-' + opts.name; inp.name = 'kb_db_' + opts.name; inp.setAttribute('autocomplete', 'off');
+w.appendChild(inp);
+return w;
+}
+function buildGrid() {
+var pb = $('.page-body');
+var form = $('.form-container.contact-form');
+var aside = $('.md-kk-aside');
+if (!pb || !form || !aside) return;
+if ($('.md-kk-grid', pb)) return;
+var grid = document.createElement('div'); grid.className = 'md-kk-grid'; grid.setAttribute('data-db', 'grid');
+form.parentNode.insertBefore(grid, form);
+grid.appendChild(form);   
+grid.appendChild(aside);  
+}
+function foldMessage(formEl, msgInp) {
+try {
+var uzmanlik = (formEl.querySelector('#db-uzmanlik') || {}).value || '';
+if (uzmanlik && msgInp) {
+var orig = msgInp.value || '';
+if (orig.indexOf('[Uzmanlık Alanı:') !== 0) {
+msgInp.value = '[Uzmanlık Alanı: ' + uzmanlik + ']\n\n' + orig;
+}
+}
+} catch (e) {}
+}
+function enhanceForm() {
+var container = $('.form-container.contact-form');
+var formEl = $('#contact-form');
+if (!container || !formEl) return;
+if (formEl.getAttribute('data-db-built') === '1') return;
+var nameInp = formEl.querySelector('input[name="name"]');
+var emailInp = formEl.querySelector('input[name="email"]');
+var phoneInp = formEl.querySelector('input[name="phone"]');
+var msgInp = formEl.querySelector('textarea[name="message"]');
+var nameField = nameInp ? nameInp.closest('.field') : null;
+var emailField = emailInp ? emailInp.closest('.field') : null;
+var phoneField = phoneInp ? phoneInp.closest('.field') : null;
+var msgField = msgInp ? msgInp.closest('.field') : null;
+if (!nameField || !emailField || !phoneField || !msgField) return;
+if (!container.querySelector('.md-kk-form-head')) {
+var head = document.createElement('div'); head.className = 'md-kk-form-head'; head.setAttribute('data-db', 'form-head');
+head.innerHTML = "<span class='md-kk-fh-icn'>" + SVG.briefcase + "</span><div><h2>Başvuru Bilgileri</h2><p>Seni tanıyalım, uygun fırsatları paylaşalım</p></div>";
+formEl.insertBefore(head, formEl.firstChild);
+}
+var setLab = function (f, t) { var l = f.querySelector('label'); if (l) l.textContent = t; };
+var setPh = function (i, p) { if (i) i.setAttribute('placeholder', p); };
+setLab(nameField, 'Ad Soyad'); setPh(nameInp, 'Ad ve soyadınızı yazın');
+setLab(emailField, 'E-Posta'); setPh(emailInp, 'ornek@eposta.com');
+setLab(phoneField, 'Telefon'); setPh(phoneInp, '+90 5XX XXX XX XX');
+setLab(msgField, 'Mesajınız'); setPh(msgInp, 'Deneyiminizi, uzmanlık alanınızı ve beklentilerinizi kısaca yazın...');
+var uzmanlikField = makeField({ name: 'uzmanlik', label: 'Uzmanlık Alanınız', placeholder: 'Örn. Psikoloji, Finans, Hukuk, Yazılım...', full: true });
+if (!formEl.querySelector('.md-kk-row')) {
+var row = document.createElement('div'); row.className = 'md-kk-row'; row.setAttribute('data-db', 'row-ep');
+emailField.parentNode.insertBefore(row, emailField);
+row.appendChild(emailField); row.appendChild(phoneField);
+}
+if (!formEl.querySelector('[data-db="field-uzmanlik"]') && msgField.parentNode) {
+msgField.parentNode.insertBefore(uzmanlikField, msgField);
+}
+var fileInp = formEl.querySelector('#attachment');
+var fileField = fileInp ? fileInp.closest('.field') : null;
+if (fileField && !fileField.querySelector('.md-db-filelabel')) {
+var flab = document.createElement('label'); flab.className = 'md-db-filelabel'; flab.textContent = "CV'niz";
+fileField.insertBefore(flab, fileField.firstChild);
+var dzSpan = fileField.querySelector('label[for="attachment"] span');
+if (dzSpan) dzSpan.textContent = "CV'ni yükle (PDF, DOC, DOCX)";
+if (fileInp) fileInp.addEventListener('change', function () {
+var dzLab = fileField.querySelector('label[for="attachment"]');
+var has = fileInp.files && fileInp.files.length;
+if (dzSpan) dzSpan.textContent = has ? fileInp.files[0].name : "CV'ni yükle (PDF, DOC, DOCX)";
+if (dzLab) dzLab.classList.toggle('has-file', !!has);
+});
+}
+if (!formEl.querySelector('.md-kk-consent')) {
+var consent = document.createElement('div'); consent.className = 'md-kk-consent'; consent.setAttribute('data-db', 'consent');
+consent.innerHTML = "<input type='checkbox' id='db-kvkk'><label for='db-kvkk'><a href='/s/yasal' target='_blank'>Kullanım Koşulları, Gizlilik Politikası</a> ve <a href='/s/yasal' target='_blank'>KVKK Aydınlatma Metni</a>'ni okudum, kişisel verilerimin işlenmesini kabul ediyorum.</label>";
+var errP = document.createElement('p'); errP.className = 'md-kk-consent-err'; errP.textContent = 'Devam etmek için KVKK ve kullanım koşullarını onaylayın.';
+var submitBtn = formEl.querySelector('button[type="submit"], input[type="submit"]');
+var submitField = submitBtn && submitBtn.closest ? submitBtn.closest('.field') : null;
+if (submitField && submitField.parentNode) { submitField.parentNode.insertBefore(consent, submitField); submitField.parentNode.insertBefore(errP, submitField); }
+else { msgField.parentNode.appendChild(consent); msgField.parentNode.appendChild(errP); }
+}
+var btn = formEl.querySelector('button[type="submit"], input[type="submit"]');
+if (btn) { if (btn.tagName === 'INPUT') btn.value = 'BAŞVURUYU GÖNDER'; else btn.innerHTML = SVG.send + ' BAŞVURUYU GÖNDER'; }
+function gate(e) {
+var kvkk = formEl.querySelector('#db-kvkk');
+var err = formEl.querySelector('.md-kk-consent-err');
+if (kvkk && !kvkk.checked) {
+if (err) err.classList.add('is-show');
+if (e) { e.preventDefault(); e.stopImmediatePropagation && e.stopImmediatePropagation(); }
+return false;
+}
+if (err) err.classList.remove('is-show');
+foldMessage(formEl, msgInp);
+return true;
+}
+if (btn) btn.addEventListener('click', gate, true);
+formEl.addEventListener('submit', function (e) { if (!gate(e)) return; }, true);
+formEl.setAttribute('data-db-built', '1');
+}
+function enhance() { buildGrid(); enhanceForm(); }
+if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', enhance);
+else enhance();
+window.addEventListener('load', function () { setTimeout(enhance, 300); });
+var mo = new MutationObserver(function () { enhance(); });
+if (document.body) { mo.observe(document.body, { childList: true, subtree: true }); setTimeout(function () { mo.disconnect(); }, 6000); }
+})();
+(function () {
 function isPage() { return !!(document.body && document.body.classList.contains('kb-page-etkinlik-detay')); }
 function ic(p) { return "<svg viewBox='0 0 24 24' width='18' height='18' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'>" + p + "</svg>"; }
 var I = {
@@ -1300,9 +1482,26 @@ var startDate = (info[0] || '').match(/\d{1,2}\.\d{1,2}\.\d{4}/);
 startDate = startDate ? startDate[0] : (info[0] || '');
 var startTime = firstTime(info[1] || '');
 var dur = durMin(info[1] || '');
+var PLATFORM_TZ = 'Europe/Istanbul';  
+var _loggedIn = !!(document.body && (document.body.classList.contains('loggedIn') ||
+document.querySelector('.md-act-stack, a[href*="/cikis"], a[href*="logout"]')));
+var tzName = '';
+if (_loggedIn) {
+var _bl = ec.querySelectorAll('.expert-bottom .info-label');
+for (var _i = 0; _i < _bl.length; _i++) {
+var _ic = _bl[_i].querySelector('i');
+if (_ic && _ic.className.indexOf('fa-clock') >= 0) {
+var _sub = _bl[_i].querySelector('.sub');
+if (_sub) tzName = txt(_sub);
+break;
+}
+}
+} else {
+tzName = PLATFORM_TZ;
+}
 var metaItems = [];
 if (startDate) metaItems.push([I.cal, 'Tarih', startDate]);
-if (startTime) metaItems.push([I.clock, 'Saat', startTime + ' (UTC)']);
+if (startTime) metaItems.push([I.clock, 'Saat', startTime + (tzName ? ' (' + tzName + ')' : '')]);
 if (dur) metaItems.push([I.timer, 'Süre', dur]);
 if (cap) metaItems.push([I.users, 'Kapasite', /^\d+$/.test(cap) ? cap + ' kişi' : cap]);
 if (fmt) metaItems.push([I.globe, 'Format', fmt]);
@@ -1349,8 +1548,10 @@ if (exStars) { var em = sd.querySelector('.kb-sd-exmeta'); if (em) em.appendChil
 var tabs = ec.querySelector('.event-tabs-container');
 if (tabs) sd.querySelector('.kb-sd-tabslot').appendChild(tabs);
 var ab = sd.querySelector('.kb-sd-buybtns');
-var regs = [].slice.call(ec.querySelectorAll('.register-button, .join-free-button'));
+var regs = [].slice.call(ec.querySelectorAll('.register-button, .join-free-button, .go-events-page'));
 regs.reverse().forEach(function (reg) { if (reg && ab) ab.insertBefore(reg, ab.firstChild); });
+var purchased = ec.querySelector('.user-purchased-event-before');
+if (purchased && ab && !ab.querySelector('.user-purchased-event-before')) ab.appendChild(purchased);
 var social = ec.querySelector('.event-social-share');
 if (social) sd.querySelector('.kb-sd-share').appendChild(social);
 var related = ec.querySelector('.more-events-area');
@@ -3339,7 +3540,16 @@ var area = document.querySelector('.profile-event-carousel');
 if (!area || area.getAttribute('data-kb-wc')) return;
 var cards = [].slice.call(area.querySelectorAll('.owl-item:not(.cloned) .card'));
 if (!cards.length) cards = [].slice.call(area.querySelectorAll('.card'));
-if (!cards.length) return; 
+if (!cards.length) {
+var loading = area.querySelector('.profile-content-title, .owl-carousel, .owl-item');
+if (!loading && document.readyState !== 'loading' && area.innerHTML.replace(/\s/g, '').length < 40) {
+area.setAttribute('data-kb-wc', '1');
+area.innerHTML =
+"<h4 class='profile-content-title'>Yaklaşan Etkinliklerim</h4>" +
+"<div class='kb-ev-empty'>Bu uzmanımızın şu an etkinliği bulunmamaktadır.</div>";
+}
+return; 
+}
 var seen = {}, items = [];
 cards.forEach(function (c) {
 var title = txt(c.querySelector('.event-header-part span, .event-carousel-header-part')) || 'Etkinlik';
@@ -3650,70 +3860,100 @@ if (header && header.parentNode) header.parentNode.insertBefore(frag, header.nex
 else pageRoot.insertBefore(frag, pageRoot.firstChild);
 return filtersNode;
 }
-function cardHaystack(item) {
-var t = '';
-var el = item.querySelector('.item-title'); if (el) t += ' ' + el.textContent;
-el = item.querySelector('.kb-mode-tag'); if (el) t += ' ' + el.textContent;
-t += ' ' + cardModeText(item);   
-return t.toLocaleLowerCase('tr');
-}
-function cardModeText(item) {
-var t = '';
-var el = item.querySelector('.kb-mode-tag'); if (el) t += ' ' + el.textContent;
-var badge = item.querySelector('.kb-firm-modebadge'); if (badge) t += ' ' + badge.textContent;
-var dm = item.getAttribute('data-kb-modes'); if (dm) t += ' ' + dm;
-var cats = item.querySelectorAll('.profile-categories .pcategory-btn');
-for (var i = 0; i < cats.length; i++) t += ' ' + cats[i].textContent;
-return t;
-}
-function locale() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : ''; }
-var firmSvcCache = {};
-function parseHizmetlerTitles(html) {
-var m = html.match(/\[Hizmetler:\s*([^\]]*)\]/i);
-if (!m) return [];
-var seen = {}, out = [];
-m[1].split(';').forEach(function (s) {
-var t = s.split('|')[0].trim();
-if (t && !seen[t]) { seen[t] = 1; out.push(t); }   
-});
-return out;
-}
-function renderFirmTags(card, titles) {
-card.setAttribute('data-kb-tags', '1');
-if (!titles.length) return;
-var info = card.querySelector('.kb-firm-info');
-if (!info || info.querySelector('.kb-firm-tags')) return;
-var wrap = document.createElement('div');
-wrap.className = 'kb-firm-tags';
-titles.slice(0, 4).forEach(function (t) { var s = document.createElement('span'); s.textContent = t; wrap.appendChild(s); });
-var stats = info.querySelector('.kb-firm-stats');
-if (stats) info.insertBefore(wrap, stats); else info.appendChild(wrap);   
-}
-function loadFirmServices(grid) {
-var cards = grid.querySelectorAll('.item.kb-firm .item-c.kb-firm-card');
-[].forEach.call(cards, function (card) {
-if (card.getAttribute('data-kb-tags')) return;          
-var link = card.querySelector('.item-title a, .kb-firm-link, .item-image a');
-var href = link ? link.getAttribute('href') : null;
-if (!href) { card.setAttribute('data-kb-tags', '1'); return; }
-if (firmSvcCache[href]) { renderFirmTags(card, firmSvcCache[href]); return; }
-card.setAttribute('data-kb-tags', 'loading');
-fetch(href, { credentials: 'same-origin' })
-.then(function (r) { return r.text(); })
-.then(function (html) { var t = parseHizmetlerTitles(html); firmSvcCache[href] = t; renderFirmTags(card, t); })
-.catch(function () { card.setAttribute('data-kb-tags', '1'); });
-});
-}
-var CTA_BUILDING = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></svg>';
-var CTA_ARROW = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
-function injectFirmCta(pageRoot, grid) {
-if (pageRoot.querySelector('.kb-firm-cta')) return;
-var cta = document.createElement('div');
-cta.className = 'kb-firm-cta';
-cta.style.display = 'none';   
-cta.innerHTML =
-'<div class="kb-firm-cta-box">' + CTA_BUILDING +
-'<h3>Firmanızı ModdoDay\'e Ekleyin</h3>' +
+function injectCompanyToggle(filterNode) {
+if (!filterNode) return;
+if (filterNode.querySelector('.kb-u-cotoggle')) return;              
+var nativeCb = document.querySelector('#company, .company_filter input[name="company"]');
+if (!nativeCb) return;                                               
+var loc = locale();
+var allActive = /[?&]isFilter=1/.test(location.search);
+var coName = '';
+var lbl = document.querySelector('.company_filter label');
+if (lbl) { var m = lbl.textContent.match(/\(([^)]+)\)/); if (m) coName = m[1].trim(); }
+coName = coName.replace(/[<>&"]/g, '');                             /* DOM kaynaklı → minik escape */
+    var toggle = document.createElement('div');
+    toggle.className = 'kb-u-cotoggle';
+    toggle.setAttribute('role', 'group');
+    toggle.innerHTML =
+      '<a href="' + loc + '/uzmanlar" class="kb-u-cobtn' + (allActive ? '' : ' active') + '">' +
+        (coName ? coName + ' Uzmanları' : 'Şirketimin Uzmanları') + '</a>' +
+      '<a href="' + loc + '/uzmanlar?isFilter=1" class="kb-u-cobtn' + (allActive ? ' active' : '') + '">Tüm Uzmanlar</a>';
+    filterNode.appendChild(toggle);
+  }
+  /* Arama haystack'i: isim + KATEGORI (mod-tag + kategori pill'leri).
+     Meslek (unvan-title) aramaya DAHIL DEGIL — istek uzerine. */
+  function cardHaystack(item) {
+    var t = '';
+    var el = item.querySelector('.item-title'); if (el) t += ' ' + el.textContent;
+    el = item.querySelector('.kb-mode-tag'); if (el) t += ' ' + el.textContent;
+    t += ' ' + cardModeText(item);   /* firma badge + data-kb-modes + kategori pill'leri */
+    return t.toLocaleLowerCase('tr');
+  }
+  /* Mod eslesmesi sadece kategori/mod metni uzerinde.
+     FİRMA kartinda .kb-mode-tag/.profile-categories yok → mod .kb-firm-modebadge'de
+     ve TUM modlar data-kb-modes'ta (agent-cards buildFirmCard). Ikisini de oku. */
+  function cardModeText(item) {
+    var t = '';
+    var el = item.querySelector('.kb-mode-tag'); if (el) t += ' ' + el.textContent;
+    var badge = item.querySelector('.kb-firm-modebadge'); if (badge) t += ' ' + badge.textContent;
+    var dm = item.getAttribute('data-kb-modes'); if (dm) t += ' ' + dm;
+    var cats = item.querySelectorAll('.profile-categories .pcategory-btn');
+    for (var i = 0; i < cats.length; i++) t += ' ' + cats[i].textContent;
+    return t;
+  }
+  function locale() { var m = location.pathname.match(/^\/([a-z]{2}-[A-Z]{2})\//); return m ? '/' + m[1] : ''; }
+  /* ---- FİRMA HİZMET ETİKETLERİ (lazy-fetch) ----
+     Hizmetler firmanin about'undaki [Hizmetler: t|d; ...] marker'inda; LİSTEDE YOK.
+     Firma sekmesi acilinca ilgili profilleri 1 kez fetch edip [Hizmetler:] basliklarini
+     karta etiket basariz (tek kaynak=about, data duplikasyonu yok). slug→cache. */
+  var firmSvcCache = {};
+  function parseHizmetlerTitles(html) {
+    var m = html.match(/\[Hizmetler:\s*([^\]]*)\]/i);
+    if (!m) return [];
+    var seen = {}, out = [];
+    m[1].split(';').forEach(function (s) {
+      var t = s.split('|')[0].trim();
+      if (t && !seen[t]) { seen[t] = 1; out.push(t); }   /* mükerrer eler */
+    });
+    return out;
+  }
+  function renderFirmTags(card, titles) {
+    card.setAttribute('data-kb-tags', '1');
+    if (!titles.length) return;
+    var info = card.querySelector('.kb-firm-info');
+    if (!info || info.querySelector('.kb-firm-tags')) return;
+    var wrap = document.createElement('div');
+    wrap.className = 'kb-firm-tags';
+    titles.slice(0, 4).forEach(function (t) { var s = document.createElement('span'); s.textContent = t; wrap.appendChild(s); });
+    var stats = info.querySelector('.kb-firm-stats');
+    if (stats) info.insertBefore(wrap, stats); else info.appendChild(wrap);   /* sira: desc → etiket → stats */
+  }
+  function loadFirmServices(grid) {
+    var cards = grid.querySelectorAll('.item.kb-firm .item-c.kb-firm-card');
+    [].forEach.call(cards, function (card) {
+      if (card.getAttribute('data-kb-tags')) return;          /* loading|1 → atla (idempotent) */
+      var link = card.querySelector('.item-title a, .kb-firm-link, .item-image a');
+      var href = link ? link.getAttribute('href') : null;
+      if (!href) { card.setAttribute('data-kb-tags', '1'); return; }
+      if (firmSvcCache[href]) { renderFirmTags(card, firmSvcCache[href]); return; }
+      card.setAttribute('data-kb-tags', 'loading');
+      fetch(href, { credentials: 'same-origin' })
+        .then(function (r) { return r.text(); })
+        .then(function (html) { var t = parseHizmetlerTitles(html); firmSvcCache[href] = t; renderFirmTags(card, t); })
+        .catch(function () { card.setAttribute('data-kb-tags', '1'); });
+    });
+  }
+  /* ---- "Firmanızı ModdoDay'e Ekleyin" CTA (moddo5 .firm-cta) — yalnız firma sekmesi ---- */
+  var CTA_BUILDING = '<svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 22V4a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v18Z"/><path d="M6 12H4a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2"/><path d="M18 9h2a2 2 0 0 1 2 2v9a2 2 0 0 1-2 2h-2"/><path d="M10 6h4M10 10h4M10 14h4M10 18h4"/></svg>';
+  var CTA_ARROW = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M12 5l7 7-7 7"/></svg>';
+  function injectFirmCta(pageRoot, grid) {
+    if (pageRoot.querySelector('.kb-firm-cta')) return;
+    var cta = document.createElement('div');
+    cta.className = 'kb-firm-cta';
+    cta.style.display = 'none';   /* applyFilter firma sekmesinde gosterir */
+    cta.innerHTML =
+      '<div class="kb-firm-cta-box">' + CTA_BUILDING +
+      '<h3>Firmanızı ModdoDay\'e Ekleyin</h3>' +
 '<p>Mod Elçimiz olun, firmanızın logosunu yükleyin ve kurumsal wellbeing programınızı oluşturun. ModdoDay katılımcılarına özel oturumlar düzenleyin.</p>' +
 '<a class="kb-firm-cta-btn" href="' + locale() + '/s/iletisim">İletişime Geçin ' + CTA_ARROW + '</a>' +
 '</div>';
@@ -3801,7 +4041,7 @@ var header = pageRoot.querySelector('.page-header');
 if (header) injectIntro(header);
 var filterNode = pageRoot.querySelector('.kb-u-filters') || injectFilters(pageRoot);
 injectFirmCta(pageRoot, grid);
-if (filterNode) bindFilters(filterNode, grid);
+if (filterNode) { bindFilters(filterNode, grid); injectCompanyToggle(filterNode); }
 } finally {
 applying = false;
 if (mo && document.body) mo.observe(document.body, OBS_OPTS);
