@@ -1771,6 +1771,7 @@ $(document).ready(function() {
     $('.wrapper').css('background', '#fff');
     $('.agents.bg').attr('id', 'tikla');
     $($('.container')[1]).css('max-width', '100%');
+    $($('.container')[2]).css('max-width', '100%');
      $('.page-header .container').css('padding','0');
     $('.cramp-categories').css('background-color','#e9f2fb');
 $('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
@@ -1810,6 +1811,7 @@ $('.agents.bg').append(`
   if (window.location.pathname === '/tr-TR/hizmetler/ailem-icin') {
     $('.wrapper').css('background', '#fff');
    $($('.container')[1]).css('max-width', '100%');
+    $($('.container')[2]).css('max-width', '100%');
     $('.page-header .container').css('padding','0');
     $('.cramp-categories').css('background-color','#e9f2fb');
 $('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
@@ -1858,6 +1860,7 @@ document.querySelectorAll('.cramp-categories').forEach(function(el) {
   if (window.location.pathname === '/tr-TR/hizmetler/teknolojik-ve-akademik-danismanlik') {
     $('.wrapper').css('background', '#fff');
    $($('.container')[1]).css('max-width', '100%');
+    $($('.container')[2]).css('max-width', '100%');
      $('.page-header .container').css('padding','0');
     $('.cramp-categories').css('background-color','#e9f2fb');
 $('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
@@ -1899,6 +1902,7 @@ $('.agents.bg').append(`
   if (window.location.pathname === '/tr-TR/hizmetler/pedagoji-ve-psikolojik-destek') {
     $('.wrapper').css('background', '#fff');
    $($('.container')[1]).css('max-width', '100%');
+    $($('.container')[2]).css('max-width', '100%');
      $('.page-header .container').css('padding','0');
     $('.cramp-categories').css('background-color','#e9f2fb');
 $('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
