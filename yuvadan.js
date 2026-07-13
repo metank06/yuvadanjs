@@ -1843,8 +1843,8 @@ $('.agents.bg').append('<div class="widget-wrapper"><div class="agents__containe
 
   if(window.location.pathname === '/tr-TR/s/cocuklarim-icin'){
 
-$('.child-card-1').wrap('<a href="/cocugum-icin-pedagojik-ve-psikolojik"></a>');
-$('.child-card-2').wrap('<a href="/cocugum-icin-akademik"></a>');
+$('.child-card-1').wrap('<a href="/hizmetler/pedagoji-ve-psikolojik-destek"></a>');
+$('.child-card-2').wrap('<a href="/hizmetler/teknolojik-ve-akademik-danismanlik"></a>');
 
   }
 
