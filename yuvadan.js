@@ -1734,8 +1734,8 @@ $(function () {
 $(document).ready(function() {
 
   if (window.location.pathname === '/tr-TR/s/cocuklarim-icin') {
-    $('.wrapper').css('background', '#fcedcf !important');
-  }
+  document.querySelector('.wrapper').style.setProperty('background', '#fcedcf', 'important');
+}
 
 });
 
@@ -1764,8 +1764,8 @@ window.addEventListener("load", function(){
 $(document).ready(function() {
 
   if (window.location.pathname === '/tr-TR/s/cocuklarim-icin') {
-    $('.wrapper').css('background', '#fcedcf  !important');
-  }
+  document.querySelector('.wrapper').style.setProperty('background', '#fcedcf', 'important');
+}
 
   if (window.location.pathname === '/tr-TR/hizmetler/kendim-icin') {
     $('.wrapper').css('background', '#fff');
