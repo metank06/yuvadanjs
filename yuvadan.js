@@ -552,6 +552,14 @@ $('.status-icon').each(function() {
 
 });
 
+function kbSyncHeaderOffset(){
+  var h = document.querySelector('.header');
+  var w = document.querySelector('.wrapper');
+  if (h && w) w.style.paddingTop = h.offsetHeight + 'px';
+}
+window.addEventListener('load', kbSyncHeaderOffset);
+window.addEventListener('resize', kbSyncHeaderOffset);
+
 $(document).ready(function() {
 
       $('.header').prepend('<div class="header-massage"><p>Yeni Üyeliğe Özel 250 TL İndirim Seni Bekliyor! İndirim Kodu: <span class="kod-text" id="copyText">HOSGELDIN250 <i class="far fa-copy"></i></span><span class="copy-message">Kopyalandı!</span><span class="kupon-kullan">Kuponumu nasıl kullanırım?</span> <i class="fas fa-arrow-right"></i></p></div><div class="popup-overlay1"><div class="popup-content1"><p class="kupon-text">Üye olduktan sonra, profilinizdeki <span>"Kuponlar"</span> menüsüne girin. Kupon Kodunu ilgili alana yazıp <span>"Gönder"</span> butonuna basarak indirim kodunuzu hesabınıza ekleyebilirsiniz.</p><button class="kupon-kapat">Kapat</button></div></div>');
@@ -1726,7 +1734,7 @@ $(function () {
 $(document).ready(function() {
 
   if (window.location.pathname === '/s/cocuklarim-icin') {
-    $('.wrapper').css('background', '#fcedcf');
+    $('.wrapper').css('background', '#fcedcf !important');
   }
 
 });
