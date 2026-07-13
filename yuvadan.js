@@ -1764,13 +1764,13 @@ window.addEventListener("load", function(){
 $(document).ready(function() {
 
   if (window.location.pathname === '/tr-TR/s/cocuklarim-icin') {
-    $('.wrapper').css('background', '#fcedcf');
+    $('.wrapper').css('background', '#fcedcf  !important');
   }
 
   if (window.location.pathname === '/tr-TR/hizmetler/kendim-icin') {
     $('.wrapper').css('background', '#fff');
     $('.agents.bg').attr('id', 'tikla');
-    /*$('.container').css('max-width','100%');*/
+    $($('.container')[1]).css('max-width', '100%');
      $('.page-header .container').css('padding','0');
     $('.cramp-categories').css('background-color','#e9f2fb');
 $('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
@@ -1781,13 +1781,35 @@ $('.header .container').css({
     'margin': '0 auto'
 });
 
-$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-15"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-6 fs-10">Kendin için bir adım atmaya hazır mısın?</h2><div class="Band-cta-action"><a href="#" class="font-p cl-3 fs-7">Bana uygun uzmanı bul <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');
-
+$('.agents.bg').append(`
+  <div class="widget-wrapper">
+    <div class="agents__container">
+      <div class="widget-item">
+        <div class="trust__container">
+          <div class="trust-list">
+            <div class="trust-item">
+              <span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span>
+            </div>
+            <div class="trust-item">
+              <span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span>
+            </div>
+            <div class="trust-item">
+              <span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">%100 online</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+`);
   }
 
   if (window.location.pathname === '/tr-TR/hizmetler/ailem-icin') {
     $('.wrapper').css('background', '#fff');
-   /* $('.container').css('max-width','100%');*/
+   $($('.container')[1]).css('max-width', '100%');
     $('.page-header .container').css('padding','0');
     $('.cramp-categories').css('background-color','#e9f2fb');
 $('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
@@ -1798,8 +1820,34 @@ $('.header .container').css({
     'margin': '0 auto'
 });
 
-$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-title"><p class="font-p cl-4 fs-6 fw-1">Aile konuları özeldir.</p><p class="font-p cl-4 fs-7 op-1">Tüm görüşmeler gizlidir ve kayıt altına alınmaz.</p></div><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-18"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-6 fs-10">Aileniz için doğru adımı atın.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-11 fs-7">Ailem için doğru uzmanı bul <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');
-
+$('.agents.bg').append(`
+  <div class="widget-wrapper">
+    <div class="agents__container">
+      <div class="widget-item">
+        <div class="trust__container">
+          <div class="trust-title">
+            <p class="font-p cl-4 fs-6 fw-1">Aile konuları özeldir.</p>
+            <p class="font-p cl-4 fs-7 op-1">Tüm görüşmeler gizlidir ve kayıt altına alınmaz.</p>
+          </div>
+          <div class="trust-list">
+            <div class="trust-item">
+              <span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span>
+            </div>
+            <div class="trust-item">
+              <span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span>
+            </div>
+            <div class="trust-item">
+              <span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">%100 online</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+`);
 document.querySelectorAll('.cramp-categories').forEach(function(el) {
   el.style.setProperty('background', '#e8faf3', 'important');
 });
@@ -1809,7 +1857,7 @@ document.querySelectorAll('.cramp-categories').forEach(function(el) {
 
   if (window.location.pathname === '/tr-TR/hizmetler/teknolojik-ve-akademik-danismanlik') {
     $('.wrapper').css('background', '#fff');
-   /* $('.container').css('max-width','100%');*/
+   $($('.container')[1]).css('max-width', '100%');
      $('.page-header .container').css('padding','0');
     $('.cramp-categories').css('background-color','#e9f2fb');
 $('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
@@ -1820,13 +1868,37 @@ $('.header .container').css({
     'margin': '0 auto'
 });
 
-/*$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-15"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-6 fs-10">Akademik başarıda doğru adım.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-6 fs-7 bg-20">Akademik destek al <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');*/
+$('.agents.bg').append(`
+  <div class="widget-wrapper">
+    <div class="agents__container">
+      <div class="widget-item">
+        <div class="trust__container">
+          <div class="trust-list">
+            <div class="trust-item">
+              <span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span>
+            </div>
+            <div class="trust-item">
+              <span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span>
+            </div>
+            <div class="trust-item">
+              <span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">%100 online</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="widget-item bg-15"></div>
+    </div>
+  </div>
+`);
 
   }
 
   if (window.location.pathname === '/tr-TR/hizmetler/pedagoji-ve-psikolojik-destek') {
     $('.wrapper').css('background', '#fff');
-   /* $('.container').css('max-width','100%');*/
+   $($('.container')[1]).css('max-width', '100%');
      $('.page-header .container').css('padding','0');
     $('.cramp-categories').css('background-color','#e9f2fb');
 $('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
@@ -1837,7 +1909,31 @@ $('.header .container').css({
     'margin': '0 auto'
 });
 
-/*$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-22"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-4 fs-10">Çocuğunuz için doğru adımı atın.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-6 fs-7 bg-20">Akademik destek al <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');*/
+$('.agents.bg').append(`
+  <div class="widget-wrapper">
+    <div class="agents__container">
+      <div class="widget-item">
+        <div class="trust__container">
+          <div class="trust-list">
+            <div class="trust-item">
+              <span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span>
+            </div>
+            <div class="trust-item">
+              <span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span>
+            </div>
+            <div class="trust-item">
+              <span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span>
+              <span class="trust-text font-p cl-4 fs-7">%100 online</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="widget-item bg-22"></div>
+    </div>
+  </div>
+`);
 
   }
 
