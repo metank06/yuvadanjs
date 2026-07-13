@@ -1598,3 +1598,247 @@ setTimeout(function () { kbScan(); kbDecorateAll(); }, 800);
 setTimeout(function () { kbScan(); kbDecorateAll(); }, 1500);
 });
 })();
+
+/* ============================================================================
+   YUVADAN — YENİ TASARIM EK PARÇALARI (yalnızca YENİ olanlar)
+   ----------------------------------------------------------------------------
+   Bu dosya, prod'da çalışan github/CDN yuvadan.js (A) ile ÇAKIŞMAZ.
+   İçinde SADECE A'da (ve mevcut scripts_in_head'de) BULUNMAYAN yeni parçalar var.
+   A + bu dosya birlikte yüklenmeli (A'ya dokunulmadı).
+
+   DAHİL EDİLENLER (A'da yok → yeni):
+     1) Kategori listesi ok ikonu (.item-arrow)
+     2) 3 sütunlu MEGA menü builder (.large-menu)
+     3) Mobil menü başlık çubuğu + accordion davranışı
+     4) /s/cocuklarim-icin arka plan + .uzmanlari-incele smooth-scroll
+     5) isCategory → container column-reverse (window load)
+     6) Sayfaya özel widget'lar: kendim-icin / ailem-icin /
+        cocugum-icin-akademik / cocugum-icin-pedagojik / cocuklarim-icin
+
+   ÇIKARILANLAR (A'da / scripts_in_head'de zaten var → tekrar eklenmedi):
+     - Takvim observer (calendar-body-v2) + chat + "Kalan Seans"/"1 Seans"
+     - a[data-method="uc"] "Varolan Hediye Seanslarımla"  (A satır 70)
+     - yuva-navigator-wp yeniden düzenleme  (mevcut scripts_in_head'de)
+     - uzmanlar.js tam IIFE  (A içinde tam mevcut)
+     - Blog JSON-LD  (kullanıcı kendi koruyor)
+
+   Gereksinim: jQuery (prod'da A'dan önce yükleniyor).
+   ============================================================================ */
+
+
+/* ========== 1) Kategori listesi öğelerine ok ikonu (bir kez) ========== */
+$(function () {
+  $('.categories .list .item > a').each(function () {
+    if ($(this).find('.item-arrow').length) return;   // tekrar eklemeyi önle
+    $(this).append(' <i class="far fa-arrow-right item-arrow"></i>');
+  });
+});
+
+/* ========== 2) Menüyü 3 sütunlu mega yapıya dönüştür (bir kez) ========== */
+$(function () {
+  var $menu = $('.large-menu');
+  if (!$menu.length || $menu.data('mega-built')) return;
+
+  function grab(slug) {
+    var $col = $menu.find('.dd-column').filter(function () {
+      var h = $(this).children('a').first().attr('href') || '';
+      return h.indexOf(slug) !== -1;
+    }).first();
+    if (!$col.length) return null;
+    return {
+      headHref: $col.children('a').first().attr('href'),
+      subs: $col.children('a.sub-a').map(function () {
+        return { href: $(this).attr('href'), text: $(this).text().trim() };
+      }).get()
+    };
+  }
+
+  var akademik  = grab('cocugum-icin-akademik');
+  var pedagojik = grab('cocugum-icin-pedagojik');
+  var kendim    = grab('kendim-icin');
+  var ailem     = grab('ailem-icin');
+
+  function list(d){ return (d ? d.subs : []).map(function(s){
+    return '<a class="sub-a" href="'+s.href+'"><span>'+s.text+'</span></a>'; }).join(''); }
+  function card(label,d){ return d ? '<div class="mega-card"><a class="mega-sub" href="'+
+    d.headHref+'">'+label+'</a>'+list(d)+'</div>' : ''; }
+  function col(title,href,desc,inner){
+    var t = href ? '<a class="mega-title" href="'+href+'">'+title+'</a>'
+                 : '<h3 class="mega-title">'+title+'</h3>';
+    return '<div class="mega-col">'+t+'<p class="mega-desc">'+desc+'</p>'+inner+'</div>';
+  }
+
+  var html =
+    '<button type="button" class="mega-close" aria-label="Kapat">&times;</button>' +
+    col('Çocuğum İçin', null,
+        'Çocuğunuzun gelişimini destekleyin ve geleceğini güçlendirin.',
+        card('Akademik Destek', akademik) + card('Pedagojik &amp; Psikolojik', pedagojik)) +
+    col('Kendim İçin', kendim ? kendim.headHref : null,
+        'İyi hissetmek için kendinize zaman ayırın, ilk adımı bugün atın.',
+        '<div class="mega-list mega-card">'+list(kendim)+'</div>') +
+    col('Ailem İçin', ailem ? ailem.headHref : null,
+        'Aile bağlarınızı güçlendirin, desteğe her zaman yakın olun.',
+        '<div class="mega-list mega-card">'+list(ailem)+'</div>');
+
+  $menu.html(html).data('mega-built', true);
+
+  // Masaüstü panel X butonu menüyü kapatsın
+  $menu.on('click', '.mega-close', function (e) {
+    e.preventDefault(); e.stopPropagation();
+    $menu.hide();
+    $('.dd > a.expanded').removeClass('expanded');
+  });
+});
+
+/* ========== 3) Mobil: başlık çubuğu + accordion davranışı ========== */
+$(function () {
+  // Mobil başlık çubuğu (← Kategoriler ✕)
+  if ($('.nav-container').length && !$('.mobile-cat-header').length) {
+    $('.nav-container').prepend(
+      '<div class="mobile-cat-header">' +
+        '<button type="button" class="mch-close" aria-label="Kapat">&times;</button>' +
+      '</div>'
+    );
+  }
+  // Başlıktaki geri/kapat -> menüyü kapat
+  $(document).on('click', '.mch-close, .mch-back', function (e) {
+    e.preventDefault();
+    $('#nav-close').trigger('click');
+  });
+
+  // Varsayılan açık: Çocuğum İçin + ilk kart (Akademik)
+/*  $('.large-menu .mega-col:has(.mega-card)').addClass('mega-open');
+  $('.large-menu .mega-card').first().addClass('mega-open');*/
+
+  // Accordion aç/kapat (yalnız mobil; masaüstünde başlıklar link olarak çalışır)
+  $(document).on('click',
+    '.large-menu .mega-card > .mega-sub, .large-menu .mega-col > a.mega-title, .large-menu .mega-col > h3.mega-title',
+    function (e) {
+      if (window.innerWidth > 768) return;
+      e.preventDefault();
+      var $sec = $(this).hasClass('mega-sub') ? $(this).closest('.mega-card') : $(this).closest('.mega-col');
+      $sec.toggleClass('mega-open');
+    }
+  );
+});
+
+/* ========== 4) /s/cocuklarim-icin arka plan + .uzmanlari-incele smooth-scroll ========== */
+$(document).ready(function() {
+
+  if (window.location.pathname === '/s/cocuklarim-icin') {
+    $('.wrapper').css('background', '#fcedcf');
+  }
+
+});
+
+$(document).on('click', '.uzmanlari-incele', function (e) {
+  var $target = $('.agents.bg');
+  if (!$target.length) return;
+  e.preventDefault();
+
+  var headerOffset = 110;                          // fixed header payı
+  var y = $target.offset().top - headerOffset;
+
+  $('html, body').stop().animate({ scrollTop: y }, 900, 'swing');
+  //                                              ^süre(ms)  ^easing
+});
+
+/* ========== 5) isCategory → container column-reverse (window load) ========== */
+window.addEventListener("load", function(){
+  if(isCategory && isCategory == true) {
+    document.querySelector('body>.wrapper>.page>.page-header').style.paddingBottom = '0px';
+    document.querySelector('body>.wrapper>.page>.container').style.display = 'flex';
+    document.querySelector('body>.wrapper>.page>.container').style.flexDirection = 'column-reverse';
+  }
+});
+
+/* ========== 6) Sayfaya özel widget'lar (kendim/ailem/çocuğum/çocuklarım) ========== */
+$(document).ready(function() {
+
+  if (window.location.pathname === '/tr-TR/s/cocuklarim-icin') {
+    $('.wrapper').css('background', '#fcedcf');
+  }
+
+  if (window.location.pathname === '/tr-TR/kendim-icin') {
+    $('.wrapper').css('background', '#fff');
+    $('.agents.bg').attr('id', 'tikla');
+    $('.container').css('max-width','100%');
+     $('.page-header .container').css('padding','0');
+    $('.cramp-categories').css('background-color','#e9f2fb');
+$('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
+$('.header .container').css({
+    'position': 'relative',
+    'width': '100%',
+    'max-width': '1140px',
+    'margin': '0 auto'
+});
+
+$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-15"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-6 fs-10">Kendin için bir adım atmaya hazır mısın?</h2><div class="Band-cta-action"><a href="#" class="font-p cl-3 fs-7">Bana uygun uzmanı bul <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');
+
+  }
+
+  if (window.location.pathname === '/tr-TR/ailem-icin') {
+    $('.wrapper').css('background', '#fff');
+    $('.container').css('max-width','100%');
+    $('.page-header .container').css('padding','0');
+    $('.cramp-categories').css('background-color','#e9f2fb');
+$('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
+$('.header .container').css({
+    'position': 'relative',
+    'width': '100%',
+    'max-width': '1140px',
+    'margin': '0 auto'
+});
+
+$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-title"><p class="font-p cl-4 fs-6 fw-1">Aile konuları özeldir.</p><p class="font-p cl-4 fs-7 op-1">Tüm görüşmeler gizlidir ve kayıt altına alınmaz.</p></div><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-18"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-6 fs-10">Aileniz için doğru adımı atın.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-11 fs-7">Ailem için doğru uzmanı bul <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');
+
+document.querySelectorAll('.cramp-categories').forEach(function(el) {
+  el.style.setProperty('background', '#e8faf3', 'important');
+});
+
+  }
+
+
+  if (window.location.pathname === '/tr-TR/cocugum-icin-akademik') {
+    $('.wrapper').css('background', '#fff');
+    $('.container').css('max-width','100%');
+     $('.page-header .container').css('padding','0');
+    $('.cramp-categories').css('background-color','#e9f2fb');
+$('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
+$('.header .container').css({
+    'position': 'relative',
+    'width': '100%',
+    'max-width': '1140px',
+    'margin': '0 auto'
+});
+
+$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-15"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-6 fs-10">Akademik başarıda doğru adım.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-6 fs-7 bg-20">Akademik destek al <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');
+
+  }
+
+  if (window.location.pathname === '/tr-TR/hizmetler/pedagoji-ve-psikolojik-destek') {
+    $('.wrapper').css('background', '#fff');
+    $('.container').css('max-width','100%');
+     $('.page-header .container').css('padding','0');
+    $('.cramp-categories').css('background-color','#e9f2fb');
+$('.categories .section-content').prepend('<div class="categories__header"><h2 class="font-h2 cl-4 fs-10">Sunulan Destek Türleri</h2><p class="font-p cl-7 fs-6">İhtiyacınıza en uygun destek alanını seçin.</p></div></div>');
+$('.header .container').css({
+    'position': 'relative',
+    'width': '100%',
+    'max-width': '1140px',
+    'margin': '0 auto'
+});
+
+$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-22"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-4 fs-10">Çocuğunuz için doğru adımı atın.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-6 fs-7 bg-20">Akademik destek al <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');
+
+  }
+
+  if(window.location.pathname === '/tr-TR/s/cocuklarim-icin'){
+
+$('.child-card-1').wrap('<a href="/cocugum-icin-pedagojik-ve-psikolojik"></a>');
+$('.child-card-2').wrap('<a href="/cocugum-icin-akademik"></a>');
+
+  }
+
+});
+
