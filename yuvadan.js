@@ -809,3 +809,792 @@ $(document).ready(function() {
    }
 
 });
+
+(function () {
+function kbIsAgentsListPage() {
+if (typeof isCategory !== 'undefined' && isCategory) return false;
+if (typeof isAgentDetail !== 'undefined' && isAgentDetail) return false;
+if (typeof agentUrlGlobal === 'undefined' || !agentUrlGlobal) return false;
+var p = (window.location.pathname || '').replace(/\/+$/, '');
+var t = (agentUrlGlobal + '').replace(/\/+$/, '');
+if (!t) return false;
+if (t.charAt(0) !== '/') t = '/' + t;
+return p === t || p.endsWith(t);
+}
+function kbIsCategoryPage() {
+if (typeof isAgentDetail !== 'undefined' && isAgentDetail) return false;
+return typeof isCategory !== 'undefined' && !!isCategory;
+}
+function kbDecoratePage() { return kbIsAgentsListPage() || kbIsCategoryPage(); }
+function kbEnsurePageAgents() {
+if (!kbIsCategoryPage()) return;
+var pg = document.querySelector('.page');
+if (pg && !pg.classList.contains('agents')) pg.classList.add('agents');
+}
+var html = document.documentElement;
+if (kbDecoratePage()) {
+html.classList.add('kb-agents-list');
+}
+if (!kbDecoratePage()) return;
+kbEnsurePageAgents();
+function kbActiveValue() {
+var search = window.location.search || '';
+if (!search) return null;
+var qs = search.charAt(0) === '?' ? search.slice(1) : search;
+var pairs = qs.split('&');
+for (var i = 0; i < pairs.length; i++) {
+var eq = pairs[i].indexOf('=');
+if (eq < 0) continue;
+var k = decodeURIComponent(pairs[i].slice(0, eq).replace(/\+/g, ' '));
+var v = decodeURIComponent(pairs[i].slice(eq + 1).replace(/\+/g, ' '));
+if (k.slice(-2) === '[]' && v) return v;
+}
+return null;
+}
+function kbBuildPills() {
+var form = document.querySelector('#filter-form');
+if (!form) return;
+var page = document.querySelector('.page.agents');
+if (!page) return;
+var orderRow = page.querySelector('.list.flex.order-flex-list');
+if (!orderRow || !orderRow.parentNode) return;
+var allBars = document.querySelectorAll('.kb-pill-bar');
+var keepBar = null;
+Array.prototype.forEach.call(allBars, function (b) {
+if (b.previousSibling === orderRow || (b.parentNode === orderRow.parentNode && !keepBar)) {
+if (!keepBar) keepBar = b;
+else if (b.parentNode) b.parentNode.removeChild(b);
+} else if (b.parentNode) {
+b.parentNode.removeChild(b);
+}
+});
+if (keepBar) {
+page.dataset.kbPills = '1';
+kbSyncActive();
+return;
+}
+page.dataset.kbPills = '0';
+var checkboxes = form.querySelectorAll('input.dd-filter-item');
+if (!checkboxes.length) return;
+var bar = document.createElement('ul');
+bar.className = 'kb-pill-bar';
+var allLi = document.createElement('li');
+var allBtn = document.createElement('button');
+allBtn.type = 'button';
+allBtn.className = 'kb-pill kb-pill-all';
+allBtn.dataset.kbValue = '';
+allBtn.textContent = 'Tümü';
+allBtn.addEventListener('click', function (e) {
+e.preventDefault();
+kbApplyFilter('');
+});
+allLi.appendChild(allBtn);
+bar.appendChild(allLi);
+var seenLabels = {};
+Array.prototype.forEach.call(checkboxes, function (cb) {
+var lbl = cb.parentElement && cb.parentElement.querySelector('label');
+var labelText = (lbl && lbl.textContent || '').trim();
+if (!labelText) return;
+if (seenLabels[labelText]) return;
+seenLabels[labelText] = true;
+var li = document.createElement('li');
+var btn = document.createElement('button');
+btn.type = 'button';
+btn.className = 'kb-pill';
+btn.dataset.kbValue = cb.value;
+btn.dataset.kbCheckboxId = cb.id;
+btn.textContent = labelText;
+btn.addEventListener('click', function (e) {
+e.preventDefault();
+kbApplyFilter(cb.id);
+});
+li.appendChild(btn);
+bar.appendChild(li);
+});
+if (orderRow.nextSibling) {
+orderRow.parentNode.insertBefore(bar, orderRow.nextSibling);
+} else {
+orderRow.parentNode.appendChild(bar);
+}
+page.dataset.kbPills = '1';
+kbSyncActive();
+}
+function kbApplyFilter(checkboxId) {
+var form = document.querySelector('#filter-form');
+if (!form) return;
+var allCb = form.querySelectorAll('input[type="checkbox"]');
+Array.prototype.forEach.call(allCb, function (c) { c.checked = false; });
+if (checkboxId) {
+var target = document.getElementById(checkboxId);
+if (target) target.checked = true;
+}
+if (window.jQuery) window.jQuery(form).trigger('submit');
+else form.submit();
+}
+function kbSyncActive() {
+var bar = document.querySelector('.kb-pill-bar');
+if (!bar) return;
+var activeVal = kbActiveValue();
+var pills = bar.querySelectorAll('.kb-pill');
+var matched = false;
+Array.prototype.forEach.call(pills, function (p) {
+p.classList.remove('is-active');
+if (activeVal && p.dataset.kbValue === activeVal) {
+p.classList.add('is-active');
+matched = true;
+}
+});
+if (!matched) {
+var allBtn = bar.querySelector('.kb-pill-all');
+if (allBtn) allBtn.classList.add('is-active');
+}
+}
+var KB_VERIFIED_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" aria-hidden="true"><path fill="#16A34A" d="M12 1.5l2.55 1.86 3.15-.27 1.02 3 2.73 1.6-.99 3.01.99 3.01-2.73 1.6-1.02 3-3.15-.27L12 22.5l-2.55-1.86-3.15.27-1.02-3-2.73-1.6.99-3.01-.99-3.01 2.73-1.6 1.02-3 3.15.27z"></path><path fill="none" stroke="#FFFFFF" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M8.4 12.2l2.4 2.4 4.6-4.9"></path></svg>';
+var KB_CAL_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="18" rx="2"></rect><path d="M16 2v4M8 2v4M3 10h18"></path></svg>';
+var KB_TUNE_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="4" y1="21" x2="4" y2="14"></line><line x1="4" y1="10" x2="4" y2="3"></line><line x1="12" y1="21" x2="12" y2="12"></line><line x1="12" y1="8" x2="12" y2="3"></line><line x1="20" y1="21" x2="20" y2="16"></line><line x1="20" y1="12" x2="20" y2="3"></line><line x1="1" y1="14" x2="7" y2="14"></line><line x1="9" y1="8" x2="15" y2="8"></line><line x1="17" y1="16" x2="23" y2="16"></line></svg>';
+var KB_CHEV_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"></path></svg>';
+var KB_SORT_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m21 16-4 4-4-4"></path><path d="M17 20V4"></path><path d="m3 8 4-4 4 4"></path><path d="M7 4v16"></path></svg>';
+var KB_SEARCH_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path></svg>';
+function kbEnhanceControls() {
+var search = document.getElementById('searchBar');
+if (search) {
+var ph = 'Uzman, uzmanlık veya etiket ara...';
+if (search.placeholder !== ph) search.placeholder = ph;
+var sform = search.closest ? search.closest('form') : search.parentElement;
+if (sform) {
+if (!sform.classList.contains('kb-search-form')) sform.classList.add('kb-search-form');
+if (!sform.querySelector('.kb-search-ic')) {
+var sic = document.createElement('span');
+sic.className = 'kb-search-ic';
+sic.innerHTML = KB_SEARCH_SVG;
+sform.insertBefore(sic, sform.firstChild);
+}
+}
+}
+var orderDd = document.getElementById('order-dd');
+var navItem = search && search.closest ? search.closest('.item-empty') : null;
+if (orderDd && navItem) {
+if (!navItem.classList.contains('kb-search-bar')) navItem.classList.add('kb-search-bar');
+if (orderDd.dataset.kbMoved !== '1') {
+navItem.appendChild(orderDd);
+orderDd.dataset.kbMoved = '1';
+}
+var ob = orderDd.querySelector('button');
+if (ob && ob.dataset.kbSort !== '1') {
+ob.dataset.kbSort = '1';
+ob.innerHTML = '<span class="kb-tune-ic">' + KB_SORT_SVG + '</span>'
++ '<span class="kb-sort-label">Önerilenler</span>'
++ '<span class="kb-chev-ic">' + KB_CHEV_SVG + '</span>';
+}
+}
+}
+function kbWireSortMenu() {
+var dd = document.getElementById('order-dd');
+if (!dd) return;
+var ul = dd.querySelector('ul');
+if (!ul) return;
+if (!ul.querySelector('.kb-sort-recommended')) {
+var rli = document.createElement('li');
+rli.className = 'kb-sort-recommended';
+var ra = document.createElement('a');
+ra.href = 'javascript:void(0);';
+ra.textContent = 'Önerilenler';
+rli.appendChild(ra);
+ul.insertBefore(rli, ul.firstChild);
+ra.addEventListener('click', function (e) {
+e.preventDefault();
+e.stopPropagation();
+var cb0 = dd.querySelector('input[type="checkbox"]'); if (cb0) cb0.checked = false;   
+var form = document.getElementById('filter-form');
+var oi = form ? form.querySelector('input[name="order"]') : null;
+if (oi) oi.value = '';   
+if (form) { if (window.jQuery) window.jQuery(form).trigger('submit'); else form.submit(); }
+});
+}
+var recLi = ul.querySelector('.kb-sort-recommended');
+if (recLi) {
+var recA = recLi.querySelector('a');
+if (recA) {
+if (recA.textContent.trim() !== 'Önerilenler') recA.textContent = 'Önerilenler';
+if (recA.dataset.kbOnerObs !== '1') {
+recA.dataset.kbOnerObs = '1';
+try {
+var mo = new MutationObserver(function () {
+if (recA.textContent.trim() !== 'Önerilenler') recA.textContent = 'Önerilenler';
+});
+mo.observe(recA, { childList: true, characterData: true, subtree: true });
+} catch (e) {}
+}
+}
+}
+var items = dd.querySelectorAll('ul li:not(.divider)');
+if (!items.length) return;
+var curOrder = '';
+var om = (window.location.search || '').match(/[?&]order=([^&]*)/);
+if (om) curOrder = decodeURIComponent(om[1] || '').trim();
+if (!curOrder) {
+var oi2 = document.querySelector('#filter-form input[name="order"]');
+if (oi2 && oi2.value) curOrder = String(oi2.value).trim();
+}
+var targetLi = null;
+if (curOrder && curOrder !== '0') {
+Array.prototype.forEach.call(items, function (li) {
+var la = li.querySelector('a');
+var oc = la ? (la.getAttribute('onclick') || '') : '';
+var vm = oc.match(/val\(\s*['"]?(\d+)['"]?\s*\)/);
+        if (vm && vm[1] === curOrder) targetLi = li;
+      });
+    }
+    if (!targetLi) targetLi = ul.querySelector('.kb-sort-recommended') || items[0];
+    Array.prototype.forEach.call(dd.querySelectorAll('ul li'), function (x) { x.classList.remove('kb-sort-active'); });
+    targetLi.classList.add('kb-sort-active');
+    var slbl = dd.querySelector('.kb-sort-label');
+    var tla = targetLi.querySelector('a');
+    if (slbl && tla) { var tt = (tla.textContent || '').trim(); if (tt) slbl.textContent = tt; }
+    if (dd.dataset.kbSortWired === '1') return;
+    dd.dataset.kbSortWired = '1';
+    Array.prototype.forEach.call(items, function (li) {
+      if (li.classList.contains('kb-sort-recommended')) return;   /* kendi reload handler'i var */
+      var a = li.querySelector('a');
+      if (!a) return;
+      a.addEventListener('click', function () {
+        Array.prototype.forEach.call(dd.querySelectorAll('ul li'), function (x) { x.classList.remove('kb-sort-active'); });
+        li.classList.add('kb-sort-active');
+        var lbl = dd.querySelector('.kb-sort-label');
+        if (lbl) { var t = (a.textContent || '').trim(); if (t) lbl.textContent = t; }
+        var cb = dd.querySelector('input[type="checkbox"]'); if (cb) cb.checked = false;
+      });
+    });
+  }
+  /* MOBIL: pill satiri yerine "Filtre" butonu → tiklayinca #filter-form panel olarak acilir
+     (Sirketime Ozel Uzmanlar[varsa] + kategori gruplari accordion, coktan secmeli sub-checkbox).
+     Buton #filter-form'dan hemen once inject; desktop'ta CSS ile gizli. Idempotent. */
+  function kbMobileFilter() {
+    var form = document.getElementById('filter-form');
+    if (!form || !form.parentNode) return;
+    var btn = document.querySelector('.kb-filter-btn');   /* document-wide: tek buton */
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'kb-filter-btn';
+      btn.innerHTML = '<span class="kb-filter-ic">' + KB_TUNE_SVG + '</span>'
+        + '<span class="kb-filter-label">Filtre</span>'
+        + '<span class="kb-filter-chev">' + KB_CHEV_SVG + '</span>';
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        var f = document.getElementById('filter-form');   /* re-query (form re-render'a dayanikli) */
+        if (!f) return;
+        var open = f.classList.toggle('kb-mfilter-open');
+        btn.classList.toggle('is-open', open);
+      });
+      if (!document.body.dataset.kbMFilterOutside) {
+        document.body.dataset.kbMFilterOutside = '1';
+        document.addEventListener('click', function (e) {
+          if (e.target.closest && (e.target.closest('#filter-form') || e.target.closest('.kb-filter-btn'))) return;
+          var f = document.getElementById('filter-form');
+          if (f) f.classList.remove('kb-mfilter-open');
+          var kb = document.querySelector('.kb-filter-btn'); if (kb) kb.classList.remove('is-open');
+        });
+      }
+    }
+    /* KRITIK: butonu HER kbScan'de #filter-form'un hemen ONUNE (re)yerlestir. navigator-wp /
+       native JS #filter-form'u baska parent'a tasiyinca buton oksuz kaliyor → panel butonun
+       ustunde aciliyordu. Bu satir butonu daima form ile bitisik + form'dan ONCE tutar. */
+    if (form.previousElementSibling !== btn) {
+      form.parentNode.insertBefore(btn, form);
+    }
+    /* Parent'i isaretle → mobilde CSS ile block yapilir (buton+panel dikey stack; parent
+       flex-row ise buton+form yan yana gelip panel butonun ustunde/yaninda kaliyordu). */
+    if (form.parentNode && !form.parentNode.classList.contains('kb-mfilter-host')) {
+      form.parentNode.classList.add('kb-mfilter-host');
+    }
+  }
+  /* ---- "Şirketime Özel Uzmanlar" (B2B) — NATIVE company filtresini kullan ----
+     Sentetik buton YOK. Native: login + Company aktif + user.company_id varsa, Agents.php
+     başka filtre yoksa $_GET['company']='1' set eder → gizli #filter-form içindeki
+     native .company_filter (#company checkbox + label) CHECKED gelir. CSS ile o native
+     kontrol pill olarak gösterilir/stillenir (kategori dropdown'ları gizli kalır; :has
+     ile checked → yeşil seçili). JS sadece: label metnini sadeleştir + checkbox değişince
+     formu submit et (label[for=company] tıkı checkbox'ı toggle eder, native auto-submit yok). */
+  function kbWireCompanyFilter() {
+    var cb = document.getElementById('company');
+    if (!cb) return;
+    var lbl = document.querySelector('.company_filter label[for="company"]');
+    if (lbl && lbl.textContent.trim() !== 'Şirketime Özel Uzmanlar') {
+      lbl.textContent = 'Şirketime Özel Uzmanlar';
+    }
+    if (cb.dataset.kbWired !== '1') {
+      cb.dataset.kbWired = '1';
+      cb.addEventListener('change', function () {
+        var form = document.getElementById('filter-form');
+        if (form) { if (window.jQuery) window.jQuery(form).trigger('submit'); else form.submit(); }
+      });
+    }
+  }
+  /* ---- Kategori filtre grup dropdown'lari (native .dropdown-filter) ----
+     Gizli #filter-form gorunur; native .dropdown-filter (grup adi butonu + .filter-ul alt
+     kategori checkbox'lari) mockup pill'i olarak CSS'te stillenir. Native aç/kapa
+     (.main-filter-dd:checked ~ ul) kirilgan → JS ile .is-open toggle; alt kategori secilince
+     auto-submit; disari tik → kapat. Sadece #filter-form varsa (ana liste) çalisir. */
+  function kbWireDropdownFilters() {
+    var dds = document.querySelectorAll('#filter-form .dropdown-filter');
+    if (!dds.length) return;
+    Array.prototype.forEach.call(dds, function (dd) {
+      if (dd.dataset.kbDd !== '1') {
+        dd.dataset.kbDd = '1';
+        var btn = dd.querySelector('button');
+        if (btn) {
+          btn.addEventListener('click', function (e) {
+            e.preventDefault();
+            e.stopPropagation();
+            var wasOpen = dd.classList.contains('is-open');
+            Array.prototype.forEach.call(document.querySelectorAll('#filter-form .dropdown-filter.is-open'), function (o) { o.classList.remove('is-open'); });
+            if (!wasOpen) {
+              dd.classList.add('is-open');
+              /* mobil: menu position:fixed (yatay scroll strip'in overflow clip'inden kacar) → top'u butona gore ayarla */
+              var ul = dd.querySelector('.filter-ul');
+              if (ul && window.matchMedia && window.matchMedia('(max-width: 767px)').matches) {
+                var r = (dd.querySelector('button') || dd).getBoundingClientRect();
+                ul.style.setProperty('top', (r.bottom + 6) + 'px', 'important');
+              }
+            }
+          });
+        }
+        Array.prototype.forEach.call(dd.querySelectorAll('.dd-filter-item'), function (item) {
+          item.addEventListener('change', function () {
+            var form = document.getElementById('filter-form');
+            if (form) { if (window.jQuery) window.jQuery(form).trigger('submit'); else form.submit(); }
+          });
+        });
+      }
+    });
+    if (!document.body.dataset.kbDdOutside) {
+      document.body.dataset.kbDdOutside = '1';
+      document.addEventListener('click', function (e) {
+        if (e.target.closest && e.target.closest('.dropdown-filter')) return;
+        Array.prototype.forEach.call(document.querySelectorAll('#filter-form .dropdown-filter.is-open'), function (o) { o.classList.remove('is-open'); });
+      });
+    }
+  }
+  /* URL'deki aktif alt kategori (parent[]=value) checkbox'larini re-check et → :has ile
+     pill aktif gorunur + menude secili satir. Native reload'da re-check etmiyor. */
+  function kbSyncDropdownActive() {
+    var search = window.location.search || '';
+    if (!search) return;
+    var qs = search.charAt(0) === '?' ? search.slice(1) : search;
+    var active = {};
+    qs.split('&').forEach(function (p) {
+      var eq = p.indexOf('='); if (eq < 0) return;
+      var k = decodeURIComponent(p.slice(0, eq).replace(/\+/g, ' '));
+      var v = decodeURIComponent(p.slice(eq + 1));   /* value underscore'lu; + → space YAPMA */
+      if (k.slice(-2) === '[]' && v) active[v] = 1;
+    });
+    Array.prototype.forEach.call(document.querySelectorAll('#filter-form .dd-filter-item'), function (item) {
+      if (active[item.value] && !item.checked) item.checked = true;
+    });
+  }
+  function kbScan() {
+    kbEnsurePageAgents();     /* kategori sayfasinda .page.agents garanti (kbDecorateAll'dan once) */
+    kbWireCompanyFilter();    /* B2B native company filtresi (sadece sirket kullanicisi) */
+    kbWireDropdownFilters();  /* kategori grup dropdown pill'leri (ana liste) */
+    kbSyncDropdownActive();   /* URL'e gore aktif alt kategorileri isaretle */
+    kbEnhanceControls();      /* #searchBar/#order-dd yoksa (kategori) no-op */
+    kbWireSortMenu();         /* siralama menusu: secili ogede yesil onay + etiket guncelle */
+    kbMobileFilter();         /* mobil: "Filtre" butonu + panel (company + gruplar) */
+  }
+  /* ============================================================
+     KART DECORATE — yeni tasarim
+     .agents .item DCL'de null, deferred inject. window.load +
+     setTimeout(300) + MutationObserver ile yakalan, livelock'u
+     onlemek icin data-kb-card markeri kullan.
+     ============================================================ */
+  function kbExtractRating(starsEl) {
+    if (!starsEl) return null;
+    var stars = starsEl.querySelectorAll('.i-star');
+    if (!stars.length) return null;
+    return stars.length;
+  }
+  /* Yildiz icon'unu Unicode "★" yerine inline SVG ile degistir. Sadece ilk
+     .i-star gorunur (digerleri CSS'te display:none); yine de hepsini idempotent
+     olarak swap'lariz ki sonradan visibility degisirse hazir olsun.
+     Idempotent: span'a data-kb-star="1" markeri konur; ikinci cagri no-op. */
+  var KB_STAR_SVG = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="kb-star-svg" aria-hidden="true"><path d="M11.525 2.295a.53.53 0 0 1 .95 0l2.31 4.679a2.123 2.123 0 0 0 1.595 1.16l5.166.756a.53.53 0 0 1 .294.904l-3.736 3.638a2.123 2.123 0 0 0-.611 1.878l.882 5.14a.53.53 0 0 1-.771.56l-4.618-2.428a2.122 2.122 0 0 0-1.973 0L6.396 21.01a.53.53 0 0 1-.77-.56l.881-5.139a2.122 2.122 0 0 0-.611-1.879L2.16 9.795a.53.53 0 0 1 .294-.906l5.165-.755a2.122 2.122 0 0 0 1.597-1.16z"></path></svg>';
+  function kbReplaceStarIcon(c) {
+    if (!c) return;
+    var stars = c.querySelectorAll('.profile-review-stars .i-star');
+    if (!stars.length) return;
+    Array.prototype.forEach.call(stars, function (s) {
+      if (s.dataset.kbStar === '1') return;
+      s.innerHTML = KB_STAR_SVG;
+      s.dataset.kbStar = '1';
+    });
+  }
+  /* Status-class -> availability metni eslemesi (canli statusUpdate'da da kullanilir) */
+  function kbAvailabilityText(c) {
+    if (!c) return 'Müsait';
+    if (c.classList.contains('online')) return 'Randevu Alınabilir';
+    if (c.classList.contains('busy')) return 'Meşgul';
+    if (c.classList.contains('offline')) return 'Çevrimdışı';
+    return 'Randevu Alınabilir';
+  }
+  /* Bir kartin .kb-availability text'ini c'nin guncel class'ina gore senkronla.
+     Idempotent: ayni text ise dokunmaz (livelock korumasi). */
+  function kbSyncAvailability(c) {
+    if (!c) return;
+    var img = c.querySelector('.item-image');
+    if (!img) return;
+    var av = img.querySelector('.kb-availability');
+    if (!av) return;
+    var want = kbAvailabilityText(c);
+    if (av.textContent !== want) av.textContent = want;
+  }
+  /* Chip decorate — marker'dan BAGIMSIZ; her run'da yeniden hesaplanir.
+     Geç inject edilen veya yenilenen .profile-categories icin gerekli.
+     Idempotent: ayni sonucta DOM'a yazmaz (writeIfChanged) — MO livelock yok. */
+  function kbDecorateChips(c) {
+    if (!c) return;
+    var pcGroups = c.querySelectorAll('.profile-categories');
+    if (!pcGroups.length) return;
+    /* Native agent.list.php: ONCE TAGS grubu (satir 62-71: $A->tags, tag_view==1), SONRA
+       KATEGORILER grubu (satir 73-79: $A->category). Kart'ta KATEGORILER gorunmeli → SON
+       .profile-categories grubunu (kategoriler) goster, oncekini (tags "Etiket 1/2") gizle.
+       Local'de tag yoksa tek grup=kategoriler → yine dogru. (CSS: .kb-group-hidden{display:none}) */
+    var catGroup = pcGroups[pcGroups.length - 1];
+    for (var gi = 0; gi < pcGroups.length; gi++) {
+      var isCat = pcGroups[gi] === catGroup;
+      var hasHidden = pcGroups[gi].classList.contains('kb-group-hidden');
+      if (!isCat && !hasHidden) pcGroups[gi].classList.add('kb-group-hidden');
+      else if (isCat && hasHidden) pcGroups[gi].classList.remove('kb-group-hidden');
+    }
+    /* Gercek kategori chip'leri (JS-injected .kb-more-tags HARIC) */
+    var realBtns = catGroup.querySelectorAll('.pcategory-btn');
+    var total = realBtns.length;
+    var visibleLimit = 2;
+    var hiddenCount = (total > visibleLimit ? total - visibleLimit : 0);
+    /* Hedef state'i hesapla, sonra writeIfChanged ile uygula */
+    var existingMore = catGroup.querySelector('.kb-more-tags');
+    var existingMoreText = existingMore ? existingMore.textContent : null;
+    var wantMoreText = hiddenCount > 0 ? '+' + hiddenCount : null;
+    /* Once chip'lerin .kb-hidden state'ini sync et */
+    Array.prototype.forEach.call(realBtns, function (b, i) {
+      var shouldHide = i >= visibleLimit;
+      var has = b.classList.contains('kb-hidden');
+      if (shouldHide && !has) b.classList.add('kb-hidden');
+      else if (!shouldHide && has) b.classList.remove('kb-hidden');
+    });
+    /* +N pill — gerek yoksa sil, varsa text guncelle, yoksa olustur */
+    if (!wantMoreText) {
+      if (existingMore && existingMore.parentNode) {
+        existingMore.parentNode.removeChild(existingMore);
+      }
+    } else if (existingMore) {
+      if (existingMoreText !== wantMoreText) existingMore.textContent = wantMoreText;
+    } else {
+      var more = document.createElement('span');
+      more.className = 'kb-more-tags';
+      more.textContent = wantMoreText;
+      catGroup.appendChild(more);
+    }
+  }
+  /* .profile-categories icindeki childList degisimlerini izle —
+     chip yeniden inject edildiginde decorate'i yeniden cagir. Livelock guvenli:
+     kbDecorateChips writeIfChanged. */
+  function kbInstallChipObserver(c) {
+    if (!c) return;
+    var groups = c.querySelectorAll('.profile-categories');
+    Array.prototype.forEach.call(groups, function (g) {
+      if (g.dataset.kbChipObs === '1') return;
+      g.dataset.kbChipObs = '1';
+      try {
+        var mo = new MutationObserver(function () {
+          kbDecorateChips(c);
+        });
+        mo.observe(g, { childList: true });
+      } catch (e) { /* no-op */ }
+    });
+  }
+  /* Isim + Unvan + Rating'i tek wrapper icine tasi. Yapi:
+       .kb-title-wrap (flex column, sabit min-height)
+         .kb-title-row (flex row, baseline=flex-start)
+           .item-title  (flex:1, max-width: calc(100% - 60px))
+           .profile-review-stars  (flex:0 0 auto, kompakt: ★ 5.0)
+         .unvan-title
+     Idempotent: tum elemanlar zaten dogru yapidaysa cikis.
+     "(N)" comment-count CSS ile gizleniyor — sadece yildiz + sayi kalir. */
+  function kbWrapTitle(c) {
+    if (!c) return;
+    /* Eski/orphan: kart icinde HERHANGI BIR yerde BOS .kb-title-wrap kalmis olabilir. */
+    var orphans = c.querySelectorAll('.kb-title-wrap');
+    Array.prototype.forEach.call(orphans, function (o) {
+      if (o.children.length === 0 && o.parentNode) {
+        o.parentNode.removeChild(o);
+      }
+    });
+    /* Bos .kb-title-row temizle. */
+    var orphanRows = c.querySelectorAll('.kb-title-row');
+    Array.prototype.forEach.call(orphanRows, function (o) {
+      if (o.children.length === 0 && o.parentNode) {
+        o.parentNode.removeChild(o);
+      }
+    });
+    var title = c.querySelector('.item-title');
+    var unvan = c.querySelector('.unvan-title');
+    var stars = c.querySelector('.profile-review-stars');
+    if (!title && !unvan) return;
+    /* Hedef parent: Yuvadan template'inde .uzm-card-col-r mevcut — wrap onun
+       icine ILK CHILD olarak girer (resim .uzm-card-col-l'de, sonra wrap, sonra
+       box2/3/4 gelir). Boylece visual order: foto -> isim+rating+unvan -> chip -> buton.
+       Yuvadan disinda fallback: title'in mevcut parent'i. */
+    var colR = c.querySelector('.uzm-card-col-r');
+    /* FALLBACK = .item-c (title.parentNode DEĞİL). Prod'da FLAT DOM'da (.uzm-card yok)
+       title bir kez wrap'e taşınınca parentNode wrap'in İÇİNE düşüyor → insertBefore'da
+       "new child contains parent" (HierarchyRequestError). c her zaman wrap'in ATASI. */
+    var desiredParent = colR || c;
+    if (!desiredParent) return;
+    /* Idempotent kontrolu:
+       - title ve stars ayni .kb-title-row altinda
+       - row'un parent'i .kb-title-wrap
+       - unvan da .kb-title-wrap altinda
+       - wrap'in parent'i desiredParent (Yuvadan'da .uzm-card-col-r) */
+    var titleRow = title && title.parentElement && title.parentElement.classList.contains('kb-title-row') ? title.parentElement : null;
+    var existingWrap = titleRow && titleRow.parentElement && titleRow.parentElement.classList.contains('kb-title-wrap') ? titleRow.parentElement : null;
+    var rowOk = titleRow
+      && existingWrap
+      && (!stars || stars.parentElement === titleRow);
+    var unvanInWrapOk = !unvan
+      || (unvan.parentElement && unvan.parentElement.classList.contains('kb-title-wrap'));
+    var parentOk = existingWrap && existingWrap.parentElement === desiredParent
+      && desiredParent.firstElementChild === existingWrap;
+    if (rowOk && unvanInWrapOk && parentOk) {
+      c.dataset.kbTitleWrap = '1';
+      return;
+    }
+    /* Var olan wrap'i bulup yeniden kullan, yoksa yenisini olustur.
+       Wrap her durumda desiredParent'in ILK child'i olmali. */
+    var wrap = c.querySelector('.kb-title-wrap');
+    if (!wrap) {
+      wrap = document.createElement('div');
+      wrap.className = 'kb-title-wrap';
+    }
+    /* Wrap'i dogru parent'in basina yerlestir */
+    if (wrap.parentElement !== desiredParent || desiredParent.firstElementChild !== wrap) {
+      if (desiredParent.firstChild) desiredParent.insertBefore(wrap, desiredParent.firstChild);
+      else desiredParent.appendChild(wrap);
+    }
+    /* Row icin: var olan kullan, yoksa olustur. Wrap'in ilk child'i olmali. */
+    var row = wrap.querySelector(':scope > .kb-title-row');
+    if (!row) {
+      row = document.createElement('div');
+      row.className = 'kb-title-row';
+      if (wrap.firstChild) wrap.insertBefore(row, wrap.firstChild);
+      else wrap.appendChild(row);
+    } else if (wrap.firstChild !== row) {
+      wrap.insertBefore(row, wrap.firstChild);
+    }
+    /* Title -> row */
+    if (title && title.parentElement !== row) row.appendChild(title);
+    /* Stars -> row (title'dan sonra). Stars opsiyonel. */
+    if (stars && stars.parentElement !== row) row.appendChild(stars);
+    /* Sira: title once, stars sonra */
+    if (title && stars && title.nextSibling !== stars) {
+      row.appendChild(stars);
+    }
+    /* Unvan -> wrap (row'dan sonra) */
+    if (unvan && unvan.parentElement !== wrap) wrap.appendChild(unvan);
+    if (unvan && row.nextSibling !== unvan) {
+      wrap.appendChild(unvan);
+    }
+    c.dataset.kbTitleWrap = '1';
+  }
+  function kbDecorateCard(item) {
+    if (!item) return;
+    var c = item.querySelector('.item-c');
+    if (!c) return;
+    /* Chip decorate marker'dan BAGIMSIZ — her cagrida calisir (writeIfChanged). */
+    kbDecorateChips(c);
+    kbInstallChipObserver(c);
+    /* Title wrapper — marker'dan bagimsiz cagrilabilir, idempotent. */
+    kbWrapTitle(c);
+    /* Yildiz icon swap — Unicode "★" yerine inline SVG. Idempotent (per-span). */
+    kbReplaceStarIcon(c);
+    if (item.dataset.kbCard === '1') return;
+    item.dataset.kbCard = '1';
+    /* 1. "Onaylı Profil" rozeti — sol ust (mockup). Idempotent: img icinde varsa atla. */
+    var img = c.querySelector('.item-image');
+    if (img && !img.querySelector('.kb-verified')) {
+      var vb = document.createElement('span');
+      vb.className = 'kb-verified';
+      vb.innerHTML = KB_VERIFIED_SVG + '<span class="kb-verified-label">Onaylı Uzman</span>';
+      img.appendChild(vb);
+    }
+    /* 2. Musaitlik pill — sol alt. Status'a gore metin (canli olarak da guncellenir) */
+    if (img && !img.querySelector('.kb-availability')) {
+      var av = document.createElement('span');
+      av.className = 'kb-availability';
+      av.textContent = kbAvailabilityText(c);
+      img.appendChild(av);
+    }
+    /* 2b. Class-mutation observer: socket.io 'statusUpdate' .agent-status class'ini
+          degistirir; biz de text'i yeniden hesaplayalim. */
+    if (c.classList.contains('agent-status') && c.dataset.kbStatusObs !== '1') {
+      c.dataset.kbStatusObs = '1';
+      try {
+        var smo = new MutationObserver(function (mutations) {
+          for (var i = 0; i < mutations.length; i++) {
+            if (mutations[i].type === 'attributes' && mutations[i].attributeName === 'class') {
+              kbSyncAvailability(c);
+              break;
+            }
+          }
+        });
+        smo.observe(c, { attributes: true, attributeFilter: ['class'] });
+      } catch (e) { /* no-op */ }
+    }
+    /* 3. Rating sayisal — sablon integer cizdigi icin yildiz sayisini al */
+    var rs = c.querySelector('.profile-review-stars');
+    if (rs && !rs.querySelector('.kb-rating-num')) {
+      var num = kbExtractRating(rs);
+      if (num !== null) {
+        var rn = document.createElement('span');
+        rn.className = 'kb-rating-num';
+        rn.textContent = num.toFixed(1);
+        var firstStar = rs.querySelector('.i-star');
+        if (firstStar && firstStar.nextSibling) {
+          rs.insertBefore(rn, firstStar.nextSibling);
+        } else {
+          rs.appendChild(rn);
+        }
+      }
+    }
+    /* 3b. Comment count — sablon "(128 degerlendirme)" veya "(128)" cizebilir.
+          4 kolon kartta dar oldugu icin sadece "(N)" formuna kisalt. Idempotent:
+          ayni text ise dokunmaz. */
+    if (rs) {
+      var cc = rs.querySelector('.comment-count');
+      if (cc) {
+        var raw = (cc.textContent || '').trim();
+        var m = raw.match(/(\d[\d.,]*)/);
+        if (m) {
+          var want = '(' + m[1] + ')';
+          if (cc.textContent !== want) cc.textContent = want;
+        }
+      }
+    }
+    /* 4. Etiket chip'leri — kbDecorateChips() yukarida marker'dan bagimsiz calisti. */
+    /* 5. Fiyat blogu — orijinal .agent-card-list-price'tan price+currency cek,
+          .item-action icine sol tarafa yerlestir */
+    var act = c.querySelector('.item-action.action-btn');
+    var priceSrc = c.querySelector('.agent-card-list-price');
+    if (act && priceSrc && !act.querySelector('.kb-price-block')) {
+      var priceVal = (priceSrc.querySelector('.agent-card-list-price-pr') || {}).textContent || '';
+      /* "Fiyat: 950" -> sadece sayi+TL kismini al */
+      priceVal = priceVal.replace(/^[^\d]*/, '').trim();
+      var cur = (priceSrc.querySelector('.agent-card-list-price-cur') || {}).textContent || '';
+      cur = (cur || '').trim();
+      if (priceVal) {
+        var pb = document.createElement('div');
+        pb.className = 'kb-price-block';
+        var pl = document.createElement('span');
+        pl.className = 'kb-price-label';
+        pl.textContent = 'SEANS';
+        var pv = document.createElement('span');
+        pv.className = 'kb-price-value';
+        pv.textContent = priceVal + (cur ? ' ' + cur : '');
+        var ps = document.createElement('span');
+        ps.className = 'kb-price-suffix';
+        ps.textContent = "'den";
+        pv.appendChild(ps);
+        pb.appendChild(pl);
+        pb.appendChild(pv);
+        /* En basa ekle (buton sagda kalsin) */
+        if (act.firstChild) act.insertBefore(pb, act.firstChild);
+        else act.appendChild(pb);
+      }
+    }
+    /* 6. Buton metni — takvim ikonu artik CSS ::before mask ile (native re-render'a
+dayanikli; JS-inject ikon surekli wipe ediliyordu → flicker). Sadece metin bos
+ise "Randevu Al" yaz; native metni (status'a gore) override etme. */
+    var btn = act && act.querySelector('a.btn');
+    if (btn && !(btn.textContent || '').trim()) {
+      btn.textContent = 'Randevu Al';
+    }
+  }
+  /* Sonuç sayaci + ayrac — filtre satiri ile kart grid'i arasina "N uzman listeleniyor"
++ alt cizgi. N = render edilen kart sayisi (filtrelenince kesin; sayfalamada sayfa-basi).
+Idempotent: .kb-list-head varsa sadece metni gunceller. Grid'in HEMEN ONUNE girer. */
+  function kbBuildCount() {
+    /* AGENT grid'ini bul — .item-c iceren liste. Kategori landing sayfasinda (or.
+/kendim-icin) ayrica .categories .list.flex (pill'ler, .item-c YOK) var; sayac
+       ona degil agent listesine girmeli. */
+    var grid = null;
+    var cand = document.querySelectorAll('.page.agents .list.flex:not(.order-flex-list)');
+    for (var gi = 0; gi < cand.length; gi++) {
+      if (cand[gi].querySelector('.item .item-c')) { grid = cand[gi]; break; }
+    }
+    if (!grid || !grid.parentNode) return;
+    var n = grid.querySelectorAll(':scope > .item').length;
+    if (!n) return;   /* kart henuz inject olmadi */
+    var head = document.querySelector('.kb-list-head');
+    if (!head) {
+      head = document.createElement('div');
+      head.className = 'kb-list-head';
+      var span = document.createElement('span');
+      span.className = 'kb-result-count';
+      head.appendChild(span);
+      grid.parentNode.insertBefore(head, grid);
+    }
+    var s = head.querySelector('.kb-result-count');
+    var txt = n + ' uzman listeleniyor';
+    if (s && s.textContent !== txt) s.textContent = txt;
+  }
+  function kbDecorateAll() {
+    var items = document.querySelectorAll('.page.agents .list.flex > .item');
+    Array.prototype.forEach.call(items, kbDecorateCard);
+    kbBuildCount();
+  }
+  /* MutationObserver — geç inject edilen kartlari yakala. Livelock korumasi:
+     yalnizca .list.flex altindaki node'lari isle, attribute degisikliklerini
+dinleme; data-kb-card markeri tekrar islemi engeller. */
+function kbInstallObserver() {
+var lists = document.querySelectorAll('.page.agents .list.flex');
+if (!lists.length) return;
+Array.prototype.forEach.call(lists, function (list) {
+if (list.dataset.kbObs === '1') return;
+list.dataset.kbObs = '1';
+try {
+var mo = new MutationObserver(function (mutations) {
+var needScan = false;
+for (var i = 0; i < mutations.length; i++) {
+if (mutations[i].addedNodes && mutations[i].addedNodes.length) {
+needScan = true;
+break;
+}
+}
+if (needScan) kbDecorateAll();
+});
+mo.observe(list, { childList: true, subtree: true });
+} catch (e) {  }
+});
+}
+function kbCardLifecycle() {
+kbDecorateAll();
+kbInstallObserver();
+}
+if (document.readyState === 'loading') {
+document.addEventListener('DOMContentLoaded', function () {
+kbScan();
+kbCardLifecycle();
+});
+} else {
+kbScan();
+kbCardLifecycle();
+}
+window.addEventListener('load', function () {
+kbScan();
+kbCardLifecycle();
+setTimeout(function () { kbScan(); kbDecorateAll(); }, 300);
+setTimeout(function () { kbScan(); kbDecorateAll(); }, 800);
+setTimeout(function () { kbScan(); kbDecorateAll(); }, 1500);
+});
+})();
