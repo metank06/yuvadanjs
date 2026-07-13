@@ -1751,14 +1751,14 @@ $(document).on('click', '.uzmanlari-incele', function (e) {
   //                                              ^süre(ms)  ^easing
 });
 
-/* ========== 5) isCategory → container column-reverse (window load) ========== */
+/* ========== 5) isCategory → container column-reverse (window load) ========== 
 window.addEventListener("load", function(){
   if(isCategory && isCategory == true) {
     document.querySelector('body>.wrapper>.page>.page-header').style.paddingBottom = '0px';
     document.querySelector('body>.wrapper>.page>.container').style.display = 'flex';
     document.querySelector('body>.wrapper>.page>.container').style.flexDirection = 'column-reverse';
   }
-});
+}); */
 
 /* ========== 6) Sayfaya özel widget'lar (kendim/ailem/çocuğum/çocuklarım) ========== */
 $(document).ready(function() {
@@ -1820,7 +1820,7 @@ $('.header .container').css({
     'margin': '0 auto'
 });
 
-$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-15"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-6 fs-10">Akademik başarıda doğru adım.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-6 fs-7 bg-20">Akademik destek al <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');
+/*$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-15"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-6 fs-10">Akademik başarıda doğru adım.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-6 fs-7 bg-20">Akademik destek al <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');*/
 
   }
 
@@ -1837,7 +1837,7 @@ $('.header .container').css({
     'margin': '0 auto'
 });
 
-$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-22"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-4 fs-10">Çocuğunuz için doğru adımı atın.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-6 fs-7 bg-20">Akademik destek al <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');
+/*$('.agents.bg').append('<div class="widget-wrapper"><div class="agents__container"><div class="widget-item"><div class="trust__container"><div class="trust-list"><div class="trust-item"><span><i class="fas fa-shield-alt trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Gizli & güvenli görüşme</span></div><div class="trust-item"><span><i class="fas fa-user-graduate trust-icon"></i>&nbsp;</span><span class="trust-text font-p cl-4 fs-7">Doğrulanmış uzmanlar</span></div><div class="trust-item"><span><i class="fas fa-desktop trust-icon"></i>&nbsp;</span></i><span class="trust-text font-p cl-4 fs-7">%100 online</span></div></div></div></div><div class="widget-item bg-22"><div class="band__CTA"><h2 class="Band-cta-title font-h2 cl-4 fs-10">Çocuğunuz için doğru adımı atın.</h2><div class="Band-cta-action"><a href="#" class="font-p cl-6 fs-7 bg-20">Akademik destek al <i class="far fa-arrow-right"></i></a></div></div></div></div></div>');*/
 
   }
 
