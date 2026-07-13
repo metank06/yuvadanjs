@@ -1653,8 +1653,8 @@ $(function () {
     };
   }
 
-  var akademik  = grab('cocugum-icin-akademik');
-  var pedagojik = grab('cocugum-icin-pedagojik');
+  var akademik  = grab('teknolojik-ve-akademik-danismanlik');
+  var pedagojik = grab('pedagoji-ve-psikolojik-destek');
   var kendim    = grab('kendim-icin');
   var ailem     = grab('ailem-icin');
 
@@ -1799,7 +1799,7 @@ document.querySelectorAll('.cramp-categories').forEach(function(el) {
   }
 
 
-  if (window.location.pathname === '/tr-TR/cocugum-icin-akademik') {
+  if (window.location.pathname === '/tr-TR/hizmetler/teknolojik-ve-akademik-danismanlik') {
     $('.wrapper').css('background', '#fff');
     $('.container').css('max-width','100%');
      $('.page-header .container').css('padding','0');
