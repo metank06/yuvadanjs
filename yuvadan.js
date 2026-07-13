@@ -1759,7 +1759,7 @@ $(document).ready(function() {
     $('.wrapper').css('background', '#fcedcf');
   }
 
-  if (window.location.pathname === '/tr-TR/kendim-icin') {
+  if (window.location.pathname === '/tr-TR/hizmetler/kendim-icin') {
     $('.wrapper').css('background', '#fff');
     $('.agents.bg').attr('id', 'tikla');
     $('.container').css('max-width','100%');
@@ -1777,7 +1777,7 @@ $('.agents.bg').append('<div class="widget-wrapper"><div class="agents__containe
 
   }
 
-  if (window.location.pathname === '/tr-TR/ailem-icin') {
+  if (window.location.pathname === '/tr-TR/hizmetler/ailem-icin') {
     $('.wrapper').css('background', '#fff');
     $('.container').css('max-width','100%');
     $('.page-header .container').css('padding','0');
