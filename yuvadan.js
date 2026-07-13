@@ -1733,7 +1733,7 @@ $(function () {
 /* ========== 4) /s/cocuklarim-icin arka plan + .uzmanlari-incele smooth-scroll ========== */
 $(document).ready(function() {
 
-  if (window.location.pathname === '/s/cocuklarim-icin') {
+  if (window.location.pathname === '/tr-TR/s/cocuklarim-icin') {
     $('.wrapper').css('background', '#fcedcf !important');
   }
 
