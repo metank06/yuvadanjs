@@ -719,6 +719,22 @@ t.addEventListener('click', function () {
 var s = input.type === 'password'; input.type = s ? 'text' : 'password'; t.innerHTML = s ? EYEOFF : EYE;
 });
 }
+function accSuffix(word) {
+var m = (word || '').toLowerCase().match(/[aeıioöuü]/g);
+var last = m ? m[m.length - 1] : 'a';
+var high = ('ou'.indexOf(last) >= 0) ? 'u' : ('öü'.indexOf(last) >= 0) ? 'ü' : ('ei'.indexOf(last) >= 0) ? 'i' : 'ı';
+var endsVowel = /[aeıioöuü]$/i.test((word || '').trim());
+return (endsVowel ? 'n' : '') + high;
+}
+function decorateAgreementLabels(form) {
+[].forEach.call(form.querySelectorAll('.field > label'), function (lbl) {
+if (lbl.getAttribute('data-kb-accept')) return;
+if (!lbl.querySelector('input[type="checkbox"]')) return;
+var a = lbl.querySelector('a'); if (!a) return;
+lbl.setAttribute('data-kb-accept', '1');
+a.insertAdjacentText('afterend', accSuffix(a.textContent.trim()) + ' kabul ediyorum');
+});
+}
 function enhance() {
 var wrap = $('.users-wrapper');
 var form = $('#register-form');
@@ -733,11 +749,27 @@ grid.appendChild(userForm);
 grid.appendChild(buildAside());
 }
 if (!$('.md-auth-form-head', form)) form.insertBefore(buildFormHead(), form.firstChild);
-var msgBox = wrap.querySelector(':scope > .m');
-if (msgBox) { var hd = $('.md-auth-form-head', form); if (hd) hd.parentNode.insertBefore(msgBox, hd.nextSibling); else form.insertBefore(msgBox, form.firstChild); }
+var msgBox = wrap.querySelector('.m');
+if (msgBox && form.parentNode && (msgBox.parentNode !== form.parentNode || msgBox.nextElementSibling !== form)) {
+form.parentNode.insertBefore(msgBox, form);
+}
+var SUCCESS_MSG = "ModdoDay'de sayısız webinarlarımızın ve uzman danışmanlıkların keyfini çıkartmaya hazırsınız.";
+if (msgBox && !msgBox.hasAttribute('data-kb-msg-watch')) {
+msgBox.setAttribute('data-kb-msg-watch', '1');
+var mmo = new MutationObserver(function () {
+var ok = msgBox.querySelector('.alert-success:not([data-kb-msg])');
+if (!ok) return;
+ok.setAttribute('data-kb-msg', '1');
+mmo.disconnect();
+ok.innerHTML = SUCCESS_MSG;
+mmo.observe(msgBox, { childList: true, subtree: true });
+});
+mmo.observe(msgBox, { childList: true, subtree: true });
+}
 [].forEach.call(form.querySelectorAll('.field > label'), function (l) {
 if (!l.textContent.trim() && !l.querySelector('input')) l.classList.add('md-label-empty');
 });
+decorateAgreementLabels(form);
 var pass = $('#password', form), passR = $('#password-repeat', form);
 var pf = pass ? pass.closest('.field') : null, prf = passR ? passR.closest('.field') : null;
 if (pf && prf && !$('.md-reg-row2', form)) {
@@ -1734,6 +1766,10 @@ return _el;
 }
 function fillPrice(sd) {
 var slot = sd && sd.querySelector('.kb-sd-price'); if (!slot || slot.getAttribute('data-kb-done')) return;
+if (document.querySelector('.user-purchased-event-before, .go-events-page')) {
+slot.setAttribute('data-kb-done', '1');
+return;
+}
 var id = (location.pathname.match(/\/etkinlikler\/(\d+)/) || [])[1]; if (!id) return;
 loadEl().then(function (map) {
 var ev = map.byId[id]; if (!ev) return;   
