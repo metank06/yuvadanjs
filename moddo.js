@@ -735,6 +735,32 @@ lbl.setAttribute('data-kb-accept', '1');
 a.insertAdjacentText('afterend', accSuffix(a.textContent.trim()) + ' kabul ediyorum');
 });
 }
+var SUCCESS_MSG = "ModdoDay'de sayısız webinarlarımızın ve uzman danışmanlıkların keyfini çıkartmaya hazırsınız.";
+function installPostHook() {
+var jq = window.jQuery;
+if (!jq || !jq.post) return false;
+if (jq.__kbSignupHook) return true;
+jq.__kbSignupHook = true;
+var origPost = jq.post;
+jq.post = function (url) {
+var xhr = origPost.apply(this, arguments);
+if (typeof url === 'string' && /\/(?:uye-ol|signup)(?:[/?]|$)/.test(url) && xhr && typeof xhr.done === 'function') {
+xhr.done(function (response) {
+try {
+if (response && response.result === 'success' && response.redirect) {
+var redirect = response.redirect;
+delete response.redirect;            
+delete response.redirectIsDefault;
+response.message = "<div class='alert alert-success txt-c'>" + SUCCESS_MSG + "</div>";
+setTimeout(function () { window.location.href = redirect; }, 3000);  
+}
+} catch (e) {}
+});
+}
+return xhr;
+};
+return true;
+}
 function enhance() {
 var wrap = $('.users-wrapper');
 var form = $('#register-form');
@@ -753,7 +779,6 @@ var msgBox = wrap.querySelector('.m');
 if (msgBox && form.parentNode && (msgBox.parentNode !== form.parentNode || msgBox.nextElementSibling !== form)) {
 form.parentNode.insertBefore(msgBox, form);
 }
-var SUCCESS_MSG = "ModdoDay'de sayısız webinarlarımızın ve uzman danışmanlıkların keyfini çıkartmaya hazırsınız.";
 if (msgBox && !msgBox.hasAttribute('data-kb-msg-watch')) {
 msgBox.setAttribute('data-kb-msg-watch', '1');
 var mmo = new MutationObserver(function () {
@@ -809,6 +834,10 @@ return ok;
 function run() { if (!safeEnhance()) setTimeout(safeEnhance, 100); }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
 else run();
+if (!installPostHook()) {
+var _hookIv = setInterval(function () { if (installPostHook()) clearInterval(_hookIv); }, 60);
+setTimeout(function () { clearInterval(_hookIv); }, 15000);
+}
 window.addEventListener('load', function () { setTimeout(safeEnhance, 300); });
 mo = new MutationObserver(function () { safeEnhance(); });
 if (document.body) mo.observe(document.body, { childList: true, subtree: true });
