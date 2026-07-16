@@ -834,10 +834,10 @@ return ok;
 function run() { if (!safeEnhance()) setTimeout(safeEnhance, 100); }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', run);
 else run();
-if (!installPostHook()) {
-var _hookIv = setInterval(function () { if (installPostHook()) clearInterval(_hookIv); }, 60);
-setTimeout(function () { clearInterval(_hookIv); }, 15000);
-}
+installPostHook();
+var _hookIv = setInterval(installPostHook, 100);
+window.addEventListener('load', function () { installPostHook(); setTimeout(function () { clearInterval(_hookIv); }, 2500); });
+setTimeout(function () { clearInterval(_hookIv); }, 20000);
 window.addEventListener('load', function () { setTimeout(safeEnhance, 300); });
 mo = new MutationObserver(function () { safeEnhance(); });
 if (document.body) mo.observe(document.body, { childList: true, subtree: true });
