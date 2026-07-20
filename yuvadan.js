@@ -1633,6 +1633,30 @@ setTimeout(function () { kbScan(); kbDecorateAll(); }, 1500);
    ============================================================================ */
 /* "Sunulan Destek Türleri"ni, Hizmetler menüsündeki aynı kategoriyle eşitle
    (menüde olmayan fazladan hizmetleri sayfadan kaldırır — tüm kategori sayfalarında çalışır) */
+
+$(function () {
+  function ensureChat() {
+    if ($('.chat-panel').length) return;
+    $('body').append(
+      '<div class="chat-overlay"></div>' +
+      '<div class="chat-panel">' +
+        '<div class="chat-header"><button type="button" class="chat-close">&times;</button></div>' +
+        '<iframe src="https://api.yuvadan.com/" width="100%" height="100%" frameborder="0"></iframe>' +
+      '</div>'
+    );
+  }
+  $(document).on('click', '.yuva-open-chat', function (e) {
+    e.preventDefault();
+    ensureChat();
+    $('.chat-overlay').stop(true, true).fadeIn(200);
+    $('.chat-panel').addClass('open');
+  });
+  $(document).on('click', '.chat-close, .chat-overlay', function () {
+    $('.chat-overlay').stop(true, true).fadeOut(200);
+    $('.chat-panel').removeClass('open');
+  });
+});
+
 $(function () {
   var $list = $('.categories .list');
   if (!$list.length) return;
