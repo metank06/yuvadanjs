@@ -1,4 +1,3 @@
-
 $(document).ready(function(){
 
 $('.users-wrapper').prepend('<div class="yuva-singup-wp"><div class="yuva-signup-con"><div class="yuva-signup-item"><div class="yuva-signup-items"><div class="yuva-signup-img"><img src="/images/202509/504_890x773.jpg" alt=""></div></div><div class="yuva-signup-items"><div class="yuva-singup-cont"></div></div></div></div></div>');
@@ -1718,9 +1717,31 @@ $(function () {
 /*  $('.large-menu .mega-col:has(.mega-card)').addClass('mega-open');
   $('.large-menu .mega-card').first().addClass('mega-open');*/
 
+  // 3 kategori başlığına ikon + sarmalayıcı ekle (mobil kart tasarımı) — bir kez
+  $('.large-menu > .mega-col').each(function () {
+    var $col = $(this);
+    if ($col.data('head-built')) return;
+    var $title = $col.children('.mega-title').first();
+    if (!$title.length) return;
+    var $desc = $col.children('.mega-desc').first();
+    var t = $title.text().toLowerCase();
+    var icon = 'fa-layer-group', klass = '';
+    if (t.indexOf('çocu') > -1 || t.indexOf('cocu') > -1) { icon = 'fa-child';  klass = 'mega-cocugum'; }
+    else if (t.indexOf('kendim') > -1)                    { icon = 'fa-heart';  klass = 'mega-kendim'; }
+    else if (t.indexOf('ailem') > -1)                     { icon = 'fa-users';  klass = 'mega-ailem'; }
+    $col.addClass(klass);
+    var $head = $('<div class="mega-head"></div>');
+    var $text = $('<div class="mega-head-text"></div>');
+    $title.before($head);
+    $head.append('<span class="mega-head-icon"><i class="far ' + icon + '"></i></span>').append($text);
+    $text.append($title);
+    if ($desc.length) $text.append($desc);
+    $col.data('head-built', true);
+  });
+
   // Accordion aç/kapat (yalnız mobil; masaüstünde başlıklar link olarak çalışır)
   $(document).on('click',
-    '.large-menu .mega-card > .mega-sub, .large-menu .mega-col > a.mega-title, .large-menu .mega-col > h3.mega-title',
+    '.large-menu > .mega-col > .mega-head, .large-menu .mega-card > .mega-sub',
     function (e) {
       if (window.innerWidth > 768) return;
       e.preventDefault();
@@ -1949,4 +1970,3 @@ $('.child-card-2').wrap('<a href="/hizmetler/teknolojik-ve-akademik-danismanlik"
   }
 
 });
-
