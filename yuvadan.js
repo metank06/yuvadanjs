@@ -1631,7 +1631,45 @@ setTimeout(function () { kbScan(); kbDecorateAll(); }, 1500);
 
    Gereksinim: jQuery (prod'da A'dan önce yükleniyor).
    ============================================================================ */
+/* "Sunulan Destek Türleri"ni, Hizmetler menüsündeki aynı kategoriyle eşitle
+   (menüde olmayan fazladan hizmetleri sayfadan kaldırır — tüm kategori sayfalarında çalışır) */
+$(function () {
+  var $list = $('.categories .list');
+  if (!$list.length) return;
 
+  function slug(h) {
+    h = (h || '').split('?')[0].split('#')[0].replace(/\/+$/, '');
+    return h.split('/').pop().toLowerCase();
+  }
+  var pageSlug = slug(window.location.pathname);
+  if (!pageSlug) return;
+
+  // Menüde bu sayfaya karşılık gelen kategori grubunu bul
+  var $group = null;
+  // (a) menü ham haldeyse: .dd-column (başlık = ilk <a>)
+  $('.dd-column').each(function () {
+    if (!$group && slug($(this).children('a').first().attr('href')) === pageSlug) $group = $(this);
+  });
+  // (b) mega'ya dönüştürülmüşse: .mega-card / .mega-col (başlık = a.mega-sub / a.mega-title)
+  if (!$group) {
+    $('.large-menu').find('.mega-card, .mega-col').each(function () {
+      var $h = $(this).children('a.mega-sub, a.mega-title').first();
+      if (!$group && $h.length && slug($h.attr('href')) === pageSlug) $group = $(this);
+    });
+  }
+  if (!$group || !$group.length) return;
+
+  // O kategorinin izinli hizmet slug'ları
+  var allowed = {};
+  $group.find('a.sub-a').each(function () { allowed[slug($(this).attr('href'))] = true; });
+  if ($.isEmptyObject(allowed)) return;
+
+  // Menüde olmayan öğeleri kaldır
+  $list.find('.item').each(function () {
+    var s = slug($(this).find('a').first().attr('href'));
+    if (s && !allowed[s]) $(this).remove();
+  });
+});
 
 /* ========== 1) Kategori listesi öğelerine ok ikonu (bir kez) ========== */
 $(function () {
