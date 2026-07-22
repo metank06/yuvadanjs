@@ -2268,6 +2268,8 @@ calUpdateChips();
 }
 var CMONTHS = ['Ocak', 'Şubat', 'Mart', 'Nisan', 'Mayıs', 'Haziran', 'Temmuz', 'Ağustos', 'Eylül', 'Ekim', 'Kasım', 'Aralık'];
 var CDOW = ['Pzt', 'Sal', 'Çar', 'Per', 'Cum', 'Cmt', 'Paz'];
+var CDOW_LONG = ['Pazartesi', 'Salı', 'Çarşamba', 'Perşembe', 'Cuma', 'Cumartesi', 'Pazar'];
+var CAL_MAX_CARDS = 2;  
 var cal = { active: false, view: 'month', year: 0, month: 0, weekStart: null, modes: [], byDate: null, inited: false };
 function pad2(n) { return (n < 10 ? '0' : '') + n; }
 function calKey(y, m, d) { return y + '-' + pad2(m + 1) + '-' + pad2(d); }
@@ -2290,11 +2292,12 @@ var href = localePrefix() + (e.url || '/etkinlikler');
 var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
 var dur = String(e.duration || '').trim();
 var time = st ? fmtTime(st) : '';
+var tip = [md.name, String(e.agent_name || '').trim(), time, dur].filter(Boolean).join(' · ');
 return '<a class="md-cal-sess" href="' + esc(href) + '" data-mode="' + esc(md.slug) + '" style="--sc:' + md.color + '">' +
-'<span class="md-cal-sess-arrow">' + ico('arrow') + '</span>' +
 '<span class="md-cal-sess-title">' + esc(title) + '</span>' +
 '<span class="md-cal-sess-meta"><span>' + esc(time) + '</span><span>' + esc(dur) + '</span></span>' +
 (isSeries(e) ? '<span class="md-cal-sess-ser">Seri ' + e._seriesIdx + '/' + e._seriesTotal + '</span>' : '') +
+'<span class="md-cal-tip"><strong>' + esc(title) + '</strong><span class="md-cal-tip-meta">' + esc(tip) + '</span></span>' +
 '</a>';
 }
 function calDayBody(k) {
@@ -2302,7 +2305,23 @@ var list = (cal.byDate && cal.byDate[k]) || [];
 if (cal.modes.length) list = list.filter(function (e) { var s = modeOf(e).slug; return s === '__other' || cal.modes.indexOf(s) !== -1; });
 if (pg.seriesOnly) list = list.filter(isSeries);
 if (!list.length) return '<div class="md-cal-empty">Oturum yok</div>';
-return '<div class="md-cal-sess-list">' + list.map(calSessHTML).join('') + '</div>';
+var shown = list.slice(0, CAL_MAX_CARDS);
+var html = '<div class="md-cal-sess-list">' + shown.map(calSessHTML).join('');
+if (list.length > CAL_MAX_CARDS) {
+html += '<button type="button" class="md-cal-more" data-cal-day="' + k + '">+' + (list.length - CAL_MAX_CARDS) + ' oturum daha</button>';
+}
+return html + '</div>';
+}
+function calOpenDay(k) {
+var dlg = document.querySelector('.md-cal-daymodal'); if (!dlg || !k) return;
+var list = (cal.byDate && cal.byDate[k]) || [];
+if (cal.modes.length) list = list.filter(function (e) { var s = modeOf(e).slug; return s === '__other' || cal.modes.indexOf(s) !== -1; });
+if (pg.seriesOnly) list = list.filter(isSeries);
+var p = k.split('-'), d = new Date(+p[0], +p[1] - 1, +p[2]);
+dlg.querySelector('.md-cal-dm-title').textContent = d.getDate() + ' ' + CMONTHS[d.getMonth()] + ' ' + d.getFullYear() + ', ' + CDOW_LONG[(d.getDay() + 6) % 7];
+dlg.querySelector('.md-cal-dm-sub').textContent = list.length + ' canlı oturum';
+dlg.querySelector('.md-cal-dm-body').innerHTML = '<div class="md-cal-sess-list">' + list.map(calSessHTML).join('') + '</div>';
+if (dlg.showModal) { if (!dlg.open) dlg.showModal(); } else { dlg.setAttribute('open', ''); }
 }
 function calDayCell(dt, withMonth) {
 var k = calKeyOf(dt);
@@ -2326,6 +2345,23 @@ var s = calMonday(cal.weekStart);
 var html = '';
 for (var i = 0; i < 7; i++) html += calDayCell(new Date(s.getFullYear(), s.getMonth(), s.getDate() + i), true);
 grid.innerHTML = html;
+}
+function calAgendaSessHTML(e) {
+var md = modeOf(e), st = startOf(e);
+var href = localePrefix() + (e.url || '/etkinlikler');
+var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
+var dur = String(e.duration || '').trim();
+var time = st ? fmtTime(st) : '';
+var expert = String(e.agent_name || '').trim();
+return '<a class="md-cal-ag-sess" href="' + esc(href) + '" data-mode="' + esc(md.slug) + '" style="--sc:' + md.color + '">' +
+'<span class="md-cal-ag-time"><span class="h">' + esc(time) + '</span>' + (dur ? '<span class="d">' + esc(dur) + '</span>' : '') + '</span>' +
+'<span class="md-cal-ag-main"><span class="md-cal-ag-title">' + esc(title) + '</span>' +
+'<span class="md-cal-ag-meta"><span class="md-cal-ag-badge"><i></i>' + esc(md.name) + '</span>' +
+(expert ? '<span>' + esc(expert) + '</span>' : '') +
+(isSeries(e) ? '<span class="md-cal-ag-ser">Seri ' + e._seriesIdx + '/' + e._seriesTotal + '</span>' : '') +
+'</span></span>' +
+'<span class="md-cal-ag-join">Katıl →</span>' +
+'</a>';
 }
 function calTitle() {
 if (cal.view === 'week') {
@@ -2391,7 +2427,8 @@ holder.innerHTML =
 '<div class="md-cal-modetoggle"><button type="button" class="is-active" data-cal-view="month">Aylık</button><button type="button" data-cal-view="week">Haftalık</button></div>' +
 '</div>' +
 '<div class="md-cal-head-nav"><h3 class="md-cal-title"></h3>' +
-'<div class="md-cal-navbtns"><button type="button" class="md-cal-prev" data-cal-nav="-1" aria-label="Önceki">' + ico('arrow') + '</button>' +
+'<div class="md-cal-navbtns"><button type="button" class="md-cal-today" data-cal-today>Bugüne Git</button>' +
+'<button type="button" class="md-cal-prev" data-cal-nav="-1" aria-label="Önceki">' + ico('arrow') + '</button>' +
 '<button type="button" data-cal-nav="1" aria-label="Sonraki">' + ico('arrow') + '</button></div></div>' +
 '</div>' +
 '<div class="md-cal-content">' +
@@ -2401,7 +2438,12 @@ holder.innerHTML =
 '<div class="md-cal-grid" id="md-cal-month"></div>' +
 '<div class="md-cal-grid" id="md-cal-week" style="display:none"></div>' +
 '</div>' +
-'</div>';
+'</div>' +
+'<dialog class="md-cal-daymodal">' +
+'<div class="md-cal-dm-head"><div><h3 class="md-cal-dm-title"></h3><p class="md-cal-dm-sub"></p></div>' +
+'<button type="button" class="md-cal-dm-close" aria-label="Kapat">✕</button></div>' +
+'<div class="md-cal-dm-body"></div>' +
+'</dialog>';
 holder.querySelectorAll('[data-cal-view]').forEach(function (btn) {
 btn.addEventListener('click', function () {
 cal.view = btn.getAttribute('data-cal-view');
@@ -2420,6 +2462,25 @@ var m = chip.getAttribute('data-mode'), i = cal.modes.indexOf(m);
 if (i === -1) cal.modes.push(m); else cal.modes.splice(i, 1);
 applyMode();
 });
+holder.querySelectorAll('[data-cal-today]').forEach(function (btn) {
+btn.addEventListener('click', function () {
+var now = new Date();
+cal.year = now.getFullYear(); cal.month = now.getMonth(); cal.weekStart = calMonday(now);
+calRender();
+var t = holder.querySelector('.md-cal-day.is-today');
+if (t && t.scrollIntoView) t.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+});
+});
+holder.addEventListener('click', function (ev) {
+var more = ev.target.closest && ev.target.closest('.md-cal-more');
+if (more && holder.contains(more)) { ev.preventDefault(); calOpenDay(more.getAttribute('data-cal-day')); }
+});
+var dlg = holder.querySelector('.md-cal-daymodal');
+if (dlg) {
+var closeDlg = function () { if (dlg.close) dlg.close(); else dlg.removeAttribute('open'); };
+var cb = dlg.querySelector('.md-cal-dm-close'); if (cb) cb.addEventListener('click', closeDlg);
+dlg.addEventListener('click', function (ev) { if (ev.target === dlg) closeDlg(); });
+}
 }
 }
 var pg = { time: 'upcoming', view: 'calendar', qc: '', qs: '', seriesOnly: false };  
@@ -2465,8 +2526,27 @@ return h;
 function sxRenderRows() {
 var c = document.querySelector('.md-cal-rows'); if (!c) return;
 var list = sxRows();
-c.innerHTML = list.length ? list.map(sxRowHTML).join('')
-: '<div class="md-cal-rows-empty">Bu kriterlere uygun oturum bulunamadı.</div>';
+if (!list.length) { c.innerHTML = '<div class="md-cal-rows-empty">Bu kriterlere uygun oturum bulunamadı.</div>'; return; }
+var groups = [], idx = {};
+list.forEach(function (e) {
+var st = startOf(e), k = st ? calKeyOf(st) : '0';
+if (!(k in idx)) { idx[k] = groups.length; groups.push({ k: k, dt: st || new Date(), items: [] }); }
+groups[idx[k]].items.push(e);
+});
+var todayK = calKeyOf(new Date());
+var html = groups.map(function (g) {
+var isToday = (g.k === todayK);
+var dots = g.items.map(function (e) { return '<i style="background:' + modeOf(e).color + '"></i>'; }).join('');
+return '<div class="md-cal-ag-day' + (isToday ? ' is-today' : '') + '">' +
+'<div class="md-cal-ag-rail"><span class="num">' + g.dt.getDate() + '</span>' +
+'<span class="dow">' + CDOW[(g.dt.getDay() + 6) % 7] + '</span>' +
+'<span class="mon">' + CMONTHS[g.dt.getMonth()] + '</span>' +
+(isToday ? '<span class="today">BUGÜN</span>' : '') +
+'<span class="dots">' + dots + '</span></div>' +
+'<div class="md-cal-ag-list">' + g.items.map(calAgendaSessHTML).join('') + '</div>' +
+'</div>';
+}).join('');
+c.innerHTML = '<div class="md-cal-agenda">' + html + '</div>';
 }
 function pgApply() {
 var host = pgHost(); if (!host) return;
