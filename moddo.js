@@ -22,11 +22,11 @@ var slug = m[1];
 if (slug === 'iletisim') return 'kb-page-iletisim';
 return 'kb-page-cms-' + slug.replace(/[^a-z0-9-]/gi, '');
 }
-if (p === '/uzmanlar') return 'kb-page-uzmanlar';
+if (p === '/1-1-danismanlik') return 'kb-page-uzmanlar';
 if (p === '/blog') return 'kb-page-blog';
 if (p.match(/^\/blog\/[^\/]+$/)) return 'kb-page-blog-detay';
-if (p === '/etkinlikler') return 'kb-page-etkinlikler';
-if (p.match(/^\/etkinlikler\/[^\/]+$/)) return 'kb-page-etkinlik-detay';
+if (p === '/canli-oturumlar') return 'kb-page-etkinlikler';
+if (p.match(/^\/canli-oturumlar\/[^\/]+$/)) return 'kb-page-etkinlik-detay';
 if (p === '/signup') return 'kb-page-signup';
 if (p === '/login')  return 'kb-page-login';
 var seg = p.split('/')[1] || '';
@@ -136,8 +136,8 @@ return out;
 }
 function renderHeader() {
 var home = '/';
-var danismanlar = '/uzmanlar';  
-var etkinlikler = '/etkinlikler';
+var danismanlar = '/1-1-danismanlik';  
+var etkinlikler = '/canli-oturumlar';
 var signup = '/signup';
 return [
 '<header class="md-header">',
@@ -238,8 +238,8 @@ return [
 '<div class="md-drawer-search">' + ICONS.search + '<input class="md-search-input" type="text" autocomplete="off" spellcheck="false" placeholder="Modunu/Danışmanını Ara" aria-label="Ara"></div>',
 '<nav class="md-drawer-nav">',
 '<a href="' + url('/') + '">Ana Sayfa</a>',
-'<a href="' + url('/etkinlikler') + '">Canlı Oturumlar</a>',
-'<a href="' + url('/uzmanlar') + '">Danışmanlar</a>',
+'<a href="' + url('/canli-oturumlar') + '">Canlı Oturumlar</a>',
+'<a href="' + url('/1-1-danismanlik') + '">Danışmanlar</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
 '</nav>',
 '<div class="md-drawer-brands">',
@@ -284,8 +284,8 @@ return [
 '<div>',
 '<h4>Platform</h4>',
 '<ul>',
-'<li><a href="' + url('/etkinlikler') + '">Canlı Oturumlar</a></li>',
-'<li><a href="' + url('/uzmanlar') + '">Danışmanlar</a></li>',
+'<li><a href="' + url('/canli-oturumlar') + '">Canlı Oturumlar</a></li>',
+'<li><a href="' + url('/1-1-danismanlik') + '">Danışmanlar</a></li>',
 '<li><a href="' + url('/s/sponsorluk') + '">Sponsorluk</a></li>',
 '<li><a href="' + url('/s/ayricaliklar') + '">Ayrıcalıklar Kulübü</a></li>',
 '<li><a href="' + url('/s/iletisim') + '">İletişim</a></li>',
@@ -395,8 +395,8 @@ return String(s == null ? '' : s)
     if (!$ || !$.fn || !$.fn.autoComplete) return false; /* plugin henuz yuklenmedi */
     var nodes = document.querySelectorAll('.md-search-input');
     if (!nodes.length) return true;
-    var agentBase = (typeof agentUrlGlobal !== 'undefined' && agentUrlGlobal) ? agentUrlGlobal : url('/uzmanlar');
-    var uzmanlarBase = url('/uzmanlar');
+    var agentBase = (typeof agentUrlGlobal !== 'undefined' && agentUrlGlobal) ? agentUrlGlobal : url('/1-1-danismanlik');
+    var uzmanlarBase = url('/1-1-danismanlik');
     nodes.forEach(function (el) {
       if (el.getAttribute('data-kb-ac') === '1') return; /* idempotent */
       el.setAttribute('data-kb-ac', '1');
@@ -1576,7 +1576,7 @@ return "<div class='kb-sd-m'><span class='kb-sd-mic'>" + ic(m[0]) + "</span><spa
 sd.innerHTML =
 "<section class='kb-sd-hero'>" +
 "<div class='kb-sd-img" + (cover ? '' : ' kb-sd-img--grad') + "'><div class='kb-sd-ov'></div>" +
-"<a class='kb-sd-back' href='" + localePrefix() + "/etkinlikler'>" + ic(I.back) + "<span>Geri</span></a>" +
+"<a class='kb-sd-back' href='" + localePrefix() + "/canli-oturumlar'>" + ic(I.back) + "<span>Geri</span></a>" +
 (cat ? "<span class='kb-sd-badge'>" + esc(cat) + "</span>" : '') +
 "</div>" +
 "<div class='kb-sd-expert'>" +
@@ -1717,10 +1717,10 @@ var id = '', href = '';
 var anchors = [].slice.call(card.querySelectorAll('a[href]'));
 for (var ai = 0; ai < anchors.length; ai++) {
 var hh = anchors[ai].getAttribute('href') || '';
-var mm = hh.match(/\/etkinlikler\/(\d+)/);
+var mm = hh.match(/\/canli-oturumlar\/(\d+)/);
 if (mm) { id = mm[1]; href = hh; break; }
 }
-if (!href) { var dib = card.querySelector('.detailed-info-button a'); href = (dib && dib.getAttribute('href')) || (localePrefix() + '/etkinlikler'); }
+if (!href) { var dib = card.querySelector('.detailed-info-button a'); href = (dib && dib.getAttribute('href')) || (localePrefix() + '/canli-oturumlar'); }
 items.push({
 title: title, expert: labelByIcon(card, 'fa-user'), initials: initials(labelByIcon(card, 'fa-user')),
 date: date, time: firstTime(timeRaw), dur: dur, fmt: fmt, id: id, cover: coverUrl(card),
@@ -1799,7 +1799,7 @@ if (document.querySelector('.user-purchased-event-before, .go-events-page')) {
 slot.setAttribute('data-kb-done', '1');
 return;
 }
-var id = (location.pathname.match(/\/etkinlikler\/(\d+)/) || [])[1]; if (!id) return;
+var id = (location.pathname.match(/\/canli-oturumlar\/(\d+)/) || [])[1]; if (!id) return;
 loadEl().then(function (map) {
 var ev = map.byId[id]; if (!ev) return;   
 var p = ev.price || {};
@@ -1886,7 +1886,7 @@ return null;
 function fillSeriesBadge(sd) {
 var h1 = sd && sd.querySelector('.kb-sd-content h1'); if (!h1) return;
 if (h1.querySelector('.kb-sd-series')) return;                 
-var id = (location.pathname.match(/\/etkinlikler\/(\d+)/) || [])[1]; if (!id) return;
+var id = (location.pathname.match(/\/canli-oturumlar\/(\d+)/) || [])[1]; if (!id) return;
 loadEl().then(function (map) {
 if (h1.querySelector('.kb-sd-series')) return;
 var ev = map.byId[id]; if (!ev) return;
@@ -2031,7 +2031,7 @@ return String(s == null ? '' : s)
     var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
     var cover = emptyImg(e.image) ? '' : imgUrl(e.image);
     var avatar = emptyImg(e.agent_image) ? '' : imgUrl(e.agent_image);
-    var href = localePrefix() + (e.url || '/etkinlikler');
+    var href = localePrefix() + (e.url || '/canli-oturumlar');
     var cat = String(e.event_category_name || '').trim();
     var dur = String(e.duration || '').trim();
     var price = priceText(e);
@@ -2237,7 +2237,7 @@ seen[md.slug] = 1; list.push({ slug: md.slug, name: md.name, color: md.color });
 return list;
 }
 function fetchCategories() {
-return fetch(localePrefix() + '/etkinlikler', { credentials: 'same-origin' })
+return fetch(localePrefix() + '/canli-oturumlar', { credentials: 'same-origin' })
 .then(function (r) { return r.ok ? r.text() : ''; })
 .then(function (html) {
 if (!html) return null;
@@ -2288,7 +2288,7 @@ cal.byDate = map;
 function calSessHTML(e) {
 var md = modeOf(e);
 var st = startOf(e);
-var href = localePrefix() + (e.url || '/etkinlikler');
+var href = localePrefix() + (e.url || '/canli-oturumlar');
 var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
 var dur = String(e.duration || '').trim();
 var time = st ? fmtTime(st) : '';
@@ -2348,7 +2348,7 @@ grid.innerHTML = html;
 }
 function calAgendaSessHTML(e) {
 var md = modeOf(e), st = startOf(e);
-var href = localePrefix() + (e.url || '/etkinlikler');
+var href = localePrefix() + (e.url || '/canli-oturumlar');
 var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
 var dur = String(e.duration || '').trim();
 var time = st ? fmtTime(st) : '';
@@ -2503,7 +2503,7 @@ return list.sort(function (a, b) { return dir * (tkey(a) - tkey(b)); });
 function sxRowHTML(e) {
 var md = modeOf(e), st = startOf(e);
 var past = st ? (st.getTime() < Date.now()) : false;
-var href = localePrefix() + (e.url || '/etkinlikler');
+var href = localePrefix() + (e.url || '/canli-oturumlar');
 var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
 var dur = String(e.duration || '').trim();
 var avatar = emptyImg(e.agent_image) ? '' : imgUrl(e.agent_image);
@@ -2712,7 +2712,7 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
       var date = '', mode = '';
       [].slice.call(c.querySelectorAll('.info-label')).forEach(function (l) { var i = l.querySelector('i'); if (i && /calendar/.test(i.className) && !date) date = txt(l); });
       var linkA = c.closest('a') || c.querySelector('a');
-      sessions.push({ title: st, date: date, href: linkA ? linkA.getAttribute('href') : (locale() + '/etkinlikler') });
+      sessions.push({ title: st, date: date, href: linkA ? linkA.getAttribute('href') : (locale() + '/canli-oturumlar') });
     });
     /* ---- KURGU (.fd-*) ---- */
     var fd = document.createElement('div'); fd.className = 'fd-root';
@@ -2730,11 +2730,11 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
     /* CTA — per-firma yönetilebilir (about marker: [CTA-Başlık][CTA-Metin][CTA-Buton: Etiket|URL]); yoksa default */
     var ctaTitle = mk.ctaTitle || (name + ' Oturumlarına Katıl');
     var ctaText = mk.ctaText || (name + ' tarafından düzenlenen canlı oturumları ve etkinlikleri keşfedin.');
-    var ctaLabel = 'Oturumları Keşfet', ctaHref = locale() + '/etkinlikler';
+    var ctaLabel = 'Oturumları Keşfet', ctaHref = locale() + '/canli-oturumlar';
     if (mk.ctaBtn) { var cp = mk.ctaBtn.split('|'); if (cp[0] && cp[0].trim()) ctaLabel = cp[0].trim(); if (cp[1] && cp[1].trim()) ctaHref = cp[1].trim(); }
     fd.innerHTML =
       "<section class='fd-hero'><div class='bg'></div><div class='g'></div><div class='container'>" +
-        "<a class='fd-back' href='" + locale() + "/uzmanlar'>&larr; Mod Elçisi Firmalar</a>" +
+        "<a class='fd-back' href='" + locale() + "/1-1-danismanlik'>&larr; Mod Elçisi Firmalar</a>" +
         "<div class='fd-top'>" +
           "<div class='fd-logo'>" + (logoSrc ? "<img src='" + esc(logoSrc) + "' alt='" + esc(name) + "'>" : esc(name.charAt(0))) + "</div>" +
           "<div class='fd-info'><h1>" + esc(name) + "</h1><span class='fd-verified'>✓ Doğrulanmış</span>" +
@@ -2782,7 +2782,7 @@ var m = ((el && el.getAttribute('style')) || '').match(/url\(["']?(.+?)["']?\)/)
       .replace(/[Ğğ]/g, 'g').replace(/[Üü]/g, 'u').replace(/[Çç]/g, 'c').replace(/[Öö]/g, 'o').toLowerCase()
       .replace(/\s+/g, ' ').trim();
   }
-  function eidFromHref(h) { var m = String(h == null ? '' : h).match(/\/etkinlikler\/(\d+)/); return m ? m[1] : ''; }
+  function eidFromHref(h) { var m = String(h == null ? '' : h).match(/\/canli-oturumlar\/(\d+)/); return m ? m[1] : ''; }
   var PAL = [['uretken', '#F59E0B'], ['teknoloji', '#3B82F6'], ['keyif', '#F43F5E'], ['saglik', '#10B981'], ['longevity', '#22C55E'], ['aile', '#8B5CF6']];
   function colorForCat(name) { var h = trNorm(name); for (var i = 0; i < PAL.length; i++) if (h.indexOf(PAL[i][0]) >= 0) return PAL[i][1]; return '#F59E0B'; }
   var ICON_CLOCK = "<svg viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='9'/><path d='M12 7v5l3 2'/></svg>";
@@ -3101,7 +3101,7 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
   function modeKw(s) { return trNorm((s || '').split('-')[0]); }
   function eventCard(e) {
     var st = startOf(e);
-    var href = localePrefix() + (e.url || '/etkinlikler');
+    var href = localePrefix() + (e.url || '/canli-oturumlar');
     var title = (String(e.event_name || '').trim()) || 'Canlı Oturum';
     var dur = String(e.duration || '').trim();
     var cover = emptyImg(e.image) ? '' : imgUrl(e.image);
@@ -3135,7 +3135,7 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
         sec.className = 'kb-cat-events';
         sec.setAttribute('data-kb-cat', 'events');
         sec.innerHTML = '<div class="kb-cat-events-head"><div><h2>Yaklaşan Oturumlar</h2><p>' + esc((catName || 'Bu mod') + ' kategorisindeki canlı etkinlikler') + '</p></div>' +
-          '<a class="kb-cat-events-all" href="' + localePrefix() + '/s/etkinlikler-2?mod=' + encodeURIComponent(kw) + '">Tümü ' + ico(I_ARROW) + '</a></div>' +
+          '<a class="kb-cat-events-all" href="' + localePrefix() + '/s/etksinlikler-2?mod=' + encodeURIComponent(kw) + '">Tümü ' + ico(I_ARROW) + '</a></div>' +
           '<div class="ms-grid">' + pick.map(eventCard).join('') + '</div>';
         anchor.parentElement.insertBefore(sec, anchor);
       })
@@ -3708,9 +3708,9 @@ var startDate = (dateRange.split('-')[0] || '').trim();
 var startTime = (timeRange.split('-')[0] || '').trim();       
 var when = (startDate + ' ' + startTime).trim();
 var dur = durFromClock(timeRange);                            
-var linkA = c.closest('a') || c.querySelector('a[href*="/etkinlikler/"]') || c.querySelector('a');
+var linkA = c.closest('a') || c.querySelector('a[href*="/canli-oturumlar/"]') || c.querySelector('a');
 var href = linkA ? linkA.getAttribute('href') : '';
-var id = (href.match(/\/etkinlikler\/(\d+)/) || [])[1] || '';
+var id = (href.match(/\/canli-oturumlar\/(\d+)/) || [])[1] || '';
 var key = title + '|' + when; if (seen[key]) return; seen[key] = 1;
 items.push({ title: title, when: when, dur: dur, id: id, cover: coverUrl(c.querySelector('.event-image')), href: href });
 });
@@ -3773,7 +3773,7 @@ var id = moreBtn && moreBtn.getAttribute('data-id');
 if (id) {
 if (el.getAttribute('data-kb-fetch') === '1') return;
 el.setAttribute('data-kb-fetch', '1');
-fetch('/uzmanlar/reviews/' + id, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+fetch('/1-1-danismanlik/reviews/' + id, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
 .then(function (r) { if (!r.ok) throw 0; return r.text(); })
 .then(function (html) { var doc = new DOMParser().parseFromString(html, 'text/html'); computeAndShow([].slice.call(doc.querySelectorAll('.review'))); })
 .catch(function () { el.removeAttribute('data-kb-fetch'); computeAndShow([].slice.call(document.querySelectorAll('.review'))); });
@@ -4020,9 +4020,9 @@ coName = coName.replace(/[<>&"]/g, '');                             /* DOM kayna
     toggle.className = 'kb-u-cotoggle';
     toggle.setAttribute('role', 'group');
     toggle.innerHTML =
-      '<a href="' + loc + '/uzmanlar" class="kb-u-cobtn' + (allActive ? '' : ' active') + '">' +
+      '<a href="' + loc + '/1-1-danismanlik" class="kb-u-cobtn' + (allActive ? '' : ' active') + '">' +
         (coName ? coName + ' Uzmanları' : 'Şirketimin Uzmanları') + '</a>' +
-      '<a href="' + loc + '/uzmanlar?isFilter=1" class="kb-u-cobtn' + (allActive ? ' active' : '') + '">Tüm Uzmanlar</a>';
+      '<a href="' + loc + '/1-1-danismanlik?isFilter=1" class="kb-u-cobtn' + (allActive ? ' active' : '') + '">Tüm Uzmanlar</a>';
     filterNode.appendChild(toggle);
   }
   /* Arama haystack'i: isim + KATEGORI (mod-tag + kategori pill'leri).
