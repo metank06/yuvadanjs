@@ -1,3 +1,5 @@
+
+
 $(document).ready(function(){
 
 $('.users-wrapper').prepend('<div class="yuva-singup-wp"><div class="yuva-signup-con"><div class="yuva-signup-item"><div class="yuva-signup-items"><div class="yuva-signup-img"><img src="/images/202509/504_890x773.jpg" alt=""></div></div><div class="yuva-signup-items"><div class="yuva-singup-cont"></div></div></div></div></div>');
@@ -73,6 +75,12 @@ $('span#order-dd label ul>:nth-child(3) a').text('İsme Göre (Z-A)');
    $('#login-form').prepend('<div class="yuva-form-text"><h2 class="yuva-font-h2">Üye Girişi</h2></div>');
 
 if(window.location.pathname == '/tr-TR/uzmanlar'){
+
+    var $pg = $('#pagination');
+    var $list = $pg.parent('.list');   // yalnızca grid listenin doğrudan çocuğuysa
+    if ($pg.length && $list.length) {
+      $list.after($pg);                 // grid'in hemen altına, dışına taşı
+    }
 
      $("a.btn.btn-online").text("Randevu Al");
      $("a.btn.btn-busy").text("Randevu Al");
@@ -2032,3 +2040,16 @@ $('.child-card-2').wrap('<a href="/hizmetler/teknolojik-ve-akademik-danismanlik"
   }
 
 });
+
+(function () {
+  function hideLoader(){ document.documentElement.classList.add('page-loaded'); }
+  if (window.jQuery) {
+    jQuery(function () {                                   // DOM hazır + üstteki tüm özelleştirmeler çalıştı
+      requestAnimationFrame(function () { requestAnimationFrame(hideLoader); }); // değişiklikler boyanınca kaldır
+    });
+  } else {
+    document.addEventListener('DOMContentLoaded', hideLoader);
+  }
+  window.addEventListener('load', hideLoader);             // yedek
+  setTimeout(hideLoader, 5000);                            // güvenlik: JS hata verse bile en geç 5sn'de kalkar
+})();
