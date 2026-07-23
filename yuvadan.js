@@ -2041,15 +2041,4 @@ $('.child-card-2').wrap('<a href="/hizmetler/teknolojik-ve-akademik-danismanlik"
 
 });
 
-(function () {
-  function hideLoader(){ document.documentElement.classList.add('page-loaded'); }
-  if (window.jQuery) {
-    jQuery(function () {                                   // DOM hazır + üstteki tüm özelleştirmeler çalıştı
-      requestAnimationFrame(function () { requestAnimationFrame(hideLoader); }); // değişiklikler boyanınca kaldır
-    });
-  } else {
-    document.addEventListener('DOMContentLoaded', hideLoader);
-  }
-  window.addEventListener('load', hideLoader);             // yedek
-  setTimeout(hideLoader, 5000);                            // güvenlik: JS hata verse bile en geç 5sn'de kalkar
-})();
+
