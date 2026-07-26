@@ -112,7 +112,7 @@ var privilege = '<a href="' + url('/s/ayricaliklar') + '" class="md-privilege">'
 if (li) {
 var out = privilege;
 out += '<a href="' + url('/profile') + '" class="md-act-stack" data-kb-login="1" title="Panelim">' + ICONS.user + '<span>Panelim</span></a>';
-out += '<a href="' + url('/mesajlar') + '" class="md-act-stack" data-kb-msg="1" title="Mesajlarım">' + ICONS.message + '<span>Mesajlar</span></a>';
+out += '<a href="' + url('/im') + '" class="md-act-stack" data-kb-msg="1" title="Mesajlarım">' + ICONS.message + '<span class="md-msg-badge" data-kb-msg-badge></span><span>Mesajlar</span></a>';
 out += '<a href="' + url('/cikis') + '" class="md-act-stack" title="Çıkış Yap">' + ICONS.logout + '<span>Çıkış Yap</span></a>';
 return out;
 }
@@ -125,7 +125,7 @@ function drawerActions() {
 var li = isLoggedIn();
 var out = '<a href="' + url('/s/danisman-ol') + '" class="md-drawer-btn md-drawer-btn-outline">' + ICONS.briefcase + ' Danışmanımız Ol</a>';
 if (li) {
-out += '<a href="' + url('/mesajlar') + '" class="md-drawer-btn md-drawer-btn-outline" data-kb-msg="1">' + ICONS.message + ' Mesajlarım</a>';
+out += '<a href="' + url('/im') + '" class="md-drawer-btn md-drawer-btn-outline" data-kb-msg="1">' + ICONS.message + ' Mesajlarım<span class="md-msg-badge" data-kb-msg-badge></span></a>';
 out += loginLink({ block: true });
 out += '<a href="' + url('/cikis') + '" class="md-drawer-btn md-drawer-btn-ghost">' + ICONS.logout + ' Çıkış Yap</a>';
 } else {
@@ -317,6 +317,21 @@ return [
 '</footer>'
 ].join('\n');
 }
+function updateMsgBadge() {
+var badges = document.querySelectorAll('[data-kb-msg-badge]');
+if (!badges.length) return; 
+fetch('/user/im/unseen', { headers: { 'X-Requested-With': 'XMLHttpRequest' }, credentials: 'same-origin' })
+.then(function (r) { return r.ok ? r.json() : null; })
+.then(function (d) {
+if (!d || !d.success || !Array.isArray(d.data)) return;
+var tot = d.data.reduce(function (s, x) { return s + ((x.count * 1) || 0); }, 0);
+badges.forEach(function (b) {
+b.textContent = tot > 99 ? '99+' : (tot ? String(tot) : '');
+b.classList.toggle('is-on', tot > 0);
+});
+})
+.catch(function () {});
+}
 function injectChrome() {
 if (document.querySelector('.md-header')) return; 
 var body = document.body;
@@ -336,6 +351,7 @@ body.appendChild(footerWrap.firstElementChild);
 initDropdowns();
 initDrawer();
 ensureSearch();
+updateMsgBadge();
 requestAnimationFrame(function () {
 requestAnimationFrame(function () { document.documentElement.classList.add('kb-ready'); });
 });
@@ -3135,7 +3151,7 @@ function esc(s) { return String(s == null ? '' : s).replace(/&/g, '&amp;').repla
         sec.className = 'kb-cat-events';
         sec.setAttribute('data-kb-cat', 'events');
         sec.innerHTML = '<div class="kb-cat-events-head"><div><h2>Yaklaşan Oturumlar</h2><p>' + esc((catName || 'Bu mod') + ' kategorisindeki canlı etkinlikler') + '</p></div>' +
-          '<a class="kb-cat-events-all" href="' + localePrefix() + '/s/etksinlikler-2?mod=' + encodeURIComponent(kw) + '">Tümü ' + ico(I_ARROW) + '</a></div>' +
+          '<a class="kb-cat-events-all" href="' + localePrefix() + '/s/etkinlikler-2?mod=' + encodeURIComponent(kw) + '">Tümü ' + ico(I_ARROW) + '</a></div>' +
           '<div class="ms-grid">' + pick.map(eventCard).join('') + '</div>';
         anchor.parentElement.insertBefore(sec, anchor);
       })
