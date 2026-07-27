@@ -1,3 +1,215 @@
+jQuery(function ($) {
+    'use strict';
+
+    var CFG = {
+        // Kartların içinde bulunduğu kapsayıcı
+        listSelector: '.packages, .package-list, .appointment-packages',
+        // Tek bir paket kartı
+        itemSelector: '.package-item',
+        // Kredi sayısının yazdığı alan (bulunamazsa kart metninden regex ile çekilir)
+        creditSelector: '.package-credit, .package-meta, .credit-amount',
+        direction: 'asc'   // 'asc' = düşükten yükseğe, 'desc' = tersi
+    };
+
+    // "1.250 Kredi" / "10 kredi" / "3,5 kredi" → sayı
+    function parseCredit($item) {
+        // 1) data attribute varsa en güvenilir
+        var d = $item.attr('data-credit') || $item.find('[data-credit]').first().attr('data-credit');
+        if (d != null && d !== '' && !isNaN(parseFloat(d))) return parseFloat(d);
+
+        // 2) kredi alanı ya da kart metninde "kredi" geçen ilk sayı
+        var text = $item.find(CFG.creditSelector).text();
+        if (!/kredi/i.test(text)) text = $item.text();
+
+        var m = text.match(/([\d.,]+)\s*(?=kredi)/i);
+        if (!m) return null;
+
+        var raw = m[1].replace(/\.(?=\d{3}\b)/g, '')  // binlik ayıracı
+                      .replace(',', '.');             // ondalık virgül
+        var n = parseFloat(raw);
+        return isNaN(n) ? null : n;
+    }
+
+    function sortPackages() {
+        var $list = $(CFG.listSelector).first();
+        if (!$list.length) $list = $(CFG.itemSelector).first().parent();
+        if (!$list.length) return;
+
+        var $items = $list.children(CFG.itemSelector);
+        if ($items.length < 2) return;
+
+        var rows = $items.map(function (i) {
+            return { el: this, credit: parseCredit($(this)), i: i };
+        }).get();
+
+        rows.sort(function (a, b) {
+            // krediyi okunamayanlar en sona, kendi sıralarını koruyarak
+            if (a.credit === null && b.credit === null) return a.i - b.i;
+            if (a.credit === null) return 1;
+            if (b.credit === null) return -1;
+            if (a.credit === b.credit) return a.i - b.i;   // stabil
+            return CFG.direction === 'desc' ? b.credit - a.credit : a.credit - b.credit;
+        });
+
+        // Zaten sıralıysa DOM'a dokunma (gereksiz reflow ve observer tetiklemesi olmasın)
+        var changed = rows.some(function (r, idx) { return r.i !== idx; });
+        if (!changed) return;
+
+        $list.append($.map(rows, function (r) { return r.el; }));
+    }
+
+    sortPackages();
+
+    // Paketler AJAX / sekme değişimi ile sonradan gelirse
+    var t;
+    new MutationObserver(function () {
+        clearTimeout(t);
+        t = setTimeout(sortPackages, 120);
+    }).observe(document.body, { childList: true, subtree: true });
+});
+
+
+(function () {
+    'use strict';
+
+    var CFG = {
+        // Paket kartı
+        cardSelector: '.package-item, .packages .package-item, [class*="package-item"]',
+        // Açıklama alanı (bulunamazsa otomatik tespit devreye girer)
+        descSelector: '.package-description, .package-item-description, .package-desc, .package-text, .package-content',
+        lines: 4,
+        moreText: 'Devamını oku',
+        lessText: 'Daha az göster'
+    };
+
+    var running = false;
+
+    function lineHeight(el) {
+        var cs = getComputedStyle(el);
+        var lh = parseFloat(cs.lineHeight);
+        if (isNaN(lh)) lh = parseFloat(cs.fontSize) * 1.5;
+        return lh;
+    }
+
+    function clampHeight(el) {
+        var cs = getComputedStyle(el);
+        return lineHeight(el) * CFG.lines
+             + parseFloat(cs.paddingTop || 0)
+             + parseFloat(cs.paddingBottom || 0);
+    }
+
+    // Açıklama elementini bul: önce selector, olmazsa en uzun metinli blok
+    function findDesc(card) {
+        var el = card.querySelector(CFG.descSelector);
+        if (el && el.textContent.trim()) return el;
+
+        var best = null, bestLen = 0;
+        card.querySelectorAll('p, div, span').forEach(function (n) {
+            if (n.classList.contains('pkg-desc')) return;
+            if (n.querySelector('a, button, input, img')) return;   // fiyat/buton bloklarını atla
+            if (n.children.length > 2) return;                     // kapsayıcıları atla
+            var len = (n.textContent || '').trim().length;
+            if (len > bestLen && len > 60) { bestLen = len; best = n; }
+        });
+        return best;
+    }
+
+    function setup(desc) {
+        desc.classList.add('pkg-desc');
+
+        var max = clampHeight(desc);
+        var isOpen = desc.classList.contains('is-open');
+
+        // Ölçüm için geçici olarak serbest bırak
+        desc.style.maxHeight = 'none';
+        var full = desc.scrollHeight;
+
+        var needsToggle = full > max + 2;
+        var btn = desc.nextElementSibling;
+        if (!btn || !btn.classList.contains('pkg-desc-toggle')) btn = null;
+
+        if (!needsToggle) {                    // 4 satırı geçmiyorsa dokunma
+            desc.classList.remove('is-clamped', 'is-open');
+            desc.style.maxHeight = '';
+            if (btn) btn.remove();
+            return;
+        }
+
+        if (!btn) {
+            btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'pkg-desc-toggle';
+            btn.setAttribute('aria-expanded', 'false');
+            btn.textContent = CFG.moreText;
+            desc.insertAdjacentElement('afterend', btn);
+
+            btn.addEventListener('click', function () {
+                var open = desc.classList.toggle('is-open');
+                desc.classList.toggle('is-clamped', !open);
+                btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+                btn.textContent = open ? CFG.lessText : CFG.moreText;
+
+                if (open) {
+                    desc.style.maxHeight = desc.scrollHeight + 'px';
+                    desc.addEventListener('transitionend', function done() {
+                        desc.removeEventListener('transitionend', done);
+                        if (desc.classList.contains('is-open')) desc.style.maxHeight = 'none';
+                    });
+                } else {
+                    desc.style.maxHeight = desc.scrollHeight + 'px';
+                    requestAnimationFrame(function () {
+                        desc.style.maxHeight = clampHeight(desc) + 'px';
+                    });
+                }
+            });
+        }
+
+        if (isOpen) {
+            desc.style.maxHeight = 'none';
+        } else {
+            desc.classList.add('is-clamped');
+            desc.style.maxHeight = max + 'px';
+        }
+    }
+
+    function run() {
+        if (running) return;
+        running = true;
+        try {
+            document.querySelectorAll(CFG.cardSelector).forEach(function (card) {
+                var desc = findDesc(card);
+                if (desc) setup(desc);
+            });
+        } finally {
+            running = false;
+        }
+    }
+
+    function init() {
+        run();
+
+        // Paketler AJAX / sekme ile sonradan gelirse
+        var obs = new MutationObserver(function () {
+            clearTimeout(init._t);
+            init._t = setTimeout(run, 120);
+        });
+        obs.observe(document.body, { childList: true, subtree: true });
+
+        // Genişlik değişince satır sayısı kayar → yeniden ölç
+        window.addEventListener('resize', function () {
+            clearTimeout(init._r);
+            init._r = setTimeout(run, 200);
+        });
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+})();
+
+
 $(document).ready(function () {
 
 if(window.location.pathname == '/kredi-satin-al'){
