@@ -212,6 +212,10 @@ jQuery(function ($) {
 
 $(document).ready(function () {
 
+if(window.location.pathname == '/tr-TR/signup'){
+  $('#google-login-link .glogin-text').text('Google ile Kaydol');
+  }
+
 if(window.location.pathname == '/kredi-satin-al'){
 
 $('.page-title').append('<p>Kredi, yorumcularla görüşmeler için kullanılan bir ödeme birimidir. Global ödeme sistemi Stripe ile güvenle alışveriş yapabilirsiniz.</p>');
