@@ -271,7 +271,7 @@ $('.item-excerpt').each(function() {
       $(this).html(newText);
     }
   });
-  
+
 
      }
 
@@ -281,7 +281,7 @@ var mutationObserver = new MutationObserver(function(mutations) {
 
 $("<span>Bir seferde en fazla 5 dosya yüklenebilir.<br>Her Dosya en fazla 10MB toplamda 50MB olabilir</span>").insertBefore(".form-buttons");
 $('.service-tab-content .profile-form').prepend('<div class="prf-title">Yorumunuz Size Yazılı Olarak İletilecektir</div>');
- 
+
    }
 
 
@@ -314,7 +314,7 @@ if (window.location.pathname === '/uzmanlar') {
 }
 
 $("#acdiv").text("Hemen Ara / Mesaj At");
-$(".user-menu .credit .clock i").removeClass("i-time "); 
+$(".user-menu .credit .clock i").removeClass("i-time ");
 $(".user-menu .credit .clock i").addClass("far fa-coins");
 
 if(window.location.pathname == '/uzmanlar/fal-gpt'){
@@ -354,7 +354,7 @@ $('.agents .item').find(".active[rel='service-message']").parents('.item').show(
 });
 
 
-$(document).ready(function() { 
+$(document).ready(function() {
 document.querySelectorAll('.item').forEach((it)=>{
 var div = $('> .item-c > .profile-review-stars', it);
    var link = $('> .item-c > .item-title', it);
@@ -657,7 +657,7 @@ $(document).ready(function () {
 
 $(document).ready(function () {
     $(".item-title").each(function () {
-        let content = $(this).html(); 
+        let content = $(this).html();
         let updatedContent = content.replace(/\((.*)\)/, "<br>($1)");
         $(this).html(updatedContent);
     });
@@ -727,7 +727,7 @@ $(document).ready(function () {
   $('.user-menu .instantmessaging').append('<p>Anlık Mesajlar</p>');
   $('.user-menu .messages').append('<p>Gelen Mesajlar</p>');
   $('.user-menu .credit').append('<p>Kredilerim</p>');
-   
+
 });
 
 
@@ -855,7 +855,7 @@ window.addEventListener('load', function () { dec(); extras(); setTimeout(functi
 (function () {
 function onKredi() { return document.body && document.body.classList.contains('kb-page-kredi-satin-al'); }
 var IMG = '/images/202607/';
-var SHOW = 5;   
+var SHOW = 5;
 var POS = [
 { icon: '989_129x90', t: 'purple', badge: 'GİRİŞ PAKETİ',         bonus: 0 },
 { icon: '990_127x91', t: 'blue',   badge: 'POPÜLER',              bonus: 1000 },
@@ -873,13 +873,13 @@ l.setAttribute('data-kb-font', 'kredi');
 document.head.appendChild(l);
 }
 function decorate(item, idx) {
-item.style.order = idx;                       
+item.style.order = idx;
 if (item.dataset.kbPkg === '1') return;
 item.dataset.kbPkg = '1';
-var cfg = idx < SHOW ? POS[idx] : null;       
+var cfg = idx < SHOW ? POS[idx] : null;
 item.classList.add('kb-pkg', 'kb-t-' + (cfg ? cfg.t : 'purple'));
 if (cfg && cfg.featured) item.classList.add('kb-featured');
-if (!cfg) item.classList.add('kb-pkg-std', 'kb-pkg-extra', 'kb-pkg-hidden');  
+if (!cfg) item.classList.add('kb-pkg-std', 'kb-pkg-extra', 'kb-pkg-hidden');
 var content = item.querySelector('.item-content') || item;
 var title   = item.querySelector('.item-title');
 var excerpt = item.querySelector('.item-excerpt');
@@ -887,7 +887,7 @@ var action  = item.querySelector('.item-action');
 var info    = item.querySelector('.item-info');
 if (info) info.style.display = 'none';
 var ex = excerpt ? (excerpt.textContent || '').trim() : '';
-var featTxt = ex;                            
+var featTxt = ex;
 var creditsTxt = '';
 var m = ex.match(/([\d.,]+)\s*[Kk]redi/);
 if (m) creditsTxt = trGroup(m[1].replace(/[.,]/g, '')) + ' Kredi';
@@ -941,7 +941,7 @@ var link = action.querySelector('a, button');
 if (link) {
 link.classList.add('kb-buy');
 link.innerHTML = 'Satın Al <span class="arrow">→</span>';
-action.innerHTML = '';        
+action.innerHTML = '';
 action.appendChild(link);
 }
 }
@@ -1237,6 +1237,37 @@ function decorateReviewCards() {
 var revWrap = $('#kb-rev .reviews'); if (!revWrap) return;
 $$('.review', revWrap).forEach(decorateOneReview);
 }
+var _reviewsPromise = null;
+function reviewsEndpointUrl() {
+var btn = document.getElementById('show-more-review');
+var id = btn ? btn.getAttribute('data-id') : null;
+return id ? location.pathname.replace(/\/+$/, '').replace(/\/[^\/]+$/, '/reviews/' + id) : null;
+}
+function fetchAllReviews() {
+if (_reviewsPromise) return _reviewsPromise;
+var url = reviewsEndpointUrl();
+if (!url) { _reviewsPromise = Promise.resolve(null); return _reviewsPromise; }
+_reviewsPromise = fetch(url, { credentials: 'same-origin' })
+.then(function (r) { return r.text(); })
+.then(function (html) {
+var tmp = document.createElement('div'); tmp.innerHTML = html;
+var revs = Array.prototype.slice.call(tmp.querySelectorAll('.review'));
+return revs.length ? revs : null;
+})
+.catch(function () { return null; });
+return _reviewsPromise;
+}
+function updateReviewCounts(fallbackCount) {
+fetchAllReviews().then(function (revs) {
+var total = revs ? revs.length : fallbackCount;
+var rcEl = document.querySelector('.kb-rc');
+if (rcEl) rcEl.textContent = '(' + total + ')';
+var metaLast = document.querySelector('.kb-meta span:last-child');
+if (metaLast) metaLast.innerHTML = '<i class="far fa-star"></i> ' + total + ' değerlendirme';
+var tab = document.querySelector('.kb-tab[href="#kb-rev"]');
+if (tab) tab.innerHTML = '<i class="far fa-comments"></i> Yorumlar (' + total + ')';
+});
+}
 function openReviewsModal() {
 var revWrap = $('#kb-rev .reviews'); if (!revWrap) return;
 var ov = $('.kb-rev-modal-overlay');
@@ -1259,20 +1290,12 @@ function fillFrom(nodes) {
 grid.innerHTML = '';
 nodes.forEach(function (n) { var c = n.cloneNode(true); decorateOneReview(c); grid.appendChild(c); });
 }
-function fallbackLoaded() { fillFrom($$('#kb-rev .reviews .review')); }
 if (ov._kbReviews) { fillFrom(ov._kbReviews); return; }
 grid.innerHTML = '<div class="kb-rev-loading"><i class="fas fa-spinner fa-spin"></i> Yorumlar yükleniyor…</div>';
-var btn = document.getElementById('show-more-review');
-var id = btn ? btn.getAttribute('data-id') : null;
-var url = id ? location.pathname.replace(/\/+$/, '').replace(/\/[^\/]+$/, '/reviews/' + id) : null;
-if (!url) { fallbackLoaded(); return; }
-fetch(url, { credentials: 'same-origin' }).then(function (r) { return r.text(); }).then(function (html) {
-var tmp = document.createElement('div'); tmp.innerHTML = html;
-var revs = Array.prototype.slice.call(tmp.querySelectorAll('.review'));
-if (!revs.length) { fallbackLoaded(); return; }
-ov._kbReviews = $$('#kb-rev .reviews .review').concat(revs);
+fetchAllReviews().then(function (revs) {
+ov._kbReviews = revs || $$('#kb-rev .reviews .review');
 fillFrom(ov._kbReviews);
-}).catch(fallbackLoaded);
+});
 }
 function build() {
 if (document.querySelector('.kb-uzman')) { placePackages(); placeMsg(); buildCallButtons(); return; }
@@ -1291,7 +1314,7 @@ var fullT = (titleEl0.textContent || '').replace(/\s+/g, ' ').trim();
 var ex = fullT.replace(name, '').trim().replace(/^[\(（]\s*/, '').replace(/\s*[\)）]\s*$/, '').trim();
 if (ex && ex.length < 60) unvan = ex;
 }
-var EXCLUDE_CAT = /talep/i;   
+var EXCLUDE_CAT = /talep/i;
 var cats = $$('.profile-categories .pcategory-btn').map(function (b) { return (b.textContent || '').trim(); }).filter(function (t) { return t && !EXCLUDE_CAT.test(t); });
 var wrap = document.createElement('div');
 wrap.className = 'kb-uzman';
@@ -1346,6 +1369,7 @@ tabs.innerHTML = '<a class="kb-tab" href="#kb-about"><i class="far fa-user"></i>
 + '<a class="kb-tab active" href="#kb-pkg"><i class="far fa-gem"></i> Paketler</a>'
 + '<a class="kb-tab" href="#kb-rev"><i class="far fa-comments"></i> Yorumlar (' + rc + ')</a>';
 panels.appendChild(tabs);
+updateReviewCounts(rc);
 var about = $('.profile-content.about', pageContent);
 if (about) {
 about.id = 'kb-about'; panels.appendChild(about);
@@ -1360,19 +1384,19 @@ pkgSec.innerHTML =
 '<div class="kb-msg-sec"><div class="kb-sec-head"><h2><span class="sp">✦</span> Hizmet Paketleri</h2></div><div class="kb-msg-mount"></div></div>'
 + '<div class="kb-apt-sec"><div class="kb-sec-head"><h2><span class="sp">✦</span> Randevu Paketleri</h2></div><div class="kb-pkg-mount"></div></div>';
 panels.appendChild(pkgSec);
-placeMsg();   
+placeMsg();
 var comments = $('.profile-content.comments', pageContent);
 if (comments) {
 comments.id = 'kb-rev'; comments.classList.add('kb-rev-sec');
-panels.appendChild(comments);   
+panels.appendChild(comments);
 var revWrap = $('.reviews', comments);
 var revTitle = $('.profile-content-title', comments) || $('h2', comments);
 var sh = document.createElement('div'); sh.className = 'kb-sec-head';
 comments.insertBefore(sh, comments.firstChild);
 if (revTitle) { revTitle.innerHTML = '<span class="sp">✦</span> Danışan Yorumları'; sh.appendChild(revTitle); }
 if (revWrap) {
-decorateReviewCards();   
-revWrap.classList.add('kb-rev-cap');   
+decorateReviewCards();
+revWrap.classList.add('kb-rev-cap');
 var moreSrc = null;
 Array.prototype.slice.call(revWrap.children).forEach(function (c) { if (!c.classList.contains('review')) { c.classList.add('kb-rev-more'); c.style.display = 'none'; comments.appendChild(c); if (!moreSrc) moreSrc = c.querySelector('a,button') || c; } });
 var allLink = document.createElement('a'); allLink.className = 'kb-rev-all'; allLink.href = '#';
@@ -1397,7 +1421,7 @@ sb.appendChild(sbBtn); wrap.appendChild(sb);
 $$('.kb-tab', tabs).forEach(function (t) {
 t.addEventListener('click', function (e) { e.preventDefault(); showPanel(t.getAttribute('href'), true); });
 });
-showPanel('#kb-pkg', false);   
+showPanel('#kb-pkg', false);
 buildCallButtons();
 try {
 var obs = new MutationObserver(function () { placePackages(); placeMsg(); buildCallButtons(); });
@@ -1413,7 +1437,7 @@ window.addEventListener('load', function () { build(); setTimeout(build, 600); s
 var IS_CATEGORY = (typeof isCategory !== 'undefined' && isCategory);
 function kbIsAgentsListPage() {
 if (typeof isAgentDetail !== 'undefined' && isAgentDetail) return false;
-if (IS_CATEGORY) return true;   
+if (IS_CATEGORY) return true;
 if (typeof agentUrlGlobal === 'undefined' || !agentUrlGlobal) return false;
 var p = (window.location.pathname || '').replace(/\/+$/, '');
 var t = ('' + agentUrlGlobal).replace(/\/+$/, '');
@@ -1438,7 +1462,7 @@ parent.insertBefore(hero, parent.firstChild);
 function decorateCard(ic) {
 if (!ic || ic.dataset.kbExp === '1') return;
 var name = ic.querySelector('.item-title');
-if (!name) return; 
+if (!name) return;
 ic.dataset.kbExp = '1';
 var action = ic.querySelector('.item-action');
 var cc = ic.querySelector('.comment-count');
@@ -1486,14 +1510,14 @@ if (document.querySelector('.kb-uz-filterrow')) { updateCount(); return; }
 var toolbar = document.querySelector('.order-flex-list');
 var grid = document.querySelector('.list.flex:not(.order-flex-list)');
 if (!toolbar || !grid || !toolbar.parentNode) return;
-var base = (location.pathname || '/uzmanlar').replace(/\/+$/, '');  
-var current = (location.search.match(/[?&]servicefilters=([^&]+)/) || [])[1] || '';  
+var base = (location.pathname || '/uzmanlar').replace(/\/+$/, '');
+var current = (location.search.match(/[?&]servicefilters=([^&]+)/) || [])[1] || '';
 var row = document.createElement('div');
 row.className = 'kb-uz-filterrow';
 var h = '';
 KB_FILTERS.forEach(function (f) {
 var isActive = (f.sf === current);
-var href = isActive ? base : (base + '?servicefilters=' + f.sf);  
+var href = isActive ? base : (base + '?servicefilters=' + f.sf);
 h += '<a class="kb-uz-filter' + (isActive ? ' kb-active' : '') + '" data-kb-filter="' + f.key + '" href="' + href + '">'
 + '<svg width="17" height="17" viewBox="0 0 24 24" fill="currentColor">' + f.icon + '</svg>'
 + '<span>' + f.label + '</span></a>';
