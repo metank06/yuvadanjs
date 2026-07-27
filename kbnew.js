@@ -1,6 +1,48 @@
 jQuery(function ($) {
     'use strict';
 
+    // Sol taraf: platformun bastığı İngilizce değer (küçük harfe indirilerek eşleşir)
+    // Sağ taraf: ekranda görünecek metin
+    var MAP = {
+        'phone': 'Telefon'
+        // İstersen bunları da aç:
+        // 'audio': 'Sesli Görüşme',
+        // 'video': 'Görüntülü Görüşme',
+        // 'chat':  'Yazılı Görüşme'
+    };
+
+    // Sadece paket kartlarındaki etiketler
+    var SCOPE  = '.appointment-packages';
+    var TARGET = '.package-info-utitle-text';
+
+    function translate() {
+        $(SCOPE).find(TARGET).each(function () {
+            var el = this;
+            if (el.dataset.trDone === '1') return;          // idempotency
+
+            var raw = (el.textContent || '').trim();
+            var hit = MAP[raw.toLowerCase()];
+            if (!hit) return;
+
+            el.textContent = hit;
+            el.dataset.trDone = '1';
+        });
+    }
+
+    translate();
+
+    // Paketler AJAX/sekme ile sonradan gelirse
+    var t;
+    new MutationObserver(function () {
+        clearTimeout(t);
+        t = setTimeout(translate, 120);
+    }).observe(document.body, { childList: true, subtree: true });
+});
+
+
+jQuery(function ($) {
+    'use strict';
+
     var CFG = {
         // Kartların içinde bulunduğu kapsayıcı
         listSelector: '.packages, .package-list, .appointment-packages',
