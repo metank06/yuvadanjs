@@ -1,3 +1,141 @@
+/* Misafir kullanıcıda paket kartlarına "Satın Al" butonu bas -> /login'e yönlendir */
+(function () {
+  if (window.__fitGuestBuyBtn) return;   // idempotency guard
+  window.__fitGuestBuyBtn = true;
+
+  function render() {
+    var ret = encodeURIComponent(location.pathname + location.search);
+
+    $('.item.gtm-package-item .item-action').each(function () {
+      var $action = $(this);
+
+      if ($action.data('fitGuestDone')) return;
+      // Sadece login uyarısı basılmış kartlara dokun (yani misafir durumundakilere)
+      if (!$action.find('.alert-info a[href*="/login"]').length) return;
+
+      $action.data('fitGuestDone', true);
+      $action.html(
+        '<a class="fit-p fit-color-2 fit-button fit-bg-mor fit-guest-buy" href="/login?return=' +
+        ret + '">SATIN AL</a>'
+      );
+    });
+  }
+
+  $(function () {
+    render();
+
+    // Kartlar özel JS ile .fit-abonelik-top içine taşındığı için kısa süre izle
+    var target = document.querySelector('.packages');
+    if (!target || !window.MutationObserver) return;
+
+    var obs = new MutationObserver(render);
+    obs.observe(target, { childList: true, subtree: true });
+    setTimeout(function () { obs.disconnect(); }, 5000);
+  });
+})();
+
+/* ============================================================
+   FİT KÜLTÜR — İletişim Sayfası
+   /tr-TR/s/iletisim
+   Panel: Özel JS alanına, tags bloklarının DIŞINA (ayrı <script> bloğu)
+   ============================================================ */
+
+(function () {
+
+    if (window.__fitContactPage) return;   // iki kez çalışmayı engelle
+    window.__fitContactPage = true;
+
+    $(function () {
+
+        /* --- Sadece iletişim sayfasında çalış --------------------------
+           /tr-TR/s/iletisim ve /s/iletisim ikisini de yakalar         */
+        if (!/\/s\/iletisim\/?$/.test(window.location.pathname)) return;
+
+        var $body = $('.page-body');
+        if (!$body.length) return;
+        if ($body.find('.fit-contact-wp').length) return;   // zaten kurulmuş
+
+        /* --- İskeleti bas ------------------------------------------- */
+        $body.append(
+            '<div class="fit-contact-wp">' +
+                '<div class="fit-contact-head">' +
+                    '<h2 class="fit-h2 fit-color-1">Fit Kültür İletişim Formu</h2>' +
+                '</div>' +
+                '<div class="fit-contact-con">' +
+                    '<div class="fit-contact-row">' +
+
+                        /* Sol kolon: iletişim bilgileri */
+                        '<div class="fit-contact-col">' +
+                            '<div class="fit-contact-content">' +
+                                '<div class="fit-contact-box">' +
+
+                                    '<div class="fit-contact-info">' +
+                                        '<div class="fit-contact-title">' +
+                                            '<div class="fit-contact-icon"><i class="far fa-envelope"></i></div>' +
+                                            '<p class="fit-p fit-color-1">E-posta</p>' +
+                                        '</div>' +
+                                        '<div class="fit-contact-tx">' +
+                                            '<p class="fit-p fit-color-3">Sorularınızı, görüş ve önerilerinizi e-posta ile de iletebilirsiniz.</p>' +
+                                            '<p class="fit-p fit-color-3"><strong>info@fitkultur.net</strong></p>' +
+                                        '</div>' +
+                                    '</div>' +
+
+                                    '<div class="fit-contact-info">' +
+                                        '<div class="fit-contact-title">' +
+                                            '<div class="fit-contact-icon"><i class="fas fa-map-marker-alt"></i></div>' +
+                                            '<p class="fit-p fit-color-1">Adres</p>' +
+                                        '</div>' +
+                                        '<div class="fit-contact-tx">' +
+                                            '<p class="fit-p fit-color-3">ADRES BURAYA</p>' +
+                                        '</div>' +
+                                    '</div>' +
+
+                                    '<div class="fit-contact-info">' +
+                                        '<div class="fit-contact-title">' +
+                                            '<a href="https://api.whatsapp.com/send/?phone=905456776882&text&type=phone_number&app_absent=0" target="_blank" rel="noopener">' +
+                                                '<div class="fit-contact-icon fit-icon-animasyon"><i class="fab fa-whatsapp"></i></div>' +
+                                            '</a>' +
+                                            '<p class="fit-p fit-color-1">WhatsApp</p>' +
+                                        '</div>' +
+                                        '<div class="fit-contact-tx">' +
+                                            '<p class="fit-p fit-color-3">7/24 Fit Kültür Destek Birimi ile iletişime geçin. İkona tıklayarak WhatsApp üzerinden hızlıca bağlanabilirsiniz.</p>' +
+                                            '<p class="fit-p fit-color-3"><strong>0545 677 68 82</strong></p>' +
+                                        '</div>' +
+                                    '</div>' +
+
+                                '</div>' +
+                            '</div>' +
+                        '</div>' +
+
+                        /* Sağ kolon: formun taşınacağı boş kart */
+                        '<div class="fit-contact-col">' +
+                            '<div class="fit-contact-item"></div>' +
+                        '</div>' +
+
+                    '</div>' +
+                '</div>' +
+            '</div>'
+        );
+
+        /* --- Sayfa açıklamasını başlığın altına taşı ---------------- */
+        $('.page-header .page-excerpt').appendTo('.fit-contact-head');
+
+        /* --- Formu sağ karta taşı ----------------------------------- */
+        $('.form-container.contact-form').appendTo('.fit-contact-item');
+
+        /* --- Etiketleri kaldır, placeholder'ları netleştir ---------- */
+        $('#name').attr('placeholder', 'Adınız Soyadınız');
+        $('#email').attr('placeholder', 'E-Posta Adresiniz');
+        $('#phone').attr('placeholder', 'Telefon Numarası');
+        $('#message').attr('placeholder', 'Mesajınız');
+
+        $('label[for="name"], label[for="email"], label[for="phone"], label[for="message"]')
+            .css('display', 'none');
+    });
+
+})();
+
+
 $(document).ready(function () {
 if(window.location.pathname == '/tr-TR/s/pilates-deneme-dersi'){
 
