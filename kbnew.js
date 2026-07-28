@@ -45,8 +45,7 @@ jQuery(function ($) {
 
     var CFG = {
         // Kartların içinde bulunduğu kapsayıcı
-        listSelector: '.packages, .package-list, .appointment-packages',
-        // Tek bir paket kartı
+        listSelector: '.appointment-packages',
         itemSelector: '.package-item',
         // Kredi sayısının yazdığı alan (bulunamazsa kart metninden regex ile çekilir)
         creditSelector: '.package-credit, .package-meta, .credit-amount',
@@ -115,10 +114,9 @@ jQuery(function ($) {
     'use strict';
 
     var CFG = {
-        // Paket kartı
-        cardSelector: '.package-item, .packages .package-item, [class*="package-item"]',
-        // Açıklama alanı (bulunamazsa otomatik tespit devreye girer)
-        descSelector: '.package-description, .package-item-description, .package-desc, .package-text, .package-content',
+        // Sadece uzman profil sayfasındaki randevu paketleri
+        cardSelector: '.appointment-packages .package-item',
+        descSelector: '.package-item-left > .package-description',
         lines: 4,
         moreText: 'Devamını oku',
         lessText: 'Daha az göster'
@@ -140,37 +138,19 @@ jQuery(function ($) {
              + parseFloat(cs.paddingBottom || 0);
     }
 
-    // Açıklama elementini bul: önce selector, olmazsa en uzun metinli blok
-    function findDesc(card) {
-        var el = card.querySelector(CFG.descSelector);
-        if (el && el.textContent.trim()) return el;
-
-        var best = null, bestLen = 0;
-        card.querySelectorAll('p, div, span').forEach(function (n) {
-            if (n.classList.contains('pkg-desc')) return;
-            if (n.querySelector('a, button, input, img')) return;   // fiyat/buton bloklarını atla
-            if (n.children.length > 2) return;                     // kapsayıcıları atla
-            var len = (n.textContent || '').trim().length;
-            if (len > bestLen && len > 60) { bestLen = len; best = n; }
-        });
-        return best;
-    }
-
     function setup(desc) {
         desc.classList.add('pkg-desc');
 
         var max = clampHeight(desc);
         var isOpen = desc.classList.contains('is-open');
 
-        // Ölçüm için geçici olarak serbest bırak
         desc.style.maxHeight = 'none';
-        var full = desc.scrollHeight;
+        var needsToggle = desc.scrollHeight > max + 2;
 
-        var needsToggle = full > max + 2;
         var btn = desc.nextElementSibling;
         if (!btn || !btn.classList.contains('pkg-desc-toggle')) btn = null;
 
-        if (!needsToggle) {                    // 4 satırı geçmiyorsa dokunma
+        if (!needsToggle) {
             desc.classList.remove('is-clamped', 'is-open');
             desc.style.maxHeight = '';
             if (btn) btn.remove();
@@ -219,7 +199,7 @@ jQuery(function ($) {
         running = true;
         try {
             document.querySelectorAll(CFG.cardSelector).forEach(function (card) {
-                var desc = findDesc(card);
+                var desc = card.querySelector(CFG.descSelector);
                 if (desc) setup(desc);
             });
         } finally {
@@ -228,16 +208,17 @@ jQuery(function ($) {
     }
 
     function init() {
+        // Uzman sayfası değilse hiç çalışmasın
+        if (!document.querySelector('.appointment-packages')) return;
+
         run();
 
-        // Paketler AJAX / sekme ile sonradan gelirse
         var obs = new MutationObserver(function () {
             clearTimeout(init._t);
             init._t = setTimeout(run, 120);
         });
-        obs.observe(document.body, { childList: true, subtree: true });
+        obs.observe(document.querySelector('.appointment-packages'), { childList: true, subtree: true });
 
-        // Genişlik değişince satır sayısı kayar → yeniden ölç
         window.addEventListener('resize', function () {
             clearTimeout(init._r);
             init._r = setTimeout(run, 200);
