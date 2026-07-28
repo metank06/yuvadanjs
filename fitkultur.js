@@ -86,7 +86,7 @@
                                             '<p class="fit-p fit-color-1">Adres</p>' +
                                         '</div>' +
                                         '<div class="fit-contact-tx">' +
-                                            '<p class="fit-p fit-color-3">ADRES BURAYA</p>' +
+                                            '<p class="fit-p fit-color-3">Tecom Plaza, Kavacık, Muhtar Sokak No:5, 34448 Beykoz/İstanbul</p>' +
                                         '</div>' +
                                     '</div>' +
 
