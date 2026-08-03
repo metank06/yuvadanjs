@@ -718,11 +718,11 @@ function onKredi() { return document.body && document.body.classList.contains('k
 var IMG = '/images/202608/';
 var SHOW = 5;
 var POS = [
-{ icon: 'https://kalpbahcem.com/images/202608/974_129x90.png', t: 'purple', badge: 'GİRİŞ PAKETİ',         bonus: 0 },
-{ icon: 'https://kalpbahcem.com/images/202608/975_127x91.png', t: 'blue',   badge: 'POPÜLER',              bonus: 1000 },
-{ icon: 'https://kalpbahcem.com/images/202608/976_142x104.png',   t: 'purple', badge: 'EN ÇOK TERCİH EDİLEN', bonus: 3000, featured: true },
-{ icon: 'https://kalpbahcem.com/images/202608/977_136x92.png',       t: 'orange', badge: 'EN AVANTAJLI',         bonus: 6000 },
-{ icon: 'https://kalpbahcem.com/images/202608/978_140x93.png',   t: 'pink',   badge: 'EN YÜKSEK BONUS',      bonus: 12000 }
+{ icon: '974_129x90.png', t: 'purple', badge: 'GİRİŞ PAKETİ',         bonus: 0 },
+{ icon: '975_127x91.png', t: 'blue',   badge: 'POPÜLER',              bonus: 1000 },
+{ icon: '976_142x104.png',   t: 'purple', badge: 'EN ÇOK TERCİH EDİLEN', bonus: 3000, featured: true },
+{ icon: '977_136x92.png',       t: 'orange', badge: 'EN AVANTAJLI',         bonus: 6000 },
+{ icon: '978_140x93.png',   t: 'pink',   badge: 'EN YÜKSEK BONUS',      bonus: 12000 }
 ];
 function trGroup(n) { return String(Math.round(parseFloat(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
 function injectFonts() {
