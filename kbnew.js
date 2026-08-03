@@ -904,7 +904,7 @@ var SECURE = '<span class="sn-ic"><i class="fas fa-shield-alt"></i></span><div>'
 + '<div class="s2">Kişisel bilgileriniz 256-bit SSL ile korunur.</div></div>';
 function stepHtml(s, n) {
 return '<div class="step"><div class="snum">' + n + '</div>'
-+ '<div class="step-ic"><img src="/images/202607/' + s.ic + '.png" alt=""></div>'
++ '<div class="step-ic"><img src="/images/202608/' + s.ic + '.png" alt=""></div>'
 + '<h4>' + s.h + '</h4><p>' + s.p + '</p></div>';
 }
 function cardHtml(m) {
