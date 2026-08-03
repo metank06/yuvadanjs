@@ -715,14 +715,14 @@ window.addEventListener('load', function () { dec(); extras(); setTimeout(functi
 })();
 (function () {
 function onKredi() { return document.body && document.body.classList.contains('kb-page-kredi-satin-al'); }
-var IMG = '/images/202607/';
+var IMG = '/images/202608/';
 var SHOW = 5;
 var POS = [
-{ icon: '989_129x90', t: 'purple', badge: 'GİRİŞ PAKETİ',         bonus: 0 },
-{ icon: '990_127x91', t: 'blue',   badge: 'POPÜLER',              bonus: 1000 },
-{ icon: '991_142x104',   t: 'purple', badge: 'EN ÇOK TERCİH EDİLEN', bonus: 3000, featured: true },
-{ icon: '992_136x92',       t: 'orange', badge: 'EN AVANTAJLI',         bonus: 6000 },
-{ icon: '993_140x93',   t: 'pink',   badge: 'EN YÜKSEK BONUS',      bonus: 12000 }
+{ icon: 'https://kalpbahcem.com/images/202608/974_129x90.png', t: 'purple', badge: 'GİRİŞ PAKETİ',         bonus: 0 },
+{ icon: 'https://kalpbahcem.com/images/202608/975_127x91.png', t: 'blue',   badge: 'POPÜLER',              bonus: 1000 },
+{ icon: 'https://kalpbahcem.com/images/202608/976_142x104.png',   t: 'purple', badge: 'EN ÇOK TERCİH EDİLEN', bonus: 3000, featured: true },
+{ icon: 'https://kalpbahcem.com/images/202608/977_136x92.png',       t: 'orange', badge: 'EN AVANTAJLI',         bonus: 6000 },
+{ icon: 'https://kalpbahcem.com/images/202608/978_140x93.png',   t: 'pink',   badge: 'EN YÜKSEK BONUS',      bonus: 12000 }
 ];
 function trGroup(n) { return String(Math.round(parseFloat(n) || 0)).replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
 function injectFonts() {
@@ -874,8 +874,8 @@ title: 'Anında Fal Nasıl Çalışır?', sub: 'Sadece 3 adımda anında bağlan
 pill: '<i class="fas fa-star"></i> En çok tercih edilen yöntem',
 steps: [
 STEP_KREDI,
-{ ic: '984', h: 'Falcını Seç', p: 'Online yorumcular arasından sana uygun falcıyı seç.' },
-{ ic: '985', h: 'Hemen Görüş', p: 'Tek tıkla falcını ara, konuşmaya anında başla.' }
+{ ic: '994', h: 'Falcını Seç', p: 'Online yorumcular arasından sana uygun falcıyı seç.' },
+{ ic: '982', h: 'Hemen Görüş', p: 'Tek tıkla falcını ara, konuşmaya anında başla.' }
 ]
 },
 {
@@ -884,8 +884,8 @@ title: 'Yazılı Fal Nasıl Çalışır?', sub: 'Sorunu yaz, yazılı yorumunu a
 pill: '<i class="far fa-clock"></i> Dilediğin an, dilediğin yerden',
 steps: [
 STEP_KREDI,
-{ ic: '984', h: 'Falcını Seç', p: 'Yazılı fal veren yorumcular arasından seç.' },
-{ ic: '985', h: 'Sorunu Yaz', p: 'Merak ettiğini yaz gönder; yorumun yazılı olarak sana ulaşsın.' }
+{ ic: '994', h: 'Falcını Seç', p: 'Yazılı fal veren yorumcular arasından seç.' },
+{ ic: '982', h: 'Sorunu Yaz', p: 'Merak ettiğini yaz gönder; yorumun yazılı olarak sana ulaşsın.' }
 ]
 },
 {
@@ -894,8 +894,8 @@ title: 'Randevulu Fal Nasıl Çalışır?', sub: 'Uygun zamanı seç, planlı g�
 pill: '<i class="far fa-calendar-alt"></i> Sana en uygun gün ve saatte',
 steps: [
 STEP_KREDI,
-{ ic: '984', h: 'Falcını Seç', p: 'Randevu ile çalışan yorumcular arasından seç.' },
-{ ic: '985', h: 'Randevunu Belirle', p: 'Uygun gün ve saati belirle, görüşmeni planla.' }
+{ ic: '994', h: 'Falcını Seç', p: 'Randevu ile çalışan yorumcular arasından seç.' },
+{ ic: '982', h: 'Randevunu Belirle', p: 'Uygun gün ve saati belirle, görüşmeni planla.' }
 ]
 }
 ];
