@@ -1,6 +1,13 @@
 /* ============================================================
-   FİT KÜLTÜR — Loader kontrolü
+   FİT KÜLTÜR — Loader kontrolü  (v2)
    Panel: Özel JS alanına, tags bloklarının DIŞINA (ayrı <script> bloğu)
+
+   v2 değişiklikleri:
+   - Tıklama dinleyicisi capture -> bubble fazına alındı
+   - e.defaultPrevented ile AJAX linkleri otomatik dışlanıyor
+     (get-appointment-v2, phone-call, video-call, write-message,
+      payment-options, toggle-inline-form ... hepsi tek kontrolle)
+   - Perde takılırsa 2.5sn sonra kendini açıyor
    ============================================================ */
 
 (function () {
@@ -9,34 +16,45 @@
     window.__fitLoader = true;
 
     var html = document.documentElement;
+    var stuckTimer = null;
 
-    function hide() { html.classList.add('page-loaded'); }
-    function show() { html.classList.remove('page-loaded'); }
+    function hide() {
+        clearTimeout(stuckTimer);
+        html.classList.add('page-loaded');
+    }
 
-    /* --- 1) Tam yükleme sonrası perdeyi kaldır ---------------------
-       200ms bekleme, ready içindeki enjeksiyonların (appendTo,
-       prepend, mega menü, footer accordion) yerleşmesi için.       */
+    function show() {
+        html.classList.remove('page-loaded');
+        // Navigasyon bir sebeple gerçekleşmezse ekran beyaz kilitlenmesin
+        clearTimeout(stuckTimer);
+        stuckTimer = setTimeout(hide, 2500);
+    }
+
+    /* --- 1) Tam yükleme sonrası perdeyi kaldır -------------------- */
     function afterLoad() { setTimeout(hide, 200); }
 
     if (document.readyState === 'complete') afterLoad();
     else window.addEventListener('load', afterLoad);
 
-    /* Güvenlik ağı: bir görsel takılsa bile 5sn'de aç.
-       (CSS tarafındaki 8sn'lik failsafe bundan da sonra devreye girer) */
-    setTimeout(hide, 5000);
+    setTimeout(hide, 5000);   // ilk yükleme güvenlik ağı
 
 
     /* ============================================================
        2) OPSİYONEL — Sayfa geçişlerinde loader'ı geri göster
-       Yeni sayfa yüklenirken beyaz perde durur, araya giren
-       flicker hiç görünmez. İstemiyorsan bu bloğu sil.
+       İstemiyorsan bu bloğu sil.
        ============================================================ */
 
     document.addEventListener('click', function (e) {
+
+        /* AJAX / modal / toggle handler'ı navigasyonu iptal ettiyse çık.
+           Bubble fazında olduğumuz için element handler'ları bizden önce
+           çalışmış oluyor ve bu kontrol güvenilir. */
+        if (e.defaultPrevented) return;
+
         var a = e.target.closest ? e.target.closest('a') : null;
         if (!a) return;
 
-        // Değiştirici tuşlar / orta tık: yeni sekmede açılır, perde gerekmez
+        // Değiştirici tuşlar / orta tık: yeni sekmede açılır
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
 
         var href = a.getAttribute('href');
@@ -44,10 +62,12 @@
 
         if (a.target === '_blank') return;
         if (a.hasAttribute('download')) return;
-        if (href.charAt(0) === '#') return;                 // sayfa içi bağlantı
+        if (href.charAt(0) === '#') return;                  // sayfa içi bağlantı
         if (/^(mailto:|tel:|javascript:|whatsapp:)/i.test(href)) return;
-        if (a.getAttribute('role') === 'button') return;    // accordion/toggle
-        if (a.closest('.footer-toggle, .accordion, .nav-toggle')) return;
+
+        // Bootstrap 5 tetikleyicileri (bu sayfada bootstrap.bundle yüklü)
+        if (a.hasAttribute('data-bs-toggle')) return;
+        if (a.getAttribute('role') === 'button') return;
 
         // Sadece aynı origin
         var url;
@@ -59,7 +79,7 @@
             url.search === location.search) return;
 
         show();
-    }, true);
+    }, false);   /* <- bubble fazı. capture (true) OLMAMALI. */
 
     /* Geri/ileri tuşu ile cache'ten dönüşte perde açık kalmasın */
     window.addEventListener('pageshow', function (e) {
@@ -67,7 +87,6 @@
     });
 
 })();
-
 /* Misafir kullanıcıda paket kartlarına "Satın Al" butonu bas -> /login'e yönlendir */
 (function () {
   if (window.__fitGuestBuyBtn) return;   // idempotency guard
