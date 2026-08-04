@@ -1,3 +1,73 @@
+/* ============================================================
+   FİT KÜLTÜR — Loader kontrolü
+   Panel: Özel JS alanına, tags bloklarının DIŞINA (ayrı <script> bloğu)
+   ============================================================ */
+
+(function () {
+
+    if (window.__fitLoader) return;
+    window.__fitLoader = true;
+
+    var html = document.documentElement;
+
+    function hide() { html.classList.add('page-loaded'); }
+    function show() { html.classList.remove('page-loaded'); }
+
+    /* --- 1) Tam yükleme sonrası perdeyi kaldır ---------------------
+       200ms bekleme, ready içindeki enjeksiyonların (appendTo,
+       prepend, mega menü, footer accordion) yerleşmesi için.       */
+    function afterLoad() { setTimeout(hide, 200); }
+
+    if (document.readyState === 'complete') afterLoad();
+    else window.addEventListener('load', afterLoad);
+
+    /* Güvenlik ağı: bir görsel takılsa bile 5sn'de aç.
+       (CSS tarafındaki 8sn'lik failsafe bundan da sonra devreye girer) */
+    setTimeout(hide, 5000);
+
+
+    /* ============================================================
+       2) OPSİYONEL — Sayfa geçişlerinde loader'ı geri göster
+       Yeni sayfa yüklenirken beyaz perde durur, araya giren
+       flicker hiç görünmez. İstemiyorsan bu bloğu sil.
+       ============================================================ */
+
+    document.addEventListener('click', function (e) {
+        var a = e.target.closest ? e.target.closest('a') : null;
+        if (!a) return;
+
+        // Değiştirici tuşlar / orta tık: yeni sekmede açılır, perde gerekmez
+        if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;
+
+        var href = a.getAttribute('href');
+        if (!href) return;
+
+        if (a.target === '_blank') return;
+        if (a.hasAttribute('download')) return;
+        if (href.charAt(0) === '#') return;                 // sayfa içi bağlantı
+        if (/^(mailto:|tel:|javascript:|whatsapp:)/i.test(href)) return;
+        if (a.getAttribute('role') === 'button') return;    // accordion/toggle
+        if (a.closest('.footer-toggle, .accordion, .nav-toggle')) return;
+
+        // Sadece aynı origin
+        var url;
+        try { url = new URL(a.href, location.href); } catch (err) { return; }
+        if (url.origin !== location.origin) return;
+
+        // Aynı sayfanın farklı bir kısmına atlıyorsa perde açma
+        if (url.pathname === location.pathname &&
+            url.search === location.search) return;
+
+        show();
+    }, true);
+
+    /* Geri/ileri tuşu ile cache'ten dönüşte perde açık kalmasın */
+    window.addEventListener('pageshow', function (e) {
+        if (e.persisted) hide();
+    });
+
+})();
+
 /* Misafir kullanıcıda paket kartlarına "Satın Al" butonu bas -> /login'e yönlendir */
 (function () {
   if (window.__fitGuestBuyBtn) return;   // idempotency guard
