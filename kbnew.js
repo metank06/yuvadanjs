@@ -1084,6 +1084,48 @@ box.appendChild(a);
 var lock = $('.cc-lock', callCard);
 if (lock) callCard.insertBefore(box, lock); else callCard.appendChild(box);
 }
+function phonePriceText() {
+var tab = document.getElementById('service-phone');
+if (!tab) return null;
+var sp = $('.service-price', tab);
+var txt = sp ? (sp.textContent || '').replace(/\s+/g, ' ').trim() : '';
+if (!txt) {
+var best = null, bestTxt = null;
+$$('.category-price', tab).forEach(function (c) {
+var t = (c.textContent || '').replace(/\s+/g, ' ').trim();
+var m = t.match(/[\d.,]+/);
+if (!m) return;
+var v = parseFloat(m[0].replace(/\./g, '').replace(',', '.'));
+if (isNaN(v)) return;
+if (best === null || v < best) { best = v; bestTxt = t; }
+});
+txt = bestTxt || '';
+}
+return txt || null;
+}
+function buildCallPrice() {
+var callCard = $('.call-card'); if (!callCard) return;
+var txt = phonePriceText();
+var old = $('.cc-price', callCard);
+callCard.classList.toggle('kb-noprice', !txt);
+if (!txt) { if (old) old.remove(); callCard.removeAttribute('data-kb-price'); return; }
+if (callCard.getAttribute('data-kb-price') === txt) return;
+callCard.setAttribute('data-kb-price', txt);
+if (old) old.remove();
+var el = document.createElement('div'); el.className = 'cc-price';
+var m = txt.match(/^([\d.,]+)\s*(.*)$/);
+var val = document.createElement('span'); val.className = 'cc-price-val';
+val.textContent = m ? m[1] : txt;
+el.appendChild(val);
+if (m && m[2]) {
+var unit = document.createElement('span'); unit.className = 'cc-price-unit';
+unit.textContent = ' ' + m[2];
+el.appendChild(unit);
+}
+var h3 = $('h3', callCard);
+if (h3 && h3.nextSibling) callCard.insertBefore(el, h3.nextSibling);
+else callCard.insertBefore(el, callCard.firstChild);
+}
 function decorateOneReview(r) {
 var head = r.querySelector('.review-head');
 if (!head || head.querySelector('.kb-rev-av')) return;
@@ -1159,7 +1201,7 @@ fillFrom(ov._kbReviews);
 });
 }
 function build() {
-if (document.querySelector('.kb-uzman')) { placePackages(); placeMsg(); buildCallButtons(); return; }
+if (document.querySelector('.kb-uzman')) { placePackages(); placeMsg(); buildCallButtons(); buildCallPrice(); return; }
 var top = $('.container.flex.pv.agent-status');
 var left = $('.profile-left');
 var right = $('.profile-right');
@@ -1284,11 +1326,12 @@ t.addEventListener('click', function (e) { e.preventDefault(); showPanel(t.getAt
 });
 showPanel('#kb-pkg', false);
 buildCallButtons();
+buildCallPrice();
 try {
-var obs = new MutationObserver(function () { placePackages(); placeMsg(); buildCallButtons(); });
+var obs = new MutationObserver(function () { placePackages(); placeMsg(); buildCallButtons(); buildCallPrice(); });
 obs.observe(top, { childList: true, subtree: true });
 } catch (e) {}
-[500, 1200, 2500, 4000, 6000].forEach(function (d) { setTimeout(function () { placePackages(); placeMsg(); tidyPkgSections(); buildCallButtons(); }, d); });
+[500, 1200, 2500, 4000, 6000].forEach(function (d) { setTimeout(function () { placePackages(); placeMsg(); tidyPkgSections(); buildCallButtons(); buildCallPrice(); }, d); });
 }
 if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', build);
 else build();
