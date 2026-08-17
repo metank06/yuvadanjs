@@ -288,6 +288,7 @@ return [
 '<li><a href="' + url('/1-1-danismanlik') + '">Danışmanlar</a></li>',
 '<li><a href="' + url('/s/sponsorluk') + '">Sponsorluk</a></li>',
 '<li><a href="' + url('/s/ayricaliklar') + '">Ayrıcalıklar Kulübü</a></li>',
+'<li><a href="' + url('/expert') + '">Uzman Paneli</a></li>',
 '<li><a href="' + url('/s/iletisim') + '">İletişim</a></li>',
 '</ul>',
 '</div>',
