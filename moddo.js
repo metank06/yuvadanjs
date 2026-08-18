@@ -4181,7 +4181,9 @@ if (state.tab === 'firms') loadFirmServices(grid);
 applyFilter(grid, state.q, state.modeRe, state.tab);
 });
 });
-applyFilter(grid, '', null, 'experts');   
+applyFilter(grid, '', null, 'experts');
+var m = (location.search.match(/[?&]mod=([^&]+)/) || [])[1];
+    if (m) { var b = filterNode.querySelector('.kb-u-pill[data-mode="' + m.replace(/[^a-z]/gi, '') + '"]'); if (b) b.click(); }
 filterNode.setAttribute(BUILT, '1');
 }
 var OBS_OPTS = { childList: true, subtree: true };
