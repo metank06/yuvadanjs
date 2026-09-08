@@ -10,7 +10,7 @@ jQuery(function ($) {
   var utm = {
     utm_source: 'fitkulturblog',
     utm_medium: 'internal',
-    utm_campaign: 'blog',
+    utm_campaign: 'blog_uzman',
     utm_content: slug
   };
 
