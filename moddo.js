@@ -147,7 +147,6 @@ return [
 '<a href="' + url(etkinlikler) + '">Canlı Oturumlar</a>',
 '<a href="' + url(danismanlar) + '">1:1 Danışmanlık</a>',
 '<a href="' + url('/s/sponsorluk') + '">Sponsorluk</a>',
-'<a href="' + url('/s/kampanyalar') + '">Kampanyalar</a>',
 '<a href="' + url('/s/iletisim') + '">İletişim</a>',
 '<a href="' + url('/s/danisman-ol') + '" class="md-t1-cta">Danışmanımız Olun</a>',
 '</div>',
@@ -683,7 +682,7 @@ var h = document.createElement('div');
 h.className = 'md-reg-hero';
 h.setAttribute('data-kb-signup', 'hero');
 h.innerHTML =
-"<span class='md-reg-badge'>" + ic(GIFT) + "İlk 2 Ay Ücretsiz</span>" +
+/*"<span class='md-reg-badge'>" + ic(GIFT) + "İlk 2 Ay Ücretsiz</span>" +*/
 "<h1>ModdoDay'e <span>Katıl</span></h1>" +
 "<p>Kurumsal wellbeing ve kişisel deneyim hizmetleriyle yaşam kaliteni yükselt. Kendin için en uygun modu seç, uzmanlarla tanış.</p>";
 return h;
