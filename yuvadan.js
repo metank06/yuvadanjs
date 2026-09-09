@@ -1,4 +1,33 @@
+jQuery(function ($) {
+  var parts = window.location.pathname.split('/').filter(Boolean);
 
+  // Sadece blog DETAY sayfası: path'te "blog" var VE sonrasında bir slug var
+  var blogIdx = parts.indexOf('blog');
+  if (blogIdx === -1 || blogIdx === parts.length - 1) return;
+
+  var slug = parts[blogIdx + 1];  // blog'dan sonraki parça = detay slug'ı
+
+  var utm = {
+    utm_source: 'fitkulturblog',
+    utm_medium: 'internal',
+    utm_campaign: 'blog_uzman',
+    utm_content: slug
+  };
+
+  $('.post-author-name a, .post-author-action a, .post-author-image a').each(function () {
+    var href = $(this).attr('href');
+    if (!href) return;
+
+    var url = new URL(href, window.location.origin);
+    if (url.searchParams.has('utm_source')) return;  // tekrar ekleme
+
+    Object.keys(utm).forEach(function (key) {
+      url.searchParams.set(key, utm[key]);
+    });
+
+    $(this).attr('href', url.pathname + url.search + url.hash);
+  });
+});
 
 $(document).ready(function(){
 
