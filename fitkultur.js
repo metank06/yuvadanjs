@@ -14,7 +14,7 @@ jQuery(function ($) {
     utm_content: slug
   };
 
-  $('.post-author-name a, .post-author-action a').each(function () {
+  $('.post-author-name a, .post-author-action a, .post-author-image a').each(function () {
     var href = $(this).attr('href');
     if (!href) return;
 
