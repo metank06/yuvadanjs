@@ -8,7 +8,7 @@ jQuery(function ($) {
   var slug = parts[blogIdx + 1];  // blog'dan sonraki parça = detay slug'ı
 
   var utm = {
-    utm_source: 'fitkulturblog',
+    utm_source: 'yuvadanblog',
     utm_medium: 'internal',
     utm_campaign: 'blog_uzman',
     utm_content: slug
