@@ -682,7 +682,6 @@ var h = document.createElement('div');
 h.className = 'md-reg-hero';
 h.setAttribute('data-kb-signup', 'hero');
 h.innerHTML =
-/*"<span class='md-reg-badge'>" + ic(GIFT) + "İlk 2 Ay Ücretsiz</span>" +*/
 "<h1>ModdoDay'e <span>Katıl</span></h1>" +
 "<p>Kurumsal wellbeing ve kişisel deneyim hizmetleriyle yaşam kaliteni yükselt. Kendin için en uygun modu seç, uzmanlarla tanış.</p>";
 return h;
@@ -870,12 +869,12 @@ var GRADIENTS = [
 ['#F43F5E', '#EC4899'], ['#22C55E', '#84CC16'], ['#8B5CF6', '#A855F7']
 ];
 var MODES = [
-{ re: /[üu]retken/i,  color: '#F59E0B' },
-{ re: /teknoloji/i,   color: '#3B82F6' },
-{ re: /keyif/i,       color: '#F43F5E' },
-{ re: /sa[ğg]l[ıi]k/i, color: '#10B981' },
-{ re: /longevity/i,   color: '#22C55E' },
-{ re: /aile/i,        color: '#8B5CF6' }
+{ re: /[üu]retken/i,  color: '#F59E0B', media: '#fbbf24' },
+{ re: /teknoloji/i,   color: '#3B82F6', media: '#60a5fa' },
+{ re: /keyif/i,       color: '#F43F5E', media: '#fb7185' },
+{ re: /sa[ğg]l[ıi]k/i, color: '#10B981', media: '#34d399' },
+{ re: /longevity/i,   color: '#22C55E', media: '#4ade80' },
+{ re: /aile/i,        color: '#8B5CF6', media: '#a78bfa' }
 ];
 function matchMode(text) {
 for (var i = 0; i < MODES.length; i++) if (MODES[i].re.test(text)) return MODES[i];
@@ -919,6 +918,38 @@ img.addEventListener('error', function () { wrap.classList.remove('kb-has-photo'
 wrap.classList.remove('kb-has-photo');
 }
 }
+function isUzmanlarPage() {
+if (document.body && document.body.classList.contains('kb-page-uzmanlar')) return true;
+return location.pathname.replace(/^\/[a-z]{2}-[A-Z]{2}(?=\/)/, '').replace(/\/+$/, '') === '/1-1-danismanlik';
+}
+function modeShort(label) { return String(label || '').replace(/\s*\([^)]*\)\s*/g, ' ').replace(/\s+/g, ' ').trim(); }
+function buildMedia(tile, src, mode) {
+var media = document.createElement('div');
+media.className = 'kb-media';
+var c = (mode && mode.media) || '#fbbf24';
+media.style.setProperty('--kb-media-c', c);
+if (src) {
+var glow = document.createElement('img');
+glow.className = 'kb-media-glow';
+glow.src = src; glow.alt = ''; glow.setAttribute('aria-hidden', 'true');
+media.appendChild(glow);
+media.classList.add('kb-media-has-glow');
+}
+var shade = document.createElement('div');
+shade.className = 'kb-media-shade';
+media.appendChild(shade);
+media.appendChild(tile);
+if (mode) {
+var badge = document.createElement('span');
+badge.className = 'kb-media-badge';
+badge.style.color = c;
+badge.style.borderColor = c + '59';                 
+badge.innerHTML = '<span class="kb-media-dot" aria-hidden="true"></span>';
+badge.appendChild(document.createTextNode(modeShort(mode.label)));
+media.appendChild(badge);
+}
+return media;
+}
 function isFirmBtn(b) {
 var a = b.querySelector('a'); var href = a ? (a.getAttribute('href') || '') : '';
 return /mod-elcisi-firma/.test(href) || /mod\s*el[çc]isi/i.test(b.textContent || '');
@@ -932,7 +963,7 @@ return (b.textContent || '').trim() && !isFirmBtn(b);
 var pickLabel = function (el) {
 var label = (el.textContent || '').trim();
 var m = matchMode(label);
-return label ? { label: label, color: m ? m.color : '#F59E0B' } : null;
+return label ? { label: label, color: m ? m.color : '#F59E0B', media: m ? m.media : '#fbbf24' } : null;
 };
 if (btns.length === 0) {                 
 if (first.parentNode) first.parentNode.removeChild(first);
@@ -979,31 +1010,22 @@ stats.appendChild(ses); has = true;
 return has ? stats : null;
 }
 function buildFirmCard(c, item, name, imgWrap, mode) {
-var color = (mode && mode.color) || '#F59E0B';
-var logo = document.createElement('div');
-logo.className = 'kb-firm-logo';
-logo.style.background = 'linear-gradient(135deg, ' + color + '26, ' + color + '0d)';
 var img = imgWrap ? imgWrap.querySelector('img') : null;
+var tile, link = null, src = '';
 if (imgWrap && hasRealPhoto(img)) {
 imgWrap.classList.add('kb-firm-logo-img');
-logo.appendChild(imgWrap);                 
+tile = imgWrap;                            
+src = img.getAttribute('src');
 } else {
-var mono = document.createElement('span');
-mono.className = 'kb-firm-mono';
-mono.textContent = initialsOf(name);
-mono.style.color = color;
-logo.appendChild(mono);                    
+tile = document.createElement('span');
+tile.className = 'kb-firm-mono';
+tile.textContent = initialsOf(name);       
 var a = imgWrap ? imgWrap.querySelector('a') : null;
-if (a) { a.className = 'kb-firm-link'; a.innerHTML = ''; logo.appendChild(a); } 
+if (a) { a.className = 'kb-firm-link'; a.innerHTML = ''; link = a; } 
 }
-if (mode) {
-var badge = document.createElement('span');
-badge.className = 'kb-firm-modebadge';
-badge.textContent = mode.label;
-badge.style.color = color;
-badge.style.backgroundColor = color + '26';
-logo.appendChild(badge);
-}
+var logo = buildMedia(tile, src, mode);
+logo.classList.add('kb-firm-logo');
+if (link) logo.appendChild(link);
 var verified = document.createElement('span');
 verified.className = 'kb-firm-verified';
 verified.textContent = 'Doğrulanmış';
@@ -1048,11 +1070,12 @@ if (ebtns[ei].parentNode) ebtns[ei].parentNode.removeChild(ebtns[ei]);
 if (eblk && !eblk.querySelector('.pcategory-btn') && eblk.parentNode) eblk.parentNode.removeChild(eblk);
 }
 }
+var ambient = isUzmanlarPage() && !!imgWrap;
 var head = document.createElement('div');
 head.className = 'kb-head';
 var col = document.createElement('div');
 col.className = 'kb-headcol';
-if (mode) {
+if (mode && !ambient) {
 var pill = document.createElement('span');
 pill.className = 'kb-mode-tag';
 pill.textContent = mode.label;
@@ -1061,12 +1084,22 @@ pill.style.backgroundColor = mode.color + '22';
 pill.style.borderColor = mode.color + '59';        
 col.appendChild(pill);
 }
-if (imgWrap) head.appendChild(imgWrap);             
+if (imgWrap && !ambient) head.appendChild(imgWrap); 
 col.appendChild(title);                              
 if (unvan) col.appendChild(unvan);                   
 head.appendChild(col);
 c.appendChild(head);                                 
 buildAvatar(imgWrap, name);
+if (ambient) {
+var pimg = imgWrap.querySelector('img');
+var media = buildMedia(imgWrap, hasRealPhoto(pimg) ? pimg.getAttribute('src') : '', mode);
+c.insertBefore(media, c.firstChild);
+c.classList.add('kb-card-ambient');
+if (pimg) pimg.addEventListener('error', function () {
+var g = media.querySelector('.kb-media-glow'); if (g) g.parentNode.removeChild(g);
+media.classList.remove('kb-media-has-glow');
+});
+}
 var foot = document.createElement('div');
 foot.className = 'kb-foot';
 var stars = c.querySelector('.profile-review-stars');
@@ -4180,9 +4213,9 @@ if (state.tab === 'firms') loadFirmServices(grid);
 applyFilter(grid, state.q, state.modeRe, state.tab);
 });
 });
-applyFilter(grid, '', null, 'experts');
+applyFilter(grid, '', null, 'experts');   
 var m = (location.search.match(/[?&]mod=([^&]+)/) || [])[1];
-    if (m) { var b = filterNode.querySelector('.kb-u-pill[data-mode="' + m.replace(/[^a-z]/gi, '') + '"]'); if (b) b.click(); }
+if (m) { var b = filterNode.querySelector('.kb-u-pill[data-mode="' + m.replace(/[^a-z]/gi, '') + '"]'); if (b) b.click(); }
 filterNode.setAttribute(BUILT, '1');
 }
 var OBS_OPTS = { childList: true, subtree: true };
