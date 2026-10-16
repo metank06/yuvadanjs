@@ -940,19 +940,42 @@ shade.className = 'kb-media-shade';
 media.appendChild(shade);
 media.appendChild(tile);
 if (mode) {
+var wrap = document.createElement('div');
+wrap.className = 'kb-media-badges';
+[mode].concat(mode.extras || []).forEach(function (m, bi) {
+var bc = bi === 0 ? c : (m.media || c);
 var badge = document.createElement('span');
 badge.className = 'kb-media-badge';
-badge.style.color = c;
-badge.style.borderColor = c + '59';                 
+badge.style.color = bc;
+badge.style.borderColor = bc + '59';                 
 badge.innerHTML = '<span class="kb-media-dot" aria-hidden="true"></span>';
-badge.appendChild(document.createTextNode(modeShort(mode.label)));
-media.appendChild(badge);
+badge.appendChild(document.createTextNode(modeShort(m.label)));
+wrap.appendChild(badge);
+});
+media.appendChild(wrap);
 }
 return media;
 }
 function isFirmBtn(b) {
 var a = b.querySelector('a'); var href = a ? (a.getAttribute('href') || '') : '';
 return /mod-elcisi-firma/.test(href) || /mod\s*el[çc]isi/i.test(b.textContent || '');
+}
+var MAX_MODES = 3;   
+function collectExtraModes(c, mode) {
+if (!mode) return;
+mode.extras = mode.extras || [];
+var used = {}; used[mode.color] = 1;
+mode.extras.forEach(function (m) { used[m.color] = 1; });
+var btns = [].slice.call(c.querySelectorAll('.profile-categories .pcategory-btn'));
+for (var i = 0; i < btns.length && mode.extras.length < MAX_MODES - 1; i++) {
+var b = btns[i]; var label = (b.textContent || '').trim();
+if (!label || isFirmBtn(b)) continue;
+var m = matchMode(label);
+if (!m || used[m.color]) continue;
+used[m.color] = 1;
+mode.extras.push({ label: label, color: m.color, media: m.media });
+if (b.parentNode) b.parentNode.removeChild(b);
+}
 }
 function extractMode(c) {
 var first = c.querySelector('.profile-categories');
@@ -973,11 +996,13 @@ if (btns.length === 1) {
 if (first.parentNode) first.parentNode.removeChild(first);
 return pickLabel(btns[0]);
 }
-var pick = null;
-for (var i = 0; i < btns.length; i++) { if (matchMode((btns[i].textContent || '').trim())) { pick = btns[i]; break; } }
-if (!pick) pick = btns[0];
-var res = pickLabel(pick);
-if (pick.parentNode) pick.parentNode.removeChild(pick);   
+var picks = [];
+for (var i = 0; i < btns.length && picks.length < MAX_MODES; i++) { if (matchMode((btns[i].textContent || '').trim())) picks.push(btns[i]); }
+if (!picks.length) picks.push(btns[0]);
+var res = pickLabel(picks[0]);
+res.extras = [];
+for (var k = 1; k < picks.length; k++) { var ex = pickLabel(picks[k]); if (ex) res.extras.push(ex); }
+picks.forEach(function (pk) { if (pk.parentNode) pk.parentNode.removeChild(pk); });   
 return res;
 }
 function buildFirmStats(c) {
@@ -1040,6 +1065,7 @@ var stats = buildFirmStats(c);
 if (stats) info.appendChild(stats);
 var modeTexts = [];
 if (mode && mode.label) modeTexts.push(mode.label);
+if (mode && mode.extras) mode.extras.forEach(function (m) { modeTexts.push(m.label); });
 [].slice.call(c.querySelectorAll('.profile-categories .pcategory-btn')).forEach(function (b) {
 var tx = (b.textContent || '').trim();
 if (tx && !isFirmBtn(b)) modeTexts.push(tx);
@@ -1062,6 +1088,7 @@ var isFirm = [].some.call(c.querySelectorAll('.profile-categories .pcategory-btn
 if (isFirm) { item.classList.add('kb-firm'); item.setAttribute('data-kb-firm', '1'); }
 var mode = extractMode(c);
 if (isFirm) { buildFirmCard(c, item, name, imgWrap, mode); c.setAttribute(DONE, '1'); return; }
+collectExtraModes(c, mode);
 var ebtns = c.querySelectorAll('.profile-categories .pcategory-btn');
 for (var ei = 0; ei < ebtns.length; ei++) {
 if (!(ebtns[ei].textContent || '').trim()) {
@@ -1076,13 +1103,15 @@ head.className = 'kb-head';
 var col = document.createElement('div');
 col.className = 'kb-headcol';
 if (mode && !ambient) {
+[mode].concat(mode.extras || []).forEach(function (m) {
 var pill = document.createElement('span');
 pill.className = 'kb-mode-tag';
-pill.textContent = mode.label;
-pill.style.color = mode.color;
-pill.style.backgroundColor = mode.color + '22';   
-pill.style.borderColor = mode.color + '59';        
+pill.textContent = m.label;
+pill.style.color = m.color;
+pill.style.backgroundColor = m.color + '22';   
+pill.style.borderColor = m.color + '59';        
 col.appendChild(pill);
+});
 }
 if (imgWrap && !ambient) head.appendChild(imgWrap); 
 col.appendChild(title);                              
