@@ -29,6 +29,36 @@ jQuery(function ($) {
   });
 });
 
+$(function () {
+    var OLD_TEXT = /Şimdi Rezervasyon Yapın/i;
+    var NEW_TEXT = 'Randevu Al';
+
+    function replaceCtaText(context) {
+        $(context || document).find('.av2-card-cta').each(function () {
+            var $el = $(this);
+            if (OLD_TEXT.test($el.text())) {
+                $el.text(NEW_TEXT);
+            }
+        });
+    }
+
+    // 1) İlk yüklemedeki kartlar
+    replaceCtaText();
+
+    // 2) jQuery AJAX ile pagination/filtre sonrası gelen kartlar
+    $(document).ajaxComplete(function () {
+        replaceCtaText();
+    });
+
+    // 3) fetch() veya başka bir yöntemle DOM'a eklenen kartlar için garanti
+    var grid = document.querySelector('.av2-main') || document.body;
+    var timer;
+    new MutationObserver(function () {
+        clearTimeout(timer);
+        timer = setTimeout(replaceCtaText, 50); // debounce
+    }).observe(grid, { childList: true, subtree: true });
+});
+
 $(document).ready(function(){
 
 $('.users-wrapper').prepend('<div class="yuva-singup-wp"><div class="yuva-signup-con"><div class="yuva-signup-item"><div class="yuva-signup-items"><div class="yuva-signup-img"><img src="/images/202509/504_890x773.jpg" alt=""></div></div><div class="yuva-signup-items"><div class="yuva-singup-cont"></div></div></div></div></div>');
