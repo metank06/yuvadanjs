@@ -454,7 +454,8 @@ let htmlContent = `
         <h2 class="resulth2" style="font-size: 90px; margin: 0; line-height: 90px; color: #4f0554;">%
             ${yagYuzdesi.toFixed(2)}
         </h2>
-        <span>%15 ve altı ideal kabul edilir.</span>
+        <span>Kadınlarda: %20-%25 arası ideal kabul edilir.</span>
+		<span>Erkeklerde: %15-%20 arası ideal kabul edilir.</span>
         <a href="/uzmanlar" class="hy-gym-btn">Eğitmenle Planını Oluştur</a>
     `;
     
