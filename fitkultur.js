@@ -120,6 +120,67 @@ jQuery(function ($) {
     });
 
 })();
+
+(function () {
+  var AY = ['Ocak','Şubat','Mart','Nisan','Mayıs','Haziran','Temmuz','Ağustos','Eylül','Ekim','Kasım','Aralık'];
+  var SEL = '#user-reviews .review, #reviewsModal .review';
+
+  // "2026-10-04 09:59:07" → "4 Ekim 2026"
+  function formatDate(el) {
+    var m = el.textContent.trim().match(/^(\d{4})-(\d{2})-(\d{2})/);
+    if (m) el.textContent = (+m[3]) + ' ' + AY[+m[2] - 1] + ' ' + m[1];
+  }
+
+  // Görünür kartta metin 5 satırı aşıyor mu?
+  function check(card) {
+    var text = card.querySelector('.review-comment');
+    var btn  = card.querySelector('.review-more');
+    if (!text || !btn || card.classList.contains('is-expanded') || !text.offsetParent) return;
+    btn.hidden = text.scrollHeight <= text.clientHeight + 2;
+  }
+
+  function setup(card) {
+    if (card.dataset.clampReady) return;
+    var text = card.querySelector('.review-comment');
+    if (!text) return;
+    card.dataset.clampReady = '1';
+
+    var date = card.querySelector('.review-date');
+    if (date) formatDate(date);
+
+    var btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'review-more';
+    btn.textContent = 'Devamını oku';
+    btn.hidden = true;
+    btn.setAttribute('aria-expanded', 'false');
+    btn.addEventListener('click', function () {
+      var open = card.classList.toggle('is-expanded');
+      btn.textContent = open ? 'Daha az göster' : 'Devamını oku';
+      btn.setAttribute('aria-expanded', open);
+    });
+    text.insertAdjacentElement('afterend', btn);
+  }
+
+  var pending = false;
+  function run() {
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(function () {
+      pending = false;
+      document.querySelectorAll(SEL).forEach(function (c) { setup(c); check(c); });
+    });
+  }
+
+  run();
+  // Modal açılınca / yorumlar AJAX ile gelince yeniden çalış
+  new MutationObserver(run).observe(document.body, {
+    childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style']
+  });
+  window.addEventListener('resize', run);
+  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+})();
+
 /* Misafir kullanıcıda paket kartlarına "Satın Al" butonu bas -> /login'e yönlendir */
 (function () {
   if (window.__fitGuestBuyBtn) return;   // idempotency guard
