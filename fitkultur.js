@@ -820,11 +820,21 @@ $(document).ready(function () {
     });
   }
 
-  run();
-  // Modal açılınca / yorumlar AJAX ile gelince yeniden çalış
-  new MutationObserver(run).observe(document.body, {
-    childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style']
-  });
-  window.addEventListener('resize', run);
-  if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+  function init() {
+    run();
+    // Modal açılınca / yorumlar AJAX ile gelince yeniden çalış
+    new MutationObserver(run).observe(document.body, {
+      childList: true, subtree: true, attributes: true, attributeFilter: ['class', 'style']
+    });
+    window.addEventListener('resize', run);
+    window.addEventListener('load', run);
+    if (document.fonts && document.fonts.ready) document.fonts.ready.then(run);
+  }
+
+  // Dosya <head> içinde yüklense bile sayfa hazır olunca başla
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
 })();
